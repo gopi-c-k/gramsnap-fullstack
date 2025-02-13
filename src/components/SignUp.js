@@ -14,6 +14,7 @@ function SignUp({ info }) {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [otp, setOTP] = useState("");
+    const [userId, setUserId] = useState("");
 
     // State for OTP functionality
     const [timer, setTimer] = useState(30); // Timer for resend OTP countdown
@@ -82,7 +83,7 @@ function SignUp({ info }) {
 
             sendOTP();
         } else {
-            axios.post("http://localhost:5000/signup", { name, email, password, otp })
+            axios.post("http://localhost:5000/signup", { name, email, password, otp, userId })
                 .then(response => {
                     if (response.status === 201) {  // ✅ 201 means "Created"
                         setSnackbarMessage("Account created successfully!");
@@ -176,18 +177,19 @@ function SignUp({ info }) {
                         }}
                     >
                         <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold" }}>
-                            Welcome to the Blogging Platform!
+                            Welcome to GramSnap!
                         </Typography>
                         <Typography sx={{ maxWidth: "80%", mb: 3 }}>
-                            Create an account to unlock all the exciting features of our platform.
+                            Connect, share, and explore moments with friends and the world. Sign up now to start your journey!
                         </Typography>
 
                         <Typography variant="h6" sx={{ mt: 3, fontWeight: "bold" }}>
-                            Already have an account?
+                            Already part of GramSnap?
                         </Typography>
                         <Typography sx={{ maxWidth: "80%", mb: 3 }}>
-                            Let's go! Click the button below.
+                            Jump back in! Click the button below to log in and continue sharing your story.
                         </Typography>
+
 
                         <Button
                             variant="contained"
@@ -249,6 +251,17 @@ function SignUp({ info }) {
                                 >
                                     {isResendEnabled ? "Resend OTP" : `Resend OTP in ${timer}s`}
                                 </Link>
+                                <TextField
+                                    id="userid"
+                                    label="User Id"
+                                    placeholder="Enter User ID"
+                                    variant="outlined"
+                                    fullWidth
+                                    sx={{ mb: 2 }}
+                                    value={userId}
+                                    onChange={(e) => setUserId(e.target.value)}
+                                    required
+                                />
                             </>
                         ) : (
                             <>

@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { Container, Box, Typography, TextField, Button, Link } from "@mui/material";
-import GoogleIcon from "@mui/icons-material/Google";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import FacebookIcon from "@mui/icons-material/Facebook";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // For navigation
 
@@ -51,10 +48,10 @@ function SignIn({ info }) {
     setErrorMessage("");
     const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*\.\w{2,3}$/;
 
-    if (!emailPattern.test(email)) {
-      setErrorMessage("Enter Proper Email");
-      return;
-    }
+    // if (!emailPattern.test(email)) {
+    //   setErrorMessage("Enter Proper Email");
+    //   return;
+    // }
     if (email && password) {
       try {
         const response = await axios.post("http://localhost:5000/login", { email, password }, { withCredentials: true });
@@ -133,8 +130,8 @@ function SignIn({ info }) {
             )}
             <TextField
               id="email"
-              label="Email"
-              placeholder="Enter Your Email"
+              label="Email or UserId"
+              placeholder="Enter Your Email or UserId"
               variant="outlined"
               fullWidth
               onChange={(e) => setEmail(e.target.value)}
@@ -196,18 +193,19 @@ function SignIn({ info }) {
           >
 
             <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold" }}>
-              Welcome Back!
+              Welcome Back to GramSnap!
             </Typography>
             <Typography sx={{ maxWidth: "80%", mb: 3 }}>
-              Sign in to access your dashboard and explore exciting features.
+              Sign in to reconnect, share your moments, and explore trending stories.
             </Typography>
 
             <Typography variant="h6" sx={{ mt: 3, fontWeight: "bold" }}>
-              New Here?
+              New to GramSnap?
             </Typography>
             <Typography sx={{ maxWidth: "80%", mb: 3 }}>
-              Create an account and start your journey today.
+              Join us today and start sharing your best moments with the world!
             </Typography>
+
 
             <Button
               variant="contained"
@@ -228,6 +226,6 @@ function SignIn({ info }) {
     </ThemeProvider>
   );
 }
-  
+
 
 export default SignIn;
