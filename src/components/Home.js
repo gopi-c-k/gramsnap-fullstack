@@ -35,13 +35,13 @@ const Home = ({ info }) => {
     };
 
     const menuItems = [
-        { name: "Home", icon: <HomeIcon /> },
-        { name: "Search", icon: <SearchIcon /> },
-        { name: "Add Post", icon: <PostAddIcon /> },
-        { name: "Chats", icon: <MessageIcon /> },
-        { name: "Profile", icon: <AccountCircleIcon /> },
-        { name: "Settings", icon: <SettingsIcon /> },
-        { name: "Log Out", icon: <LogoutIcon />, isLogout: true },
+        { name: "Home", icon: <HomeIcon />, route: "/home" },
+        { name: "Search", icon: <SearchIcon />, route: "/search" },
+        { name: "Add Post", icon: <PostAddIcon />, route: "/addpost" },
+        { name: "Chats", icon: <MessageIcon />, route: "/message" },
+        { name: "Profile", icon: <AccountCircleIcon />, route: "/profile" },
+        { name: "Settings", icon: <SettingsIcon />, route: "/settings" },
+        { name: "Log Out", icon: <LogoutIcon />, route: "/home",isLogout: true },
     ];
     const stories = [
         { username: "user1", img: "https://via.placeholder.com/100" },
@@ -156,7 +156,7 @@ const Home = ({ info }) => {
                         <img src={`${process.env.PUBLIC_URL}/assets/Images/Logo.png`} alt="Logo" style={{ width: "80%", maxWidth: "150px" }} />
                     </Box>
                     {menuItems.map((item) => (
-                        <Box key={item.name} onClick={() => setSelected(item.name)}
+                        <Box key={item.name} onClick={() => {setSelected(item.name);navigate(item.route);}}
                             sx={{
                                 display: "flex", alignItems: "center", gap: 2, padding: "10px",
                                 borderRadius: "8px", cursor: "pointer", transition: "background 0.3s",
@@ -164,7 +164,9 @@ const Home = ({ info }) => {
                                 color: selected === item.name ? "#fff" : "#f",
                                 '&:hover': { backgroundColor: "#e0e0e0" },
                                 marginTop: item.isLogout ? "auto" : ""
-                            }}>
+                            }}
+                             
+                            >
                             {item.icon}
                             <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: "bold" }}>{item.name}</Typography>
                         </Box>
@@ -486,7 +488,7 @@ const Home = ({ info }) => {
                         borderTop: "1px solid #ddd"
                     }}>
                         {menuItems.slice(0, 5).map((item) => (
-                            <Box key={item.name} onClick={() => setSelected(item.name)}
+                            <Box key={item.name} onClick={() => { setSelected(item.name); navigate(item.route); }}
                                 sx={{
                                     display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer",
                                     color: selected === item.name ? "#7b6cc2" : prefersDarkMode ? "ffff" : "000"
