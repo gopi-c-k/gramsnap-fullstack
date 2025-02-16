@@ -28,7 +28,15 @@ function SignIn({ info }) {
     try {
       const response = await axios.get('http://localhost:5000/protected', { withCredentials: true });
       if (response.status === 200) {
-        navigate("/home"); // Redirect to dashboard after login
+        const { userId, name, email, profilePicture } = response.data; // Extract user data
+
+        // Store in local storage for persistence
+        localStorage.setItem("user", JSON.stringify({ userId, name, email, profilePicture }));
+
+        // Set user state
+        setUser({ userId, name, email, profilePicture })
+        navigate("/home");
+        // Redirect to dashboard after login
         //fetchProtectedData();
       }
       console.log('Protected data:', response.data);
@@ -41,6 +49,7 @@ function SignIn({ info }) {
   // Handle logout
   const handleLogout = async () => {
     await axios.post('/api/users/logout', {}, { withCredentials: true });
+    localStorage.removeItem("user");
     setUser(null);
   };
   const handleSubmit = async (e) => {
@@ -57,8 +66,15 @@ function SignIn({ info }) {
         const response = await axios.post("http://localhost:5000/login", { email, password }, { withCredentials: true });
         //fetchProtectedData();
         if (response.status === 200) {
+          const { userId, name, email, profilePicture } = response.data; // Extract user data
+
+          // Store in local storage for persistence
+          localStorage.setItem("user", JSON.stringify({ userId, name, email, profilePicture }));
+
+          // Set user state
+          setUser({ userId, name, email, profilePicture })
           navigate("/home");
-          //fetchProtectedData();
+          
         }
       } catch (error) {
         if (error.response) {

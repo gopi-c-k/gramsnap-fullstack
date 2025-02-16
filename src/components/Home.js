@@ -24,7 +24,7 @@ const Home = ({ info }) => {
     const [selected, setSelected] = useState("Home");
     const muiTheme = useTheme();
     const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
-  //  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
+    //  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
     const [comments, setComments] = useState([]);
     const [commentText, setCommentText] = useState("");
     const handleCommentSubmit = () => {
@@ -41,7 +41,7 @@ const Home = ({ info }) => {
         { name: "Chats", icon: <MessageIcon />, route: "/message" },
         { name: "Profile", icon: <AccountCircleIcon />, route: "/profile" },
         { name: "Settings", icon: <SettingsIcon />, route: "/settings" },
-        { name: "Log Out", icon: <LogoutIcon />, route: "/home",isLogout: true },
+        { name: "Log Out", icon: <LogoutIcon />, route: "/home", isLogout: true },
     ];
     const stories = [
         { username: "user1", img: "https://via.placeholder.com/100" },
@@ -125,6 +125,7 @@ const Home = ({ info }) => {
     ];
 
     const parentRef = useRef(null);
+    const [user, setUser] = useState(null);
     const [parentWidth, setParentWidth] = useState(0);
 
     useEffect(() => {
@@ -140,6 +141,13 @@ const Home = ({ info }) => {
 
         return () => observer.disconnect();
     }, [])
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+    }, []);
+
     return (
         <Box sx={{ display: "flex", flexDirection: "row", width: "100%", height: "100vh" }}>
             {/* Sidebar for Desktop */}
@@ -156,7 +164,7 @@ const Home = ({ info }) => {
                         <img src={`${process.env.PUBLIC_URL}/assets/Images/Logo.png`} alt="Logo" style={{ width: "80%", maxWidth: "150px" }} />
                     </Box>
                     {menuItems.map((item) => (
-                        <Box key={item.name} onClick={() => {setSelected(item.name);navigate(item.route);}}
+                        <Box key={item.name} onClick={() => { setSelected(item.name); navigate(item.route); }}
                             sx={{
                                 display: "flex", alignItems: "center", gap: 2, padding: "10px",
                                 borderRadius: "8px", cursor: "pointer", transition: "background 0.3s",
@@ -165,8 +173,8 @@ const Home = ({ info }) => {
                                 '&:hover': { backgroundColor: "#e0e0e0" },
                                 marginTop: item.isLogout ? "auto" : ""
                             }}
-                             
-                            >
+
+                        >
                             {item.icon}
                             <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: "bold" }}>{item.name}</Typography>
                         </Box>
