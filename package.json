@@ -9,7 +9,9 @@
     "@mui/material": "^6.4.4",
     "axios": "^1.7.9",
     "cra-template": "1.2.0",
+    "cropperjs": "^1.6.2",
     "react": "^19.0.0",
+    "react-cropper": "^2.3.3",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.5",
     "react-scripts": "5.0.1"

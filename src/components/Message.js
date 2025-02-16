@@ -63,7 +63,7 @@ export const Message = ({ info }) => {
                         ))}
                     </Box>
                 )}
-                {/* Main Content */}
+                {/* Main Content To add mesage list  */}
                 <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "row" }}></Box>
                 {/* Bottom Navbar for Mobile/Tablets/Laptops */}
                 {!isDesktop && (

@@ -262,7 +262,7 @@ const Home = ({ info }) => {
                             gap: isDesktop ? 2 : 1
                         }}>
                             {posts.map((posts, index) => (
-                                <Box sx={{
+                                <Box key={index} sx={{
                                     minHeight: isDesktop ? `${parentWidth * 0.8}px` : `${parentWidth * 0.9}px`,
                                     width: isDesktop ? `${parentWidth * 0.8}px` : `${parentWidth * 0.9}px`,
                                     borderRadius: "2%",
