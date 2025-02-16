@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useMediaQuery, useTheme } from "@mui/material";
-import { Box, Typography, Avatar, Divider, Button, List, ListItem, ListItemAvatar, ListItemText, TextField } from "@mui/material";
+import { Box, Typography, Avatar, Divider, Button, List, ListItem, ListItemAvatar, ListItemText, TextField, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import HomeIcon from '@mui/icons-material/Home';
 import SearchIcon from '@mui/icons-material/Search';
@@ -9,6 +9,9 @@ import MessageIcon from '@mui/icons-material/Message';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ChatIcon from '@mui/icons-material/Chat';
 
 
 const Profile = ({ info }) => {
@@ -18,6 +21,11 @@ const Profile = ({ info }) => {
     const muiTheme = useTheme();
     const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
     //  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
+    const [following, setFollowing] = useState(false);
+
+    const handleFollow = () => {
+        setFollowing(!following);
+    };
 
     // Menu Items
     const menuItems = [
@@ -64,7 +72,135 @@ const Profile = ({ info }) => {
                     </Box>
                 )}
                 {/* Main Content */}
-                <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "row" }}></Box>
+                <Box
+                    sx={{
+                        flexGrow: 1,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexDirection: 'column',
+                        padding: 4,
+                        height: "100vh",
+
+                    }}
+                >
+                    {/* Profile Picture */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            marginBottom: 2,
+                            minWidth: 160, // Ensure the container is slightly larger than the avatar
+                            minHeight: 160,
+                        }}
+                    >
+                        <Avatar
+                            alt="User Profile"
+                            src="https://via.placeholder.com/150"
+                            sx={{
+                                width: 150,
+                                height: 150,
+                                borderRadius: '50%',
+                                objectFit: "cover",
+                                border: "3px solid white"
+                            }}
+                        />
+                    </Box>
+
+                    {/* User ID and Name */}
+                    <Box sx={{ textAlign: 'center', marginBottom: 2 }}>
+                        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                            John Doe
+                        </Typography>
+                        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                            @johndoe
+                        </Typography>
+                    </Box>
+
+                    {/* Bio */}
+                    <Box sx={{ textAlign: 'center', marginBottom: 4 }}>
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nisl eros, pulvinar facilisis justo mollis.
+                        </Typography>
+                    </Box>
+
+                    {/* Followers, Following, Posts */}
+                    <Box sx={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+                        <Box sx={{ textAlign: 'center' }}>
+                            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                150
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                Posts
+                            </Typography>
+                        </Box>
+                        <Box sx={{ textAlign: 'center' }}>
+                            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                1.2k
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                Followers
+                            </Typography>
+                        </Box>
+                        <Box sx={{ textAlign: 'center' }}>
+                            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                500
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                Following
+                            </Typography>
+                        </Box>
+                    </Box>
+                    {/* Follow & Message Buttons */}
+                    <Box sx={{ display: 'flex', gap: 2, marginBottom: 4 }}>
+                        <Button
+                            variant={following ? "contained" : "outlined"}
+                            color="primary"
+                            onClick={handleFollow}
+                            sx={{ width: 130 }}
+                            startIcon={following ? <CheckCircleIcon /> : <PersonAddIcon />}
+                        >
+                            {following ? "Unfollow" : "Follow"}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            
+                            sx={{ width: 130, backgroundColor:"#7b6cc2" }}
+                            startIcon={<ChatIcon />}
+                        >
+                            Message
+                        </Button>
+                    </Box>
+
+                    {/* Posts Grid (Placeholder) */}
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gap: 2,
+                            width: '100%',
+                            maxWidth: 600,
+                            overflowY: "auto", // Allow scrolling if needed
+                            scrollbarWidth: "none",
+                            "&::-webkit-scrollbar": { display: "none" },
+                        }}
+                    >
+                        {[...Array(100)].map((_, index) => (
+                            <Box
+                                key={index}
+                                sx={{
+                                    width: '100%',
+                                    paddingTop: '100%', // Makes the box square
+                                    backgroundColor: 'grey.300',
+                                    borderRadius: 2,
+                                }}
+                            />
+                        ))}
+                    </Box>
+
+                </Box>
+
                 {/* Bottom Navbar for Mobile/Tablets/Laptops */}
                 {!isDesktop && (
                     <>
