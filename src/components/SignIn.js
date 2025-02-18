@@ -26,25 +26,17 @@ function SignIn({ info }) {
   }, []);
   const fetchProtectedData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/protected', { withCredentials: true });
+      const response = await axios.get("http://localhost:5000/protected", { withCredentials: true });
       if (response.status === 200) {
-        const { userId, name, email, profilePicture } = response.data; // Extract user data
+        const { userId, name, email, profilePicture } = response.data;
+        localStorage.setItem('userInfo', JSON.stringify(response.data));
 
-        // Store in local storage for persistence
-        localStorage.setItem("user", JSON.stringify({ userId, name, email, profilePicture }));
-
-        // Set user state
-        setUser({ userId, name, email, profilePicture })
         navigate("/home");
-        // Redirect to dashboard after login
-        //fetchProtectedData();
       }
-      console.log('Protected data:', response.data);
     } catch (error) {
-      console.error('Failed to fetch protected data:', error.response?.data?.message || error.message);
+      console.error("Failed to fetch protected data:", error.response?.data?.message || error.message);
     }
   };
-
 
   // Handle logout
   const handleLogout = async () => {
@@ -66,15 +58,11 @@ function SignIn({ info }) {
         const response = await axios.post("http://localhost:5000/login", { email, password }, { withCredentials: true });
         //fetchProtectedData();
         if (response.status === 200) {
-          const { userId, name, email, profilePicture } = response.data; // Extract user data
-
-          // Store in local storage for persistence
-          localStorage.setItem("user", JSON.stringify({ userId, name, email, profilePicture }));
-
-          // Set user state
-          setUser({ userId, name, email, profilePicture })
+          const { userId, name, email, profilePicture } = response.data;
+          console.log(response.data)
           navigate("/home");
-          
+          localStorage.setItem('userInfo', JSON.stringify(response.data));
+
         }
       } catch (error) {
         if (error.response) {

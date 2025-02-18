@@ -22,7 +22,8 @@ const Profile = ({ info }) => {
     const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
     //  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
     const [following, setFollowing] = useState(false);
-
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const { userId, name, email, profilePicture } = userInfo;
     const handleFollow = () => {
         setFollowing(!following);
     };
@@ -33,7 +34,18 @@ const Profile = ({ info }) => {
         { name: "Search", icon: <SearchIcon />, route: "/search" },
         { name: "Add Post", icon: <PostAddIcon />, route: "/addpost" },
         { name: "Chats", icon: <MessageIcon />, route: "/message" },
-        { name: "Profile", icon: <AccountCircleIcon />, route: "/profile" },
+        {
+            name: "Profile", icon: <Avatar
+                alt="User Profile"
+                src={profilePicture}
+                sx={{
+                    width: 30,  // Adjust size as necessary
+                    height: 30,
+                    borderRadius: '50%',
+                    border: prefersDarkMode ? "1px solid white" : "1px solid black"
+                }}
+            />, route: "/profile"
+        },
         { name: "Settings", icon: <SettingsIcon />, route: "/settings" },
         { name: "Log Out", icon: <LogoutIcon />, route: "/home", isLogout: true },
     ];
@@ -97,7 +109,7 @@ const Profile = ({ info }) => {
                     >
                         <Avatar
                             alt="User Profile"
-                            src="https://via.placeholder.com/150"
+                            src={profilePicture}
                             sx={{
                                 width: 150,
                                 height: 150,
@@ -111,10 +123,10 @@ const Profile = ({ info }) => {
                     {/* User ID and Name */}
                     <Box sx={{ textAlign: 'center', marginBottom: 2 }}>
                         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                            John Doe
+                            {name}
                         </Typography>
                         <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                            @johndoe
+                            @{userId}
                         </Typography>
                     </Box>
 
@@ -165,8 +177,8 @@ const Profile = ({ info }) => {
                         </Button>
                         <Button
                             variant="contained"
-                            
-                            sx={{ width: 130, backgroundColor:"#7b6cc2" }}
+
+                            sx={{ width: 130, backgroundColor: "#7b6cc2" }}
                             startIcon={<ChatIcon />}
                         >
                             Message

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useMediaQuery, useTheme } from "@mui/material";
-import { Box, Typography, Button, TextField, Divider, Grid, Slider } from "@mui/material";
+import { Box, Typography, Button, TextField, Divider, Grid, Slider, Avatar } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import HomeIcon from '@mui/icons-material/Home';
@@ -22,12 +22,25 @@ const Settings = ({ info }) => {
     const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
 
     // Menu Items
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const { userIds, names, email, profilePicture } = userInfo;
     const menuItems = [
         { name: "Home", icon: <HomeIcon />, route: "/home" },
         { name: "Search", icon: <SearchIcon />, route: "/search" },
         { name: "Add Post", icon: <PostAddIcon />, route: "/addpost" },
         { name: "Chats", icon: <MessageIcon />, route: "/message" },
-        { name: "Profile", icon: <AccountCircleIcon />, route: "/profile" },
+        {
+            name: "Profile", icon: <Avatar
+                alt="User Profile"
+                src={profilePicture}
+                sx={{
+                    width: 30,  // Adjust size as necessary
+                    height: 30,
+                    borderRadius: '50%',
+                    border: prefersDarkMode ? "1px solid white" : "1px solid black"
+                }}
+            />, route: "/profile"
+        },
         { name: "Settings", icon: <SettingsIcon />, route: "/settings" },
         { name: "Log Out", icon: <LogoutIcon />, route: "/home", isLogout: true },
     ];
@@ -36,7 +49,7 @@ const Settings = ({ info }) => {
     const [bio, setBio] = useState("");
     const [userId, setUserId] = useState("");
     const [newUserId, setNewUserId] = useState("");
-    const [profilePicture, setProfilePicture] = useState(null);
+    const [profilePictures, setProfilePicture] = useState(null);
     const [message, setMessage] = useState("");
 
     // Image Cropper State
@@ -73,15 +86,10 @@ const Settings = ({ info }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const user = JSON.parse(localStorage.getItem("user"));
-        const email = user?.email;  // Safely access email
-        console.log(email);
 
         const formData = new FormData();
         formData.append("name", name);
         formData.append("bio", bio);
-        formData.append("userId", userId);
-        formData.append("email",email)
         if (newUserId) formData.append("newUserId", newUserId);
         if (cropData) {
             // Convert cropped image to a file
@@ -91,10 +99,11 @@ const Settings = ({ info }) => {
         }
 
         try {
-            const response = await axios.put("http://localhost:5000/update", formData, {
+            const response = await axios.put("http://localhost:5000/update", formData, { withCredentials: true }, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
             setMessage(response.data.message);
+            localStorage.setItem('userInfo', JSON.stringify(response.data));
         } catch (error) {
             setMessage(error.response?.data?.error || "Something went wrong");
         }
@@ -149,7 +158,7 @@ const Settings = ({ info }) => {
                             Edit Profile
                         </Typography>
                         {message && (
-                            <Typography sx={{ color: message === "Profile updated successfully" ? "green":"red", mb: 2, textAlign: "center" }}>
+                            <Typography sx={{ color: message === "Profile updated successfully" ? "green" : "red", mb: 2, textAlign: "center" }}>
                                 {message}
                             </Typography>
                         )}
@@ -296,7 +305,7 @@ const Settings = ({ info }) => {
                         </Box>
                     </Box>
                 </Box>
-                
+
             </Box>
         </>
     );

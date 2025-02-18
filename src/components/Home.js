@@ -17,9 +17,11 @@ import BookmarksOutlinedIcon from '@mui/icons-material/BookmarksOutlined';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import { useMediaQuery, useTheme } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Home = ({ info }) => {
     const navigate = useNavigate();
+
     const { theme, prefersDarkMode } = info;
     const [selected, setSelected] = useState("Home");
     const muiTheme = useTheme();
@@ -33,13 +35,27 @@ const Home = ({ info }) => {
             setCommentText(""); // Clear input
         }
     };
-
+    const [users, setUser] = useState(null);
+    
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const { userId, name, email, profilePicture } = userInfo;
     const menuItems = [
         { name: "Home", icon: <HomeIcon />, route: "/home" },
         { name: "Search", icon: <SearchIcon />, route: "/search" },
         { name: "Add Post", icon: <PostAddIcon />, route: "/addpost" },
         { name: "Chats", icon: <MessageIcon />, route: "/message" },
-        { name: "Profile", icon: <AccountCircleIcon />, route: "/profile" },
+        {
+            name: "Profile", icon: <Avatar
+                alt="User Profile"
+                src={profilePicture}
+                sx={{
+                    width: 30,  // Adjust size as necessary
+                    height: 30,
+                    borderRadius: '50%',
+                    border: prefersDarkMode ? "1px solid white" : "1px solid black"
+                }}
+            />, route: "/profile"
+        },
         { name: "Settings", icon: <SettingsIcon />, route: "/settings" },
         { name: "Log Out", icon: <LogoutIcon />, route: "/home", isLogout: true },
     ];
@@ -125,7 +141,6 @@ const Home = ({ info }) => {
     ];
 
     const parentRef = useRef(null);
-    const [user, setUser] = useState(null);
     const [parentWidth, setParentWidth] = useState(0);
 
     useEffect(() => {
@@ -235,7 +250,7 @@ const Home = ({ info }) => {
                                 >
                                     {/* Story Image */}
                                     <img
-                                        src={`${process.env.PUBLIC_URL}/assets/Images/sk.jpeg`}
+                                        src={``}
                                         alt="Story"
                                         style={{
                                             width: "140px",
@@ -248,6 +263,7 @@ const Home = ({ info }) => {
                                                 : "0px 4px 8px rgba(0, 0, 0, 0.1)", // Default shadow
                                         }}
                                     />
+
                                     {/* User Info */}
                                     <Box sx={{ display: "flex", flexDirection: "row", gap: "6px" }}>
                                         <AccountCircleIcon sx={{ fontSize: 22, color: prefersDarkMode ? "#bbb" : "#777" }} />

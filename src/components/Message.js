@@ -20,12 +20,25 @@ export const Message = ({ info }) => {
     //  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
 
     // Menu Items
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const { userId, name, email, profilePicture } = userInfo;
     const menuItems = [
         { name: "Home", icon: <HomeIcon />, route: "/home" },
         { name: "Search", icon: <SearchIcon />, route: "/search" },
         { name: "Add Post", icon: <PostAddIcon />, route: "/addpost" },
         { name: "Chats", icon: <MessageIcon />, route: "/message" },
-        { name: "Profile", icon: <AccountCircleIcon />, route: "/profile" },
+        {
+            name: "Profile", icon: <Avatar
+                alt="User Profile"
+                src={profilePicture}
+                sx={{
+                    width: 30,  // Adjust size as necessary
+                    height: 30,
+                    borderRadius: '50%',
+                    border: prefersDarkMode ? "1px solid white" : "1px solid black"
+                }}
+            />, route: "/profile"
+        },
         { name: "Settings", icon: <SettingsIcon />, route: "/settings" },
         { name: "Log Out", icon: <LogoutIcon />, route: "/home", isLogout: true },
     ];
