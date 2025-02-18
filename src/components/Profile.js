@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useMediaQuery, useTheme } from "@mui/material";
 import { Box, Typography, Avatar, Divider, Button, List, ListItem, ListItemAvatar, ListItemText, TextField, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -7,6 +7,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import MessageIcon from '@mui/icons-material/Message';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import axios from "axios";
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -24,10 +25,28 @@ const Profile = ({ info }) => {
     const [following, setFollowing] = useState(false);
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const { userId, name, email, profilePicture } = userInfo;
+    const [userProfile, setUserProfile] = useState(null);
     const handleFollow = () => {
         setFollowing(!following);
     };
-
+    useEffect(() => {
+        const autoLogin = async () => {
+            try {
+                const response = await axios.post('http://localhost:5000/profile', { userId }, { withCredentials: true });
+                if (response.status === 200) {
+                    console.log(response.data)
+                    setUserProfile(response.data)
+                    console.log(userProfile);
+                }
+            } catch (error) {
+                console.log("Error occured: " + error);
+            }
+        };
+        if (userId) autoLogin();
+    }, [userId]);
+    useEffect(() => {
+        console.log("Updated User Profile:", userProfile);
+    }, [userProfile]);
     // Menu Items
     const menuItems = [
         { name: "Home", icon: <HomeIcon />, route: "/home" },
@@ -84,7 +103,7 @@ const Profile = ({ info }) => {
                     </Box>
                 )}
                 {/* Main Content */}
-                <Box
+                {userProfile && (<Box
                     sx={{
                         flexGrow: 1,
                         display: 'flex',
@@ -109,7 +128,7 @@ const Profile = ({ info }) => {
                     >
                         <Avatar
                             alt="User Profile"
-                            src={profilePicture}
+                            src={userProfile?.profilePicture}
                             sx={{
                                 width: 150,
                                 height: 150,
@@ -123,17 +142,17 @@ const Profile = ({ info }) => {
                     {/* User ID and Name */}
                     <Box sx={{ textAlign: 'center', marginBottom: 2 }}>
                         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                            {name}
+                            {userProfile?.name}
                         </Typography>
                         <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                            @{userId}
+                            @{userProfile?.userId}
                         </Typography>
                     </Box>
 
                     {/* Bio */}
                     <Box sx={{ textAlign: 'center', marginBottom: 4 }}>
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nisl eros, pulvinar facilisis justo mollis.
+                            {userProfile?.bio}
                         </Typography>
                     </Box>
 
@@ -141,7 +160,7 @@ const Profile = ({ info }) => {
                     <Box sx={{ display: 'flex', gap: 4, marginBottom: 4 }}>
                         <Box sx={{ textAlign: 'center' }}>
                             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                150
+                                {userProfile?.postSize}
                             </Typography>
                             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                                 Posts
@@ -149,7 +168,7 @@ const Profile = ({ info }) => {
                         </Box>
                         <Box sx={{ textAlign: 'center' }}>
                             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                1.2k
+                                {userProfile?.followersSize}
                             </Typography>
                             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                                 Followers
@@ -157,7 +176,7 @@ const Profile = ({ info }) => {
                         </Box>
                         <Box sx={{ textAlign: 'center' }}>
                             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                500
+                                {userProfile?.followingSize}
                             </Typography>
                             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                                 Following
@@ -165,7 +184,7 @@ const Profile = ({ info }) => {
                         </Box>
                     </Box>
                     {/* Follow & Message Buttons */}
-                    <Box sx={{ display: 'flex', gap: 2, marginBottom: 4 }}>
+                    {!userProfile?.isSame && (<Box sx={{ display: 'flex', gap: 2, marginBottom: 4 }}>
                         <Button
                             variant={following ? "contained" : "outlined"}
                             color="primary"
@@ -173,17 +192,17 @@ const Profile = ({ info }) => {
                             sx={{ width: 130 }}
                             startIcon={following ? <CheckCircleIcon /> : <PersonAddIcon />}
                         >
-                            {following ? "Unfollow" : "Follow"}
+                            {userProfile?.isFollow ? "Unfollow" : "Follow"}
                         </Button>
-                        <Button
+                        {userProfile?.isFollow && (<Button
                             variant="contained"
 
                             sx={{ width: 130, backgroundColor: "#7b6cc2" }}
                             startIcon={<ChatIcon />}
                         >
                             Message
-                        </Button>
-                    </Box>
+                        </Button>)}
+                    </Box>)}
 
                     {/* Posts Grid (Placeholder) */}
                     <Box
@@ -198,7 +217,7 @@ const Profile = ({ info }) => {
                             "&::-webkit-scrollbar": { display: "none" },
                         }}
                     >
-                        {[...Array(100)].map((_, index) => (
+                        {[...Array(userProfile?.postSize)].map((_, index) => (
                             <Box
                                 key={index}
                                 sx={{
@@ -211,7 +230,7 @@ const Profile = ({ info }) => {
                         ))}
                     </Box>
 
-                </Box>
+                </Box>)}
 
                 {/* Bottom Navbar for Mobile/Tablets/Laptops */}
                 {!isDesktop && (
