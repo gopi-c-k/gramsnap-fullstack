@@ -1,0 +1,179 @@
+import React, { useState, useEffect } from "react";
+import { Box, Typography, Avatar, Button, CircularProgress, Backdrop } from "@mui/material";
+import axios from "axios";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ChatIcon from "@mui/icons-material/Chat";
+import LockIcon from "@mui/icons-material/Lock";
+import { LOCAL_HOST } from "./variable";
+
+const UserProfile = ({ userId }) => {
+    const [userProfile, setUserProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [following, setFollowing] = useState(false);
+
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            try {
+                const response = await axios.get(`http://${LOCAL_HOST}:5000/profile/${userId}`, { withCredentials: true });
+                if (response.status === 200) {
+                    setUserProfile(response.data);
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
+                setLoading(false);
+            }
+        };
+
+        if (userId) fetchUserProfile();
+    }, [userId]);
+
+    const handleFollow = () => {
+        setFollowing(!following);
+    };
+
+    if (loading) {
+        return (
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+                <Backdrop sx={{ color: "#fff", zIndex: 1300 }} open={loading}>
+                    <CircularProgress color="inherit" />
+                </Backdrop>
+            </Box>
+        );
+    }
+
+    return (
+        userProfile && (
+            <Box
+                sx={{
+                    flexGrow: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    padding: 4,
+                    height: "100vh",
+                }}
+            >
+                {/* Profile Picture */}
+                <Avatar
+                    alt="User Profile"
+                    src={userProfile.profilePicture}
+                    sx={{
+                        width: 150,
+                        height: 150,
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        border: "3px solid white",
+                        marginBottom: 2,
+                    }}
+                />
+
+                {/* User ID and Name */}
+                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                    {userProfile.name}
+                </Typography>
+                <Typography variant="body1" sx={{ color: "text.secondary" }}>
+                    @{userProfile.userId}
+                </Typography>
+
+                {/* Bio */}
+                <Typography variant="body2" sx={{ color: "text.secondary", textAlign: "center", marginBottom: 4 }}>
+                    {userProfile.bio}
+                </Typography>
+
+                {/* Followers, Following, Posts */}
+                <Box sx={{ display: "flex", gap: 4, marginBottom: 4 }}>
+                    <Box sx={{ textAlign: "center" }}>
+                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.postSize}</Typography>
+                        <Typography variant="body2" sx={{ color: "text.secondary" }}>Posts</Typography>
+                    </Box>
+                    <Box sx={{ textAlign: "center" }}>
+                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.followersSize}</Typography>
+                        <Typography variant="body2" sx={{ color: "text.secondary" }}>Followers</Typography>
+                    </Box>
+                    <Box sx={{ textAlign: "center" }}>
+                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.followingSize}</Typography>
+                        <Typography variant="body2" sx={{ color: "text.secondary" }}>Following</Typography>
+                    </Box>
+                </Box>
+
+                {/* Follow & Message Buttons */}
+                {!userProfile.isSame && (
+                    <Box sx={{ display: "flex", gap: 2, marginBottom: 4 }}>
+                        <Button
+                            variant={following ? "contained" : "outlined"}
+                            color="primary"
+                            onClick={handleFollow}
+                            sx={{ width: 130 }}
+                            startIcon={following ? <CheckCircleIcon /> : <PersonAddIcon />}
+                        >
+                            {userProfile.isFollow ? "Unfollow" : "Follow"}
+                        </Button>
+                        {userProfile.isFollow && (
+                            <Button variant="contained" sx={{ width: 130, backgroundColor: "#7b6cc2" }} startIcon={<ChatIcon />}>
+                                Message
+                            </Button>
+                        )}
+                    </Box>
+                )}
+
+                {/* Posts or Private Account Message */}
+                {userProfile.isPrivate ? (
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "8px" }}>
+                        <LockIcon color="action" />
+                        <Typography variant="body1" color="gray">
+                            This account is private.
+                        </Typography>
+                    </Box>
+                ) : (
+                    <Box
+                        sx={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: 2,
+                            width: "100%",
+                            maxWidth: 600,
+                            overflowY: "auto",
+                            scrollbarWidth: "none",
+                            "&::-webkit-scrollbar": { display: "none" },
+                            marginBottom: 4,
+                        }}
+                    >
+                        {userProfile.posts?.map((post) => (
+                            <Box
+                                key={post.postId}
+                                sx={{
+                                    position: "relative",
+                                    width: "100%",
+                                    paddingTop: "100%",
+                                    backgroundColor: "grey.300",
+                                    borderRadius: 2,
+                                    overflow: "hidden",
+                                }}
+                            >
+                                <img
+                                    src={post.image}
+                                    alt="User Post"
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        position: "absolute",
+                                        top: 0,
+                                        left: 0,
+                                    }}
+                                />
+                            </Box>
+                        ))}
+                    </Box>
+                )}
+            </Box>
+        )
+    );
+};
+
+export default UserProfile;

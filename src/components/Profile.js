@@ -10,6 +10,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import axios from "axios";
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import UserProfile from './UserProfile';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ChatIcon from '@mui/icons-material/Chat';
@@ -26,7 +27,7 @@ const Profile = ({ info }) => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const { userId, name, email, profilePicture } = userInfo;
     const [userProfile, setUserProfile] = useState(null);
-    const [loading,setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
     const handleFollow = () => {
         setFollowing(!following);
     };
@@ -40,7 +41,7 @@ const Profile = ({ info }) => {
                     setLoading(false);
                     setUserProfile(response.data)
                     // console.log(userProfile);
-                }else{
+                } else {
                     navigate("/signin")
                 }
             } catch (error) {
@@ -105,175 +106,7 @@ const Profile = ({ info }) => {
                     </Box>
                 )}
                 {/* Main Content */}
-                {loading && (<Box
-                    sx={{
-                        flexGrow: 1,
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexDirection: 'column',
-                        padding: 4,
-                        height: "100vh",
-
-                    }}
-                >
-                    <Backdrop sx={{ color: "#fff", zIndex: 1300 }} open={loading}>
-                        <CircularProgress color="inherit" />
-                    </Backdrop>
-                </Box>)}
-                {userProfile && (<Box
-                    sx={{
-                        flexGrow: 1,
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexDirection: 'column',
-                        padding: 4,
-                        height: "100vh",
-
-                    }}
-                >
-                    {/* Profile Picture */}
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginBottom: 2,
-                            minWidth: 160, // Ensure the container is slightly larger than the avatar
-                            minHeight: 160,
-                        }}
-                    >
-                        <Avatar
-                            alt="User Profile"
-                            src={userProfile?.profilePicture}
-                            sx={{
-                                width: 150,
-                                height: 150,
-                                borderRadius: '50%',
-                                objectFit: "cover",
-                                border: "3px solid white"
-                            }}
-                        />
-                    </Box>
-
-                    {/* User ID and Name */}
-                    <Box sx={{ textAlign: 'center', marginBottom: 2 }}>
-                        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                            {userProfile?.name}
-                        </Typography>
-                        <Typography variant="body1" sx={{ color: 'text.secondary' }}>
-                            @{userProfile?.userId}
-                        </Typography>
-                    </Box>
-
-                    {/* Bio */}
-                    <Box sx={{ textAlign: 'center', marginBottom: 4 }}>
-                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            {userProfile?.bio}
-                        </Typography>
-                    </Box>
-
-                    {/* Followers, Following, Posts */}
-                    <Box sx={{ display: 'flex', gap: 4, marginBottom: 4 }}>
-                        <Box sx={{ textAlign: 'center' }}>
-                            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                {userProfile?.postSize}
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                Posts
-                            </Typography>
-                        </Box>
-                        <Box sx={{ textAlign: 'center' }}>
-                            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                {userProfile?.followersSize}
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                Followers
-                            </Typography>
-                        </Box>
-                        <Box sx={{ textAlign: 'center' }}>
-                            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                {userProfile?.followingSize}
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                Following
-                            </Typography>
-                        </Box>
-                    </Box>
-                    {/* Follow & Message Buttons */}
-                    {!userProfile?.isSame && (<Box sx={{ display: 'flex', gap: 2, marginBottom: 4 }}>
-                        <Button
-                            variant={following ? "contained" : "outlined"}
-                            color="primary"
-                            onClick={handleFollow}
-                            sx={{ width: 130 }}
-                            startIcon={following ? <CheckCircleIcon /> : <PersonAddIcon />}
-                        >
-                            {userProfile?.isFollow ? "Unfollow" : "Follow"}
-                        </Button>
-                        {userProfile?.isFollow && (<Button
-                            variant="contained"
-
-                            sx={{ width: 130, backgroundColor: "#7b6cc2" }}
-                            startIcon={<ChatIcon />}
-                        >
-                            Message
-                        </Button>)}
-                    </Box>)}
-
-                    {/* Posts Grid (Placeholder) */}
-                    {userProfile?.isPrivate ? (<Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "8px" }}>
-                        <LockIcon color="action" />
-                        <Typography variant="body1" color="gray">
-                            This account is private.
-                        </Typography>
-                    </Box>) : (<Box
-                        sx={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', // Responsive grid
-                            justifyContent: 'center',  // Centers content horizontally
-                            alignItems: 'center',
-                            gap: 2,
-                            width: '100%',
-                            maxWidth: 600,
-                            overflowY: "auto", // Allow scrolling if needed
-                            scrollbarWidth: "none",
-                            "&::-webkit-scrollbar": { display: "none" },
-                            marginBottom: 4,
-                        }}
-                    >
-                        {userProfile?.posts?.map((post) => (
-                            <Box
-                                key={post.postId} // Use postId if available
-                                sx={{
-                                    position: "relative", // Required for absolute positioning inside
-                                    width: '100%',
-                                    paddingTop: '100%', // Makes it a perfect square
-                                    backgroundColor: 'grey.300',
-                                    borderRadius: 2,
-                                    overflow: "hidden", // Prevents overflow issues
-                                }}
-                            >
-                                <img
-                                    src={post.image} // Post image URL
-                                    alt="User Post"
-                                    style={{
-                                        width: "100%", // Ensure it fills the container
-                                        height: "100%",
-                                        objectFit: "cover",
-                                        position: "absolute",
-                                        top: 0,
-                                        left: 0,
-                                    }}
-                                />
-                            </Box>
-                        ))}
-
-                    </Box>)}
-
-                </Box>)}
-
+                <UserProfile userId={userId} />
                 {/* Bottom Navbar for Mobile/Tablets/Laptops */}
                 {!isDesktop && (
                     <>
