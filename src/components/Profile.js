@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import { useMediaQuery, useTheme } from "@mui/material";
-import { Box, Typography, Avatar, Divider, Button, List, ListItem, ListItemAvatar, ListItemText, TextField, Grid } from "@mui/material";
+import { Box, Typography, Avatar, Divider, Button, List, ListItem, CircularProgress, Backdrop, ListItemAvatar, ListItemText, TextField, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import HomeIcon from '@mui/icons-material/Home';
 import SearchIcon from '@mui/icons-material/Search';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import MessageIcon from '@mui/icons-material/Message';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LockIcon from '@mui/icons-material/Lock';
 import axios from "axios";
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ChatIcon from '@mui/icons-material/Chat';
-
+import { LOCAL_HOST } from './variable';
 
 const Profile = ({ info }) => {
     const navigate = useNavigate();
@@ -26,27 +26,29 @@ const Profile = ({ info }) => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const { userId, name, email, profilePicture } = userInfo;
     const [userProfile, setUserProfile] = useState(null);
+    const [loading,setLoading] = useState(true);
     const handleFollow = () => {
         setFollowing(!following);
     };
     useEffect(() => {
         const autoLogin = async () => {
             try {
-                const response = await axios.post('http://localhost:5000/profile', { userId }, { withCredentials: true });
+                const response = await axios.get(`http://${LOCAL_HOST}:5000/profile/${userId}`, { withCredentials: true });
                 if (response.status === 200) {
+                    // Debug
                     console.log(response.data)
+                    setLoading(false);
                     setUserProfile(response.data)
-                    console.log(userProfile);
+                    // console.log(userProfile);
+                }else{
+                    navigate("/signin")
                 }
             } catch (error) {
                 console.log("Error occured: " + error);
             }
         };
         if (userId) autoLogin();
-    }, [userId]);
-    useEffect(() => {
-        console.log("Updated User Profile:", userProfile);
-    }, [userProfile]);
+    }, []);
     // Menu Items
     const menuItems = [
         { name: "Home", icon: <HomeIcon />, route: "/home" },
@@ -103,6 +105,22 @@ const Profile = ({ info }) => {
                     </Box>
                 )}
                 {/* Main Content */}
+                {loading && (<Box
+                    sx={{
+                        flexGrow: 1,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexDirection: 'column',
+                        padding: 4,
+                        height: "100vh",
+
+                    }}
+                >
+                    <Backdrop sx={{ color: "#fff", zIndex: 1300 }} open={loading}>
+                        <CircularProgress color="inherit" />
+                    </Backdrop>
+                </Box>)}
                 {userProfile && (<Box
                     sx={{
                         flexGrow: 1,
@@ -205,30 +223,54 @@ const Profile = ({ info }) => {
                     </Box>)}
 
                     {/* Posts Grid (Placeholder) */}
-                    <Box
+                    {userProfile?.isPrivate ? (<Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginTop: "8px" }}>
+                        <LockIcon color="action" />
+                        <Typography variant="body1" color="gray">
+                            This account is private.
+                        </Typography>
+                    </Box>) : (<Box
                         sx={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', // Responsive grid
+                            justifyContent: 'center',  // Centers content horizontally
+                            alignItems: 'center',
                             gap: 2,
                             width: '100%',
                             maxWidth: 600,
                             overflowY: "auto", // Allow scrolling if needed
                             scrollbarWidth: "none",
                             "&::-webkit-scrollbar": { display: "none" },
+                            marginBottom: 4,
                         }}
                     >
-                        {[...Array(userProfile?.postSize)].map((_, index) => (
+                        {userProfile?.posts?.map((post) => (
                             <Box
-                                key={index}
+                                key={post.postId} // Use postId if available
                                 sx={{
+                                    position: "relative", // Required for absolute positioning inside
                                     width: '100%',
-                                    paddingTop: '100%', // Makes the box square
+                                    paddingTop: '100%', // Makes it a perfect square
                                     backgroundColor: 'grey.300',
                                     borderRadius: 2,
+                                    overflow: "hidden", // Prevents overflow issues
                                 }}
-                            />
+                            >
+                                <img
+                                    src={post.image} // Post image URL
+                                    alt="User Post"
+                                    style={{
+                                        width: "100%", // Ensure it fills the container
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        position: "absolute",
+                                        top: 0,
+                                        left: 0,
+                                    }}
+                                />
+                            </Box>
                         ))}
-                    </Box>
+
+                    </Box>)}
 
                 </Box>)}
 
@@ -241,6 +283,7 @@ const Profile = ({ info }) => {
                             bottom: 0,
                             width: "100%",
                             display: "flex",
+
                             justifyContent: "space-around",
                             backgroundColor: prefersDarkMode ? "black" : "#fff",
                             padding: "10px 0",

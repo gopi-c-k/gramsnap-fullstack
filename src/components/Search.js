@@ -9,6 +9,7 @@ import MessageIcon from '@mui/icons-material/Message';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { LOCAL_HOST } from './variable';
 
 const Search = ({ info }) => {
     const navigate = useNavigate();

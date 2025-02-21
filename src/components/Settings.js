@@ -13,6 +13,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import Cropper from 'react-cropper';
 import 'cropperjs/dist/cropper.css';
+import { LOCAL_HOST } from './variable';
 
 const Settings = ({ info }) => {
     const navigate = useNavigate();
@@ -99,7 +100,7 @@ const Settings = ({ info }) => {
         }
 
         try {
-            const response = await axios.put("http://localhost:5000/update", formData, { withCredentials: true }, {
+            const response = await axios.put(`http://${LOCAL_HOST}:5000/update`, formData, { withCredentials: true }, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
             setMessage(response.data.message);

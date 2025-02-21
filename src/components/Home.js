@@ -18,6 +18,7 @@ import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import { useMediaQuery, useTheme } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { LOCAL_HOST } from './variable';
 
 const Home = ({ info }) => {
     const navigate = useNavigate();

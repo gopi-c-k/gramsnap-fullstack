@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { Container, Box, Typography, TextField, Button, Link } from "@mui/material";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // For navigation
+import { useNavigate } from "react-router-dom"; 
+import { LOCAL_HOST } from "./variable";
 
 function SignIn({ info }) {
-
+  // dotenv.config();
   const { theme, prefersDarkMode } = info
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -15,7 +16,7 @@ function SignIn({ info }) {
   useEffect(() => {
     const autoLogin = async () => {
       try {
-        await axios.post('http://localhost:5000/login-refresh', {}, { withCredentials: true });
+        await axios.post(`http://${LOCAL_HOST}:5000/login-refresh`, {}, { withCredentials: true });
         fetchProtectedData();
       } catch (error) {
         console.log("Not logged in");
@@ -24,9 +25,10 @@ function SignIn({ info }) {
 
     autoLogin();
   }, []);
+  
   const fetchProtectedData = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/protected", { withCredentials: true });
+      const response = await axios.get(`http://${LOCAL_HOST}:5000/protected`, { withCredentials: true });
       if (response.status === 200) {
         const { userId, name, email, profilePicture } = response.data;
         localStorage.setItem('userInfo', JSON.stringify(response.data));
@@ -55,7 +57,7 @@ function SignIn({ info }) {
     // }
     if (email && password) {
       try {
-        const response = await axios.post("http://localhost:5000/login", { email, password }, { withCredentials: true });
+        const response = await axios.post(`http://${LOCAL_HOST}:5000/login`, { email, password }, { withCredentials: true });
         //fetchProtectedData();
         if (response.status === 200) {
           const { userId, name, email, profilePicture } = response.data;

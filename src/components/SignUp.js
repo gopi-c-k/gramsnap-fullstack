@@ -3,6 +3,7 @@ import { ThemeProvider, CssBaseline } from "@mui/material";
 import { Container, Box, Typography, TextField, Button, Link, Snackbar, Alert } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // For navigation
+import { LOCAL_HOST } from "./variable";
 
 function SignUp({ info }) {
     const { theme, prefersDarkMode } = info;
@@ -28,7 +29,7 @@ function SignUp({ info }) {
 
     // Simulate OTP sending
     const sendOTP = () => {
-        axios.post("http://localhost:5000/sendOTP", { email }).then(response => {
+        axios.post(`http://${LOCAL_HOST}:5000/sendOTP`, { email }).then(response => {
             if (response.status === 200) {
                 setIsResendEnabled(false);
                 setSnackbarMessage("OTP sent to your email " + email);
@@ -83,7 +84,7 @@ function SignUp({ info }) {
 
             sendOTP();
         } else {
-            axios.post("http://localhost:5000/signup", { name, email, password, otp, userId })
+            axios.post(`http://${LOCAL_HOST}:5000/signup`, { name, email, password, otp, userId })
                 .then(response => {
                     if (response.status === 201) {  // ✅ 201 means "Created"
                         setSnackbarMessage("Account created successfully!");

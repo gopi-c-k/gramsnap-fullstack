@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react'
 import { useMediaQuery, useTheme } from "@mui/material";
-import { Box, Typography, Avatar, Divider, Button, List, ListItem, ListItemAvatar, ListItemText, TextField, Slider } from "@mui/material";
+import { Box, Typography, Avatar, Divider, Button, List, ListItem, ListItemAvatar, ListItemText,Backdrop, TextField, CircularProgress, Slider } from "@mui/material";
 import Cropper from "react-cropper";
+import axios from "axios";
 import "cropperjs/dist/cropper.css";
 import { useNavigate } from "react-router-dom";
 import HomeIcon from '@mui/icons-material/Home';
@@ -12,6 +13,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
+import { LOCAL_HOST } from './variable';
 
 
 const AddPost = ({ info }) => {
@@ -19,8 +21,7 @@ const AddPost = ({ info }) => {
     const [image, setImage] = useState(null);
     const [cropData, setCropData] = useState(null);
     const cropperRef = useRef(null);
-    const [brightness, setBrightness] = useState(100);
-    const [contrast, setContrast] = useState(100);
+    const [uploading, setUploading] = useState(false);
     const { theme, prefersDarkMode } = info;
     const [selected, setSelected] = useState("Add Post");
     const muiTheme = useTheme();
@@ -30,6 +31,42 @@ const AddPost = ({ info }) => {
     // Menu Items
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const { userId, name, email, profilePicture } = userInfo;
+
+    const [caption, setCaption] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handlePostUpload = async () => {
+        if (!cropData) {
+            alert("Please crop the image before uploading!");
+            return;
+        }
+        setUploading(true);
+        setLoading(true);
+        const formData = new FormData();
+        formData.append("userId", userId);
+        formData.append("caption", caption);
+        if (cropData) {
+            const blob = await fetch(cropData).then((res) => res.blob());
+            const file = new File([blob], "profile-picture.png", { type: "image/png" });
+            formData.append("image", file);
+        }
+        try {
+
+            const response = await axios.post(`http://${LOCAL_HOST}:5000/createPost`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+                withCredentials: true, // Send authentication cookies
+            });
+            alert("Post uploaded successfully!");
+        } catch (error) {
+            console.error("Error Uploading Post:", error.response?.data || error.message);
+        } finally {
+            setLoading(false);
+            setImage(null);
+            setCropData(null);
+            setUploading(false);
+            setCaption("");
+        }
+    };
     const menuItems = [
         { name: "Home", icon: <HomeIcon />, route: "/home" },
         { name: "Search", icon: <SearchIcon />, route: "/search" },
@@ -105,35 +142,35 @@ const AddPost = ({ info }) => {
                     </Box>
                 )}
                 {/* Main Content */}
-                <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
+                <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", overflowY: "auto" }}>
 
-                    {!image && (<>
-                        <Typography></Typography>
-                        <Box>
-                            <AddAPhotoIcon sx={{ fontSize: "100px" }}></AddAPhotoIcon>
+                    {/* Select Image */}
+                    {!image && (
+                        <>
+                            <Typography variant="h6">Select an Image</Typography>
+                            <Box>
+                                <AddAPhotoIcon sx={{ fontSize: "100px" }} />
+                            </Box>
+                            <input
+                                accept="image/*"
+                                style={{ display: "none" }}
+                                id="upload-photo"
+                                type="file"
+                                onChange={handleFileChange}
+                            />
+                            <label htmlFor="upload-photo">
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    component="span"
+                                    sx={{ backgroundColor: "#0095f6", color: "#fff", "&:hover": { backgroundColor: "#0077cc" } }}
+                                >
+                                    Select from your device
+                                </Button>
+                            </label>
+                        </>
+                    )}
 
-                        </Box><input
-                            accept="image/*"
-                            style={{ display: "none" }}
-                            id="upload-photo"
-                            type="file"
-                            onChange={handleFileChange}
-                        />
-                        <label htmlFor="upload-photo">
-                            <Button
-                                variant="contained"
-                                size="small"
-                                component="span"
-                                sx={{
-                                    backgroundColor: "#0095f6",
-                                    color: "#fff",
-                                    "&:hover": { backgroundColor: "#0077cc" },
-                                }}
-                            >
-                                Select from your device
-                            </Button>
-                        </label>
-                    </>)}
                     {/* Image Cropper */}
                     {image && !cropData && (
                         <div style={{ marginTop: 20 }}>
@@ -152,27 +189,45 @@ const AddPost = ({ info }) => {
                             </Button>
                         </div>
                     )}
-                    {/* Adjust Filters */}
-                    {cropData && (
-                        <div style={{ marginTop: 2 }}>
-                            <h3>Adjust Filters</h3>
-                            <label>Brightness</label>
-                            <Slider value={brightness} min={50} max={200} onChange={(e, val) => setBrightness(val)} />
-                            <label>Contrast</label>
-                            <Slider value={contrast} min={50} max={200} onChange={(e, val) => setContrast(val)} />
 
+                    {/* Adjust Filters & Post Form */}
+                    {cropData && (
+                        <div style={{ marginTop: 10, width: "100%", maxWidth: 400, textAlign: "center", padding: "10px"}}>
+                            <Backdrop sx={{ color: "#fff", zIndex: 1300 }} open={uploading}>
+                                <CircularProgress color="inherit" />
+                            </Backdrop>
                             {/* Show Processed Image */}
-                            <div style={{ marginTop: 20 }}>
-                                <h3>Final Image</h3>
+                            <div style={{ marginTop: 10 }}>
+                                <Typography variant="h6">Final Image</Typography>
                                 <img
                                     src={cropData}
                                     alt="Cropped"
-                                    style={{
-                                        maxWidth: "100%",
-                                        filter: `brightness(${brightness}%) contrast(${contrast}%)`,
-                                    }}
+                                    style={{ maxWidth: "100%"}}
                                 />
                             </div>
+
+                            {/* Caption Input */}
+                            <TextField
+                                label="Write a caption..."
+                                variant="outlined"
+                                fullWidth
+                                multiline
+                                rows={2}
+                                sx={{ marginTop: 2 }}
+                                value={caption}
+                                onChange={(e) => setCaption(e.target.value)}
+                            />
+
+                            {/* Upload Post Button */}
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                sx={{ marginTop: 2, backgroundColor: "#0095f6", "&:hover": { backgroundColor: "#0077cc" } }}
+                                onClick={handlePostUpload}
+                                disabled={loading}
+                            >
+                                {loading ? "Uploading..." : "Post"}
+                            </Button>
                         </div>
                     )}
                 </Box>
