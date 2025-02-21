@@ -6,11 +6,14 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ChatIcon from "@mui/icons-material/Chat";
 import LockIcon from "@mui/icons-material/Lock";
 import { LOCAL_HOST } from "./variable";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 const UserProfile = ({ userId }) => {
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [following, setFollowing] = useState(false);
+    const muiTheme = useTheme();
+    const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -47,13 +50,14 @@ const UserProfile = ({ userId }) => {
         userProfile && (
             <Box
                 sx={{
-                    flexGrow: 1,
+                    // flexGrow: 1,
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
                     flexDirection: "column",
                     padding: 4,
                     height: "100vh",
+                    overflow: "hidden"
                 }}
             >
                 {/* Profile Picture */}
@@ -131,9 +135,11 @@ const UserProfile = ({ userId }) => {
                     <Box
                         sx={{
                             display: "grid",
-                            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-                            justifyContent: "center",
-                            alignItems: "center",
+                            gridTemplateColumns: isDesktop ? 'repeat(auto-fit, minmax(150px, 1fr))'
+                                : 'repeat(3, 1fr)',
+
+                            // justifyContent: "center",
+                            // alignItems: "center",
                             gap: 2,
                             width: "100%",
                             maxWidth: 600,

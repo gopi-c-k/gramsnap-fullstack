@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useMediaQuery, useTheme } from "@mui/material";
+import { Checkbox, Grid2, useMediaQuery, useTheme } from "@mui/material";
 import { Box, Typography, Button, TextField, Divider, Grid, Slider, Avatar } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -52,6 +52,7 @@ const Settings = ({ info }) => {
     const [newUserId, setNewUserId] = useState("");
     const [profilePictures, setProfilePicture] = useState(null);
     const [message, setMessage] = useState("");
+    const [pvt, setPrivate] = useState(false)
 
     // Image Cropper State
     const [image, setImage] = useState(null);
@@ -91,6 +92,7 @@ const Settings = ({ info }) => {
         const formData = new FormData();
         formData.append("name", name);
         formData.append("bio", bio);
+        formData.append("isPrivate", pvt);
         if (newUserId) formData.append("newUserId", newUserId);
         if (cropData) {
             // Convert cropped image to a file
@@ -206,6 +208,14 @@ const Settings = ({ info }) => {
                                     />
                                 </Grid>
                                 <Grid item xs={12}>
+                                    <Checkbox
+                                        checked={pvt}
+                                        onChange={(e) => setPrivate(!pvt)}
+                                    />
+                                    Set account as a private
+                                </Grid>
+
+                                <Grid item xs={12}>
                                     <Typography variant="body1" sx={{ mb: 1 }}>
                                         Profile Picture
                                     </Typography>
@@ -305,6 +315,7 @@ const Settings = ({ info }) => {
                             </Grid>
                         </Box>
                     </Box>
+
                 </Box>
 
             </Box>

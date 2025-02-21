@@ -102,7 +102,7 @@ const Search = ({ info }) => {
                     </Box>
                 )}
                 {/* Main Content */}
-                <Box sx={{ flexGrow: 1, display: "flex", mb: "auto", alignItems: "center", justifyContent: "center", flexDirection: "row", padding: "10px 15px" }}>
+                <Box sx={{ flexGrow: 1, display: "flex", mb: "auto", alignItems: "center", justifyContent: "center", flexDirection: "row", padding: "10px 15px", height:"100vh" }}>
                     {/* Search Bar */}
                     {selectedUser ? (<><UserProfile userId={selectedUser.userId} /></>) : (<>
                         <Box

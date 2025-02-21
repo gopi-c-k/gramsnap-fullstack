@@ -6,14 +6,10 @@ import HomeIcon from '@mui/icons-material/Home';
 import SearchIcon from '@mui/icons-material/Search';
 import PostAddIcon from '@mui/icons-material/PostAdd';
 import MessageIcon from '@mui/icons-material/Message';
-import LockIcon from '@mui/icons-material/Lock';
 import axios from "axios";
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import UserProfile from './UserProfile';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ChatIcon from '@mui/icons-material/Chat';
 import { LOCAL_HOST } from './variable';
 
 const Profile = ({ info }) => {
@@ -105,8 +101,20 @@ const Profile = ({ info }) => {
                         ))}
                     </Box>
                 )}
-                {/* Main Content */}
-                <UserProfile userId={userId} />
+                {/* Main Content */}<Box
+                    sx={{
+                        flexGrow: 1,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        // flexDirection: 'column',
+                        // padding: 4,
+                        // height: "100vh",
+
+                    }}
+                >
+                    <UserProfile userId={userId} />
+                </Box>
                 {/* Bottom Navbar for Mobile/Tablets/Laptops */}
                 {!isDesktop && (
                     <>
