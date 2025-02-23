@@ -52,7 +52,7 @@ const AddPost = ({ info }) => {
         }
         try {
 
-            const response = await axios.post(`http://${LOCAL_HOST}:5000/createPost`, formData, {
+            const response = await axios.post(`https://gramsnap-backend.onrender.com/createPost`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
                 withCredentials: true, // Send authentication cookies
             });

@@ -59,7 +59,7 @@ const Search = ({ info }) => {
         setSearchTerm(term);
         setSearchResults([]);
         try {
-            const response = await axios.post(`http://${LOCAL_HOST}:5000/search/${term}`, { withCredentials: true });
+            const response = await axios.post(`https://gramsnap-backend.onrender.com/search/${term}`, { withCredentials: true });
             if (response.status === 200) {
                 setSearchResults(response.data)
             }
@@ -102,7 +102,7 @@ const Search = ({ info }) => {
                     </Box>
                 )}
                 {/* Main Content */}
-                <Box sx={{ flexGrow: 1, display: "flex", mb: "auto", alignItems: "center", justifyContent: "center", flexDirection: "row", padding: "10px 15px", height:"100vh" }}>
+                <Box sx={{ flexGrow: 1, display: "flex", mb: "auto", alignItems: "center", justifyContent: "center", flexDirection: "row", padding: "10px 15px", height:selectedUser && "100vh" }}>
                     {/* Search Bar */}
                     {selectedUser ? (<><UserProfile userId={selectedUser.userId} /></>) : (<>
                         <Box

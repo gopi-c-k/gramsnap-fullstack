@@ -16,7 +16,7 @@ function SignIn({ info }) {
   useEffect(() => {
     const autoLogin = async () => {
       try {
-        await axios.post(`http://${LOCAL_HOST}:5000/login-refresh`, {}, { withCredentials: true });
+        await axios.post(`https://gramsnap-backend.onrender.com/login-refresh`, {}, { withCredentials: true });
         fetchProtectedData();
       } catch (error) {
         console.log("Not logged in");
@@ -28,7 +28,7 @@ function SignIn({ info }) {
   
   const fetchProtectedData = async () => {
     try {
-      const response = await axios.get(`http://${LOCAL_HOST}:5000/protected`, { withCredentials: true });
+      const response = await axios.get(`https://gramsnap-backend.onrender.com/protected`, { withCredentials: true });
       if (response.status === 200) {
         const { userId, name, email, profilePicture } = response.data;
         localStorage.setItem('userInfo', JSON.stringify(response.data));
@@ -57,7 +57,7 @@ function SignIn({ info }) {
     // }
     if (email && password) {
       try {
-        const response = await axios.post(`http://${LOCAL_HOST}:5000/login`, { email, password }, { withCredentials: true });
+        const response = await axios.post(`https://gramsnap-backend.onrender.com/login`, { email, password }, { withCredentials: true });
         //fetchProtectedData();
         if (response.status === 200) {
           const { userId, name, email, profilePicture } = response.data;

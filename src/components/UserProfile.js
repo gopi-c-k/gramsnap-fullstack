@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Avatar, Button, CircularProgress, Backdrop } from "@mui/material";
+import { Box, Typography, Avatar, Button, CircularProgress, Backdrop, Snackbar, Alert } from "@mui/material";
 import axios from "axios";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -15,11 +15,18 @@ const UserProfile = ({ userId }) => {
     const muiTheme = useTheme();
     const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
 
+
+    // For Snackbars
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    let fetchUserProfile;
     useEffect(() => {
-        const fetchUserProfile = async () => {
+        fetchUserProfile = async () => {
             try {
-                const response = await axios.get(`http://${LOCAL_HOST}:5000/profile/${userId}`, { withCredentials: true });
+                const response = await axios.get(`https://gramsnap-backend.onrender.com/profile/${userId}`, { withCredentials: true });
                 if (response.status === 200) {
+                    console.log(response.data)
                     setUserProfile(response.data);
                     setLoading(false);
                 }
@@ -32,9 +39,34 @@ const UserProfile = ({ userId }) => {
         if (userId) fetchUserProfile();
     }, [userId]);
 
-    const handleFollow = () => {
-        setFollowing(!following);
+    const handleCloseSnackbar = () => {
+        setOpenSnackbar(false);
     };
+
+    const handleFollow = async () => {
+        setLoading(true);
+        try {
+            const res = await axios.post(`https://gramsnap-backend.onrender.com/followRequest`, { followRequestUserId: userId }, { withCredentials: true });
+            if (res.status === 200) {
+                setLoading(false);
+                setSnackbarMessage(res.data.message);
+                setSnackbarSeverity("success");
+                setOpenSnackbar(true);
+                fetchUserProfile();
+            }
+        } catch (error) {
+            console.error("Error following user:", error);
+
+            // Extract meaningful error message
+            const errorMessage = error.response?.data?.message || error.message || "Something went wrong";
+
+            setSnackbarMessage(errorMessage);  // Set a string instead of an object
+            setSnackbarSeverity("error");
+            setOpenSnackbar(true);
+            setLoading(false);
+        }
+    };
+
 
     if (loading) {
         return (
@@ -109,11 +141,12 @@ const UserProfile = ({ userId }) => {
                         <Button
                             variant={following ? "contained" : "outlined"}
                             color="primary"
-                            onClick={handleFollow}
+                            disabled={userProfile?.isRequestSent}
+                            onClick={!userProfile?.isRequestSent && handleFollow}
                             sx={{ width: 130 }}
                             startIcon={following ? <CheckCircleIcon /> : <PersonAddIcon />}
                         >
-                            {userProfile.isFollow ? "Unfollow" : "Follow"}
+                            {userProfile.isFollow ? "Unfollow" : userProfile?.isRequestSent ? "Request Sent" : "Follow"}
                         </Button>
                         {userProfile.isFollow && (
                             <Button variant="contained" sx={{ width: 130, backgroundColor: "#7b6cc2" }} startIcon={<ChatIcon />}>
@@ -177,6 +210,12 @@ const UserProfile = ({ userId }) => {
                         ))}
                     </Box>
                 )}
+                {/* Snackbar for Notifications */}
+                <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
+                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                        {snackbarMessage}
+                    </Alert>
+                </Snackbar>
             </Box>
         )
     );
