@@ -81,16 +81,16 @@ const UserProfile = ({ userId }) => {
     return (
         userProfile && (
             <Box
-                // sx={{
-                //     // flexGrow: 1,
-                //     display: "flex",
-                //     justifyContent: "center",
-                //     alignItems: "center",
-                //     flexDirection: "column",
-                //     padding: 4,
-                //     height: "100vh",
-                //     overflow: "hidden"
-                // }}
+                sx={{
+                    // flexGrow: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    padding: 4,
+                    height: "100vh",
+                    overflow: "hidden"
+                }}
             >
                 {/* Profile Picture */}
                 <Avatar
