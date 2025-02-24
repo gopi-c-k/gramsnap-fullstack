@@ -168,8 +168,7 @@ const UserProfile = ({ userId }) => {
                     <Box
                         sx={{
                             display: "grid",
-                            gridTemplateColumns: isDesktop ? 'repeat(auto-fit, minmax(150px, 1fr))'
-                                : 'repeat(3, 1fr)',
+                            gridTemplateColumns:'repeat(auto-fit, minmax(150px, 1fr))',
 
                             // justifyContent: "center",
                             // alignItems: "center",
