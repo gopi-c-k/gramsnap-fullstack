@@ -168,13 +168,10 @@ const UserProfile = ({ userId }) => {
                     <Box
                         sx={{
                             display: "grid",
-                            gridTemplateColumns:'repeat(3, 1fr)',
-
-                            // justifyContent: "center",
-                            // alignItems: "center",
+                            gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))", // Responsive columns
                             gap: 2,
                             width: "100%",
-                            maxWidth: 600,
+                            maxWidth: "100%", // Ensures it fits within the screen
                             overflowY: "auto",
                             scrollbarWidth: "none",
                             "&::-webkit-scrollbar": { display: "none" },
@@ -187,7 +184,7 @@ const UserProfile = ({ userId }) => {
                                 sx={{
                                     position: "relative",
                                     width: "100%",
-                                    paddingTop: "100%",
+                                    paddingTop: "100%", // Maintains aspect ratio
                                     backgroundColor: "grey.300",
                                     borderRadius: 2,
                                     overflow: "hidden",
@@ -208,6 +205,7 @@ const UserProfile = ({ userId }) => {
                             </Box>
                         ))}
                     </Box>
+
                 )}
                 {/* Snackbar for Notifications */}
                 <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
