@@ -167,34 +167,32 @@ const Home = ({ info }) => {
         }
     }, []);
     const [notifications, setNotifications] = useState([]);
-    let fetchNotifications;
-
-    useEffect(() => {
-        fetchNotifications = async () => {
-            try {
-                const res = await axios.get(`https://gramsnap-backend.onrender.com/notifications`, { withCredentials: true });
-                //console.log(res.data);
-                setNotifications(res.data);
-            } catch (error) {
-                console.error("Error fetching notifications:", error);
-            }
-        };
-
-        fetchNotifications();
-    }, []);
     const [recommendedUsers, setRecommendedUsers] = useState([]);
+
+    // ✅ Fetch notifications function
+    const fetchNotifications = useCallback(async () => {
+        try {
+            const res = await axios.get(`https://gramsnap-backend.onrender.com/notifications`, { withCredentials: true });
+            setNotifications(res.data);
+        } catch (error) {
+            console.error("Error fetching notifications:", error);
+        }
+    }, []);
+
+    // ✅ Fetch recommended users function
+    const fetchRecommendedUsers = useCallback(async () => {
+        try {
+            const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
+            setRecommendedUsers(res.data);
+        } catch (error) {
+            console.error("Error fetching recommended users:", error);
+        }
+    }, []);
+
     useEffect(() => {
-        let getRecommendedUser = async () => {
-            try {
-                const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
-                console.log(res.data);
-                setRecommendedUsers(res.data);
-            } catch (error) {
-                console.error("Error fetching notifications:", error);
-            }
-        };
-        getRecommendedUser();
-    }, [])
+        fetchNotifications();
+        fetchRecommendedUsers();
+    }, [fetchNotifications, fetchRecommendedUsers]);
 
     const handleConfirm = async (senderId) => {
         try {
@@ -519,7 +517,7 @@ const Home = ({ info }) => {
                                         <ListItemText
                                             primary={
                                                 <Typography variant="body1">
-                                                    <strong>{user.user}</strong>
+                                                   <strong onClick={() => setSelectedUser(user.userId)} >{user.userId}</strong>
                                                 </Typography>
                                             }
                                         />

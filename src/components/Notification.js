@@ -25,35 +25,33 @@ const Notifications = ({ info }) => {
     const { theme, prefersDarkMode } = info;
     const navigate = useNavigate();
     const [notifications, setNotifications] = useState([]);
+    const [recommendedUsers, setRecommendedUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
-    let fetchNotifications;
-    useEffect(() => {
-        fetchNotifications = async () => {
-            try {
-                const res = await axios.get(`https://gramsnap-backend.onrender.com/notifications`, { withCredentials: true });
-                console.log(res.data);
-                setNotifications(res.data);
-            } catch (error) {
-                console.error("Error fetching notifications:", error);
-            }
-        };
 
-        fetchNotifications();
+    // ✅ Fetch notifications function
+    const fetchNotifications = useCallback(async () => {
+        try {
+            const res = await axios.get(`https://gramsnap-backend.onrender.com/notifications`, { withCredentials: true });
+            setNotifications(res.data);
+        } catch (error) {
+            console.error("Error fetching notifications:", error);
+        }
     }, []);
 
-    const [recommendedUsers, setRecommendedUsers] = useState([]);
+    // ✅ Fetch recommended users function
+    const fetchRecommendedUsers = useCallback(async () => {
+        try {
+            const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
+            setRecommendedUsers(res.data);
+        } catch (error) {
+            console.error("Error fetching recommended users:", error);
+        }
+    }, []);
+
     useEffect(() => {
-        let getRecommendedUser = async () => {
-            try {
-                const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
-                console.log(res.data);
-                setRecommendedUsers(res.data);
-            } catch (error) {
-                console.error("Error fetching notifications:", error);
-            }
-        };
-        getRecommendedUser();
-    }, [])
+        fetchNotifications();
+        fetchRecommendedUsers();
+    }, [fetchNotifications, fetchRecommendedUsers]);
     const handleConfirm = async (senderId) => {
         try {
             await axios.post(`https://gramsnap-backend.onrender.com/accept-follow`, { senderId }, { withCredentials: true });
@@ -149,7 +147,7 @@ const Notifications = ({ info }) => {
                 <List>
                     {recommendedUsers.map((user) => (
                         <ListItem
-                            key={user.id}
+                            key={user.userId}
                             sx={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -169,7 +167,7 @@ const Notifications = ({ info }) => {
                             <ListItemText
                                 primary={
                                     <Typography variant="body1">
-                                        <strong>{user.userId}</strong>
+                                        <strong onClick={() => setSelectedUser(user.userId)} >{user.userId}</strong>
                                     </Typography>
                                 }
                             />
