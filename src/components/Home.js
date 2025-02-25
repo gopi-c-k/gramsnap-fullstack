@@ -139,10 +139,10 @@ const Home = ({ info }) => {
     //     { id: 3, type: "follow", user: "Mike Johnson", avatar: "/assets/Images/user3.jpg", message: "started following you" },
     // ];
 
-    const recommendedUsers = [
-        { id: 1, user: "Emily Carter", avatar: "/assets/Images/user4.jpg" },
-        { id: 2, user: "Ryan Wilson", avatar: "/assets/Images/user5.jpg" }
-    ];
+    // const recommendedUsers = [
+    //     { id: 1, user: "Emily Carter", avatar: "/assets/Images/user4.jpg" },
+    //     { id: 2, user: "Ryan Wilson", avatar: "/assets/Images/user5.jpg" }
+    // ];
 
     const parentRef = useRef(null);
     const [parentWidth, setParentWidth] = useState(0);
@@ -173,7 +173,7 @@ const Home = ({ info }) => {
         fetchNotifications = async () => {
             try {
                 const res = await axios.get(`https://gramsnap-backend.onrender.com/notifications`, { withCredentials: true });
-                console.log(res.data);
+                //console.log(res.data);
                 setNotifications(res.data);
             } catch (error) {
                 console.error("Error fetching notifications:", error);
@@ -182,6 +182,19 @@ const Home = ({ info }) => {
 
         fetchNotifications();
     }, []);
+    const [recommendedUsers, setRecommendedUsers] = useState([]);
+    useEffect(() => {
+        let getRecommendedUser = async () => {
+            try {
+                const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
+                console.log(res.data);
+                setRecommendedUsers(res.data);
+            } catch (error) {
+                console.error("Error fetching notifications:", error);
+            }
+        };
+        getRecommendedUser();
+    }, [])
 
     const handleConfirm = async (senderId) => {
         try {
@@ -486,7 +499,7 @@ const Home = ({ info }) => {
                             <List>
                                 {recommendedUsers.map((user) => (
                                     <ListItem
-                                        key={user.id}
+                                        key={user.userId}
                                         sx={{
                                             display: 'flex',
                                             alignItems: 'center',
@@ -501,7 +514,7 @@ const Home = ({ info }) => {
                                         }}
                                     >
                                         <ListItemAvatar>
-                                            <Avatar src={user.avatar} />
+                                            <Avatar src={user.profilePicture} />
                                         </ListItemAvatar>
                                         <ListItemText
                                             primary={

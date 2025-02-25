@@ -21,12 +21,6 @@ import { LOCAL_HOST } from './variable';
 import UserProfile from './UserProfile';
 
 
-const recommendedUsers = [
-    { id: 1, user: 'Emily Davis', avatar: 'https://example.com/avatar4.jpg' },
-    { id: 2, user: 'Michael Brown', avatar: 'https://example.com/avatar5.jpg' },
-    { id: 3, user: 'Sarah Wilson', avatar: 'https://example.com/avatar6.jpg' },
-];
-
 const Notifications = ({ info }) => {
     const { theme, prefersDarkMode } = info;
     const navigate = useNavigate();
@@ -46,6 +40,20 @@ const Notifications = ({ info }) => {
 
         fetchNotifications();
     }, []);
+
+    const [recommendedUsers, setRecommendedUsers] = useState([]);
+    useEffect(() => {
+        let getRecommendedUser = async () => {
+            try {
+                const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
+                console.log(res.data);
+                setRecommendedUsers(res.data);
+            } catch (error) {
+                console.error("Error fetching notifications:", error);
+            }
+        };
+        getRecommendedUser();
+    }, [])
     const handleConfirm = async (senderId) => {
         try {
             await axios.post(`https://gramsnap-backend.onrender.com/accept-follow`, { senderId }, { withCredentials: true });
@@ -156,12 +164,12 @@ const Notifications = ({ info }) => {
                             }}
                         >
                             <ListItemAvatar>
-                                <Avatar src={user.avatar} />
+                                <Avatar src={user.profilePicture} />
                             </ListItemAvatar>
                             <ListItemText
                                 primary={
                                     <Typography variant="body1">
-                                        <strong>{user.user}</strong>
+                                        <strong>{user.userId}</strong>
                                     </Typography>
                                 }
                             />
