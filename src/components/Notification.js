@@ -25,14 +25,14 @@ const Notifications = ({ info }) => {
     const { theme, prefersDarkMode } = info;
     const navigate = useNavigate();
     const [notifications, setNotifications] = useState([]);
-    const [recommendedUsers, setRecommendedUsers] = useState([]);
+    const [suggestedUsers, setSuggestedUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
     // ✅ Fetch notifications function
     const fetchNotifications = useCallback(async () => {
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/notifications`, { withCredentials: true });
-            
+
             setNotifications(res.data);
         } catch (error) {
             console.error("Error fetching notifications:", error);
@@ -44,8 +44,8 @@ const Notifications = ({ info }) => {
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
             console.log(res.data)
-            setRecommendedUsers(res.data);
-            console.log("Recommedations"+recommendedUsers)
+            setSuggestedUsers(res.data);
+           // console.log("Recommedations" + recommendedUsers)
         } catch (error) {
             console.error("Error fetching recommended users:", error);
         }
@@ -148,7 +148,7 @@ const Notifications = ({ info }) => {
                     People You May Know
                 </Typography>
                 <List>
-                    {recommendedUsers.length> 0 ? (recommendedUsers.map((user) => (
+                    {suggestedUsers.length > 0 ? (suggestedUsers.map((user) => (
                         <ListItem
                             key={user.userId}
                             sx={{
@@ -183,7 +183,7 @@ const Notifications = ({ info }) => {
                                 Follow
                             </Button>
                         </ListItem>
-                    ))): (
+                    ))) : (
                         <Typography>No Recommendations</Typography>
                     )}
                 </List></>)}
