@@ -32,6 +32,7 @@ const Notifications = ({ info }) => {
     const fetchNotifications = useCallback(async () => {
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/notifications`, { withCredentials: true });
+            
             setNotifications(res.data);
         } catch (error) {
             console.error("Error fetching notifications:", error);
@@ -42,7 +43,9 @@ const Notifications = ({ info }) => {
     const fetchRecommendedUsers = useCallback(async () => {
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
+            console.log(res.data)
             setRecommendedUsers(res.data);
+            console.log("Recommedations"+recommendedUsers)
         } catch (error) {
             console.error("Error fetching recommended users:", error);
         }
