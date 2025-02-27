@@ -44,7 +44,7 @@ const Notifications = ({ info }) => {
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
             console.log(res.data)
-            setSuggestedUsers(res.data.suggestions || []);
+            setSuggestedUsers(res.data.suggestions);
            // console.log("Recommedations" + recommendedUsers)
         } catch (error) {
             console.error("Error fetching recommended users:", error);
