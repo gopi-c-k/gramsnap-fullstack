@@ -145,7 +145,7 @@ const Notifications = ({ info }) => {
                     People You May Know
                 </Typography>
                 <List>
-                    {recommendedUsers.map((user) => (
+                    {recommendedUsers.length && recommendedUsers.map((user) => (
                         <ListItem
                             key={user.userId}
                             sx={{
