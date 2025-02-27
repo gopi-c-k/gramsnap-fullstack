@@ -148,7 +148,7 @@ const Notifications = ({ info }) => {
                     People You May Know
                 </Typography>
                 <List>
-                    {recommendedUsers.length && recommendedUsers.map((user) => (
+                    {recommendedUsers.length> 0 ? (recommendedUsers.map((user) => (
                         <ListItem
                             key={user.userId}
                             sx={{
@@ -183,7 +183,9 @@ const Notifications = ({ info }) => {
                                 Follow
                             </Button>
                         </ListItem>
-                    ))}
+                    ))): (
+                        <Typography>No Recommendations</Typography>
+                    )}
                 </List></>)}
         </Box>
     );
