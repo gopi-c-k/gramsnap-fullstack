@@ -25,14 +25,13 @@ const Notifications = ({ info }) => {
     const { theme, prefersDarkMode } = info;
     const navigate = useNavigate();
     const [notifications, setNotifications] = useState([]);
-    const [suggestedUsers, setSuggestedUsers] = useState([]);
+    const [recommendedUsers, setRecommendedUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
 
     // ✅ Fetch notifications function
     const fetchNotifications = useCallback(async () => {
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/notifications`, { withCredentials: true });
-
             setNotifications(res.data);
         } catch (error) {
             console.error("Error fetching notifications:", error);
@@ -43,9 +42,7 @@ const Notifications = ({ info }) => {
     const fetchRecommendedUsers = useCallback(async () => {
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
-            console.log(res.data)
-            setSuggestedUsers(res.data.suggestions);
-           // console.log("Recommedations" + recommendedUsers)
+            setRecommendedUsers(res.data);
         } catch (error) {
             console.error("Error fetching recommended users:", error);
         }
@@ -148,7 +145,7 @@ const Notifications = ({ info }) => {
                     People You May Know
                 </Typography>
                 <List>
-                    {suggestedUsers.length > 0 ? (suggestedUsers.map((user) => (
+                    {recommendedUsers.map((user) => (
                         <ListItem
                             key={user.userId}
                             sx={{
@@ -183,9 +180,7 @@ const Notifications = ({ info }) => {
                                 Follow
                             </Button>
                         </ListItem>
-                    ))) : (
-                        <Typography>No Recommendations</Typography>
-                    )}
+                    ))}
                 </List></>)}
         </Box>
     );

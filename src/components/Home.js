@@ -183,7 +183,7 @@ const Home = ({ info }) => {
     const fetchRecommendedUsers = useCallback(async () => {
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
-            setRecommendedUsers(res.data.suggestions);
+            setRecommendedUsers(res.data);
         } catch (error) {
             console.error("Error fetching recommended users:", error);
         }
@@ -495,7 +495,7 @@ const Home = ({ info }) => {
                                 People You May Know
                             </Typography>
                             <List>
-                                {recommendedUsers.length && recommendedUsers.map((user) => (
+                                {recommendedUsers.map((user) => (
                                     <ListItem
                                         key={user.userId}
                                         sx={{
@@ -517,7 +517,7 @@ const Home = ({ info }) => {
                                         <ListItemText
                                             primary={
                                                 <Typography variant="body1">
-                                                    <strong onClick={() => setSelectedUser(user.userId)} >{user.userId}</strong>
+                                                   <strong onClick={() => setSelectedUser(user.userId)} >{user.userId}</strong>
                                                 </Typography>
                                             }
                                         />
