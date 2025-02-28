@@ -517,7 +517,7 @@ const Home = ({ info }) => {
                                         <ListItemText
                                             primary={
                                                 <Typography variant="body1">
-                                                   <strong onClick={() => setSelectedUser(user.userId)} >{user.userId}</strong>
+                                                    <strong onClick={() => setSelectedUser(user.userId)} >{user.userId}</strong>
                                                 </Typography>
                                             }
                                         />
