@@ -117,7 +117,7 @@ const Profile = ({ info }) => {
                     {!isDesktop && (
                         <Box
                             sx={{ position: "absolute", top: 10, right: 10, cursor: "pointer" }}
-                            onClick={() => navigate('/settings')}
+                            onClick={() => navigate("/settings")}
                         >
                             <SettingsSuggestIcon />
                         </Box>
