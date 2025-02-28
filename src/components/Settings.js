@@ -13,6 +13,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import Cropper from 'react-cropper';
 import 'cropperjs/dist/cropper.css';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { LOCAL_HOST } from './variable';
 
 const Settings = ({ info }) => {
@@ -145,6 +146,15 @@ const Settings = ({ info }) => {
                     </Box>
                 )}
                 {/* Main Content for Settings */}
+                {!isDesktop && (
+                    <Box
+                        sx={{ position: "absolute", top: 10, left: 10, cursor: "pointer" }}
+                        onClick={() => navigate(-1)} // Navigates back one step in history
+                    >
+                        <ArrowBackIosNewIcon fontSize="small" />
+                    </Box>
+                )}
+
                 <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
                     <Box sx={{
                         width: "100%",

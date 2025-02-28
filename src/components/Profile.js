@@ -10,6 +10,7 @@ import axios from "axios";
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import UserProfile from './UserProfile';
+import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import { LOCAL_HOST } from './variable';
 
 const Profile = ({ info }) => {
@@ -113,6 +114,14 @@ const Profile = ({ info }) => {
 
                     }}
                 >
+                    {!isDesktop && (
+                        <Box
+                            sx={{ position: "absolute", top: 10, right: 10, cursor: "pointer" }}
+                            onClick={() => navigate('/settings')}
+                        >
+                            <SettingsSuggestIcon />
+                        </Box>
+                    )}
                     <UserProfile userId={userId} />
                 </Box>
                 {/* Bottom Navbar for Mobile/Tablets/Laptops */}
