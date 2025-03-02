@@ -188,7 +188,8 @@ const Home = ({ info }) => {
         users.map(user => {
             let profilePic = "";
             if (user.profilePicture?.data?.data) {
-                profilePic = `data:${user.profilePicture.contentType};base64,${bufferToBase64(user.profilePicture.data.data)}`;
+                //profilePicture = `data:${notification.senderId.profilePicture.contentType};base64,${notification.senderId.profilePicture.data.toString("base64")}`;
+                profilePic = `data:${user.profilePicture.contentType};base64,${user.profilePicture.data.toString("base64")}`;
             }
             return { ...user, profilePic };
         });
