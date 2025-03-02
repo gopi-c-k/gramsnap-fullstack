@@ -42,11 +42,24 @@ const Notifications = ({ info }) => {
     const fetchRecommendedUsers = useCallback(async () => {
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
-            setRecommendedUsers(res.data.suggestions);
+            const users = res.data.suggestions.map(user => {
+                let profilePic = "";
+                if (user.profilePicture?.data?.data) {
+                    profilePic = `data:${user.profilePicture.contentType};base64,${bufferToBase64(user.profilePicture.data.data)}`;
+                }
+                return { ...user, profilePic };
+            });
+
+           // setSuggestions(users);
+    
+            setRecommendedUsers(users);
         } catch (error) {
             console.error("Error fetching recommended users:", error);
         }
     }, []);
+    const bufferToBase64 = (buffer) => {
+        return btoa(String.fromCharCode(...new Uint8Array(buffer)));
+    };
 
     useEffect(() => {
         fetchNotifications();
@@ -162,13 +175,13 @@ const Notifications = ({ info }) => {
                             }}
                         >
                             <ListItemAvatar>
-                                <Avatar src={user.profilePicture} />
+                                <Avatar src={user.profilePic} />
                             </ListItemAvatar>
                             <ListItemText
                                 primary={
                                     <Typography variant="body1">
                                         <strong onClick={() => setSelectedUser(user.userId)} onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
-                                            onMouseLeave={(e) => e.target.style.textDecoration = "none"}>{user.userId}</strong>
+                                            onMouseLeave={(e) => e.target.style.textDecoration = "none"}>{user.name}</strong>
                                     </Typography>
                                 }
                             />

@@ -133,16 +133,6 @@ const Home = ({ info }) => {
             comments: 50
         },
     ];
-    // const notifications = [
-    //     { id: 1, type: "like", user: "John Doe", avatar: "/assets/Images/user1.jpg", message: "liked your post" },
-    //     { id: 2, type: "follow-request", user: "Jane Smith", avatar: "/assets/Images/user2.jpg", message: "sent you a follow request" },
-    //     { id: 3, type: "follow", user: "Mike Johnson", avatar: "/assets/Images/user3.jpg", message: "started following you" },
-    // ];
-
-    // const recommendedUsers = [
-    //     { id: 1, user: "Emily Carter", avatar: "/assets/Images/user4.jpg" },
-    //     { id: 2, user: "Ryan Wilson", avatar: "/assets/Images/user5.jpg" }
-    // ];
 
     const parentRef = useRef(null);
     const [parentWidth, setParentWidth] = useState(0);
@@ -173,7 +163,7 @@ const Home = ({ info }) => {
     const fetchNotifications = useCallback(async () => {
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/notifications`, { withCredentials: true });
-            console.log(res.data);
+            //  console.log(res.data);
             setNotifications(res.data);
         } catch (error) {
             console.error("Error fetching notifications:", error);
@@ -184,12 +174,25 @@ const Home = ({ info }) => {
     const fetchRecommendedUsers = useCallback(async () => {
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
-            console.log(res.data)
-            setRecommendedUsers(res.data.suggestions);
+            //  console.log(res.data)
+            const users = res.data.suggestions.map(user => {
+                let profilePic = "";
+                if (user.profilePicture?.data?.data) {
+                    profilePic = `data:${user.profilePicture.contentType};base64,${bufferToBase64(user.profilePicture.data.data)}`;
+                }
+                return { ...user, profilePic };
+            });
+
+            // setSuggestions(users);
+
+            setRecommendedUsers(users);
         } catch (error) {
             console.error("Error fetching recommended users:", error);
         }
     }, []);
+    const bufferToBase64 = (buffer) => {
+        return btoa(String.fromCharCode(...new Uint8Array(buffer)));
+    };
 
     useEffect(() => {
         fetchNotifications();
@@ -514,14 +517,14 @@ const Home = ({ info }) => {
                                         }}
                                     >
                                         <ListItemAvatar>
-                                            <Avatar src={user.profilePicture} />
+                                            <Avatar src={user.profilePic} />
                                         </ListItemAvatar>
                                         <ListItemText
                                             primary={
                                                 <Typography variant="body1">
                                                     <strong onClick={() => setSelectedUser(user.userId)}
                                                         onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
-                                                        onMouseLeave={(e) => e.target.style.textDecoration = "none"}>{user.userId}</strong>
+                                                        onMouseLeave={(e) => e.target.style.textDecoration = "none"}>{user.name}</strong>
                                                 </Typography>
                                             }
                                         />
