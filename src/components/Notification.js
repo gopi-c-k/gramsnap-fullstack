@@ -41,27 +41,12 @@ const Notifications = ({ info }) => {
     // ✅ Fetch recommended users function
     const fetchRecommendedUsers = useCallback(async () => {
         try {
-            const response = await axios.get("https://gramsnap-backend.onrender.com/suggestions", { withCredentials: true });
-
-            if (response.status === 200) {
-                const users = response.data.suggestions.map(user => {
-                    let profilePic = "";
-                    if (user.profilePicture?.data?.data) {
-                        profilePic = `data:${user.profilePicture.contentType};base64,${bufferToBase64(user.profilePicture.data.data)}`;
-                    }
-                    return { ...user, profilePic };
-                });
-
-                setRecommendedUsers(users); // ✅ Only update state when necessary
-            }
+            const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
+            setRecommendedUsers(res.data.suggestions);
         } catch (error) {
             console.error("Error fetching recommended users:", error);
         }
     }, []);
-    const bufferToBase64 = useCallback((buffer) => {
-        return btoa(String.fromCharCode(...new Uint8Array(buffer)));
-    }, []);
-    
 
     useEffect(() => {
         fetchNotifications();
@@ -177,7 +162,7 @@ const Notifications = ({ info }) => {
                             }}
                         >
                             <ListItemAvatar>
-                                <Avatar src={user.profilePic} />
+                                <Avatar src={user.profilePicture} />
                             </ListItemAvatar>
                             <ListItemText
                                 primary={
