@@ -189,7 +189,7 @@ const Home = ({ info }) => {
             let profilePic = "";
             if (user.profilePicture?.data?.data) {
                 //profilePicture = `data:${notification.senderId.profilePicture.contentType};base64,${notification.senderId.profilePicture.data.toString("base64")}`;
-                profilePic = `data:${user.profilePicture.contentType};base64,${user.profilePicture.data.toString("base64")}`;
+                profilePic = `data:${user.profilePicture.contentType};base64,${Buffer.from(user.profilePicture.data.data).toString("base64")}`;
             }
             return { ...user, profilePic };
         });
