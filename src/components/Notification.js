@@ -41,18 +41,19 @@ const Notifications = ({ info }) => {
     // ✅ Fetch recommended users function
     const fetchRecommendedUsers = useCallback(async () => {
         try {
-            const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
-            const users = res.data.suggestions.map(user => {
-                let profilePic = "";
-                if (user.profilePicture?.data?.data) {
-                    profilePic = `data:${user.profilePicture.contentType};base64,${bufferToBase64(user.profilePicture.data.data)}`;
-                }
-                return { ...user, profilePic };
-            });
+            const response = await axios.get("https://gramsnap-backend.onrender.com/suggestions", { withCredentials: true });
 
-           // setSuggestions(users);
-    
-            setRecommendedUsers(users);
+            if (response.status === 200) {
+                const users = response.data.suggestions.map(user => {
+                    let profilePic = "";
+                    if (user.profilePicture?.data?.data) {
+                        profilePic = `data:${user.profilePicture.contentType};base64,${bufferToBase64(user.profilePicture.data.data)}`;
+                    }
+                    return { ...user, profilePic };
+                });
+
+                setRecommendedUsers(users); // ✅ Only update state when necessary
+            }
         } catch (error) {
             console.error("Error fetching recommended users:", error);
         }
