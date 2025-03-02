@@ -175,7 +175,8 @@ const Home = ({ info }) => {
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
             //  console.log(res.data)
-            const users = res.data.suggestions.map(user => {
+            const users = res.data.suggestions;
+            users.map(user => {
                 let profilePic = "";
                 if (user.profilePicture?.data?.data) {
                     profilePic = `data:${user.profilePicture.contentType};base64,${bufferToBase64(user.profilePicture.data.data)}`;
