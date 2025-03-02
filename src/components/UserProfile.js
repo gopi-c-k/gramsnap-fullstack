@@ -20,22 +20,20 @@ const UserProfile = ({ userId }) => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-    let fetchUserProfile;
-    useEffect(() => {
-        fetchUserProfile = async () => {
-            try {
-                const response = await axios.get(`https://gramsnap-backend.onrender.com/profile/${userId}`, { withCredentials: true });
-                if (response.status === 200) {
-                    console.log(response.data)
-                    setUserProfile(response.data);
-                    setLoading(false);
-                }
-            } catch (error) {
-                console.error("Error fetching user profile:", error);
+    const fetchUserProfile = async () => {
+        try {
+            const response = await axios.get(`https://gramsnap-backend.onrender.com/profile/${userId}`, { withCredentials: true });
+            if (response.status === 200) {
+                console.log(response.data);
+                setUserProfile(response.data);
                 setLoading(false);
             }
-        };
-
+        } catch (error) {
+            console.error("Error fetching user profile:", error);
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
         if (userId) fetchUserProfile();
     }, [userId]);
 
@@ -52,7 +50,7 @@ const UserProfile = ({ userId }) => {
                 setSnackbarMessage(res.data.message);
                 setSnackbarSeverity("success");
                 setOpenSnackbar(true);
-                fetchUserProfile();
+                await fetchUserProfile();
             }
         } catch (error) {
             console.error("Error following user:", error);
