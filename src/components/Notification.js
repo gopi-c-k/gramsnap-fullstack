@@ -58,9 +58,10 @@ const Notifications = ({ info }) => {
             console.error("Error fetching recommended users:", error);
         }
     }, []);
-    const bufferToBase64 = (buffer) => {
+    const bufferToBase64 = useCallback((buffer) => {
         return btoa(String.fromCharCode(...new Uint8Array(buffer)));
-    };
+    }, []);
+    
 
     useEffect(() => {
         fetchNotifications();

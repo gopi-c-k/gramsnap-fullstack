@@ -172,28 +172,32 @@ const Home = ({ info }) => {
 
     // ✅ Fetch recommended users function
     const fetchRecommendedUsers = useCallback(async () => {
+        let users;
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
             //  console.log(res.data)
-            const users = res.data.suggestions;
-            users.map(user => {
-                let profilePic = "";
-                if (user.profilePicture?.data?.data) {
-                    profilePic = `data:${user.profilePicture.contentType};base64,${bufferToBase64(user.profilePicture.data.data)}`;
-                }
-                return { ...user, profilePic };
-            });
+            users = res.data.suggestions;
+
 
             // setSuggestions(users);
 
-            setRecommendedUsers(users);
+
         } catch (error) {
             console.error("Error fetching recommended users:", error);
         }
+        users.map(user => {
+            let profilePic = "";
+            if (user.profilePicture?.data?.data) {
+                profilePic = `data:${user.profilePicture.contentType};base64,${bufferToBase64(user.profilePicture.data.data)}`;
+            }
+            return { ...user, profilePic };
+        });
+        setRecommendedUsers(users);
     }, []);
-    const bufferToBase64 = (buffer) => {
+    const bufferToBase64 = useCallback((buffer) => {
         return btoa(String.fromCharCode(...new Uint8Array(buffer)));
-    };
+    }, []);
+
 
     useEffect(() => {
         fetchNotifications();
