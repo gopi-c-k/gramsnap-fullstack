@@ -166,7 +166,7 @@ function SignIn({ info }) {
             >
               <Box sx={{ display: { xs: "flex", sm: "none" }, ml: 0, mr: "auto" }}>
                 <Typography sx={{ mr: 1 }}>Don't have an account?</Typography>
-                <Link href="#" sx={{ fontWeight: "bold", color: "blue" }}>
+                <Link sx={{ fontWeight: "bold", color: "blue" }} onClick={() => navigate("/signup")}>
                   Create One
                 </Link>
               </Box>
