@@ -42,6 +42,15 @@ export const Message = ({ info }) => {
         { name: "Settings", icon: <SettingsIcon />, route: "/settings" },
         { name: "Log Out", icon: <LogoutIcon />, route: "/home", isLogout: true },
     ];
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+
+    const handleSearch = async (event) => {
+        const term = event.target.value;
+        setSearchTerm(term);
+        setSearchResults([]);
+       
+    };
     return (
         <>
             <Box sx={{ display: "flex", flexDirection: "row", width: "100%", height: "100vh" }}>
@@ -77,7 +86,29 @@ export const Message = ({ info }) => {
                     </Box>
                 )}
                 {/* Main Content To add mesage list  */}
-                <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "row" }}></Box>
+                <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "row" }}>
+                <Paper
+                                component="form"
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    borderRadius: '20px',
+                                    boxShadow: 'none',
+                                    border: '1px solid #e0e0e0',
+                                }}
+                            >
+                                <IconButton sx={{ p: '10px' }} aria-label="search">
+                                    <SearchIcon />
+                                </IconButton>
+                                <InputBase
+                                    placeholder="Search…"
+                                    value={searchTerm}
+                                    onChange={handleSearch}
+                                    sx={{ ml: 1, flex: 1 }}
+                                />
+                            </Paper>
+                </Box>
                 {/* Bottom Navbar for Mobile/Tablets/Laptops */}
                 {!isDesktop && (
                     <>

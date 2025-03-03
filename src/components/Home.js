@@ -184,7 +184,7 @@ const Home = ({ info }) => {
     const fetchRecommendedUsers = useCallback(async () => {
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
-           // console.log(res.data)
+            // console.log(res.data)
             setRecommendedUsers(res.data.suggestions);
         } catch (error) {
             console.error("Error fetching recommended users:", error);
@@ -519,9 +519,12 @@ const Home = ({ info }) => {
                                         <ListItemText
                                             primary={
                                                 <Typography variant="body1">
-                                                    <strong onClick={() => setSelectedUser(user.userId)}
+                                                    <strong style={{
+                                                        cursor: "pointer",
+                                                        textDecoration: "none"
+                                                    }} onClick={() => setSelectedUser(user.userId)}
                                                         onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
-                                                        onMouseLeave={(e) => e.target.style.textDecoration = "none"}>{user.userId}</strong>
+                                                        onMouseLeave={(e) => e.target.style.textDecoration = "none"}>{user.name}</strong>
                                                 </Typography>
                                             }
                                         />

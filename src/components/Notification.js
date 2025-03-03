@@ -167,7 +167,10 @@ const Notifications = ({ info }) => {
                             <ListItemText
                                 primary={
                                     <Typography variant="body1">
-                                        <strong onClick={() => setSelectedUser(user.userId)} onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
+                                        <strong style={{
+                                            cursor: "pointer",
+                                            textDecoration: "none"
+                                        }} onClick={() => setSelectedUser(user.userId)} onMouseEnter={(e) => e.target.style.textDecoration = "underline"}
                                             onMouseLeave={(e) => e.target.style.textDecoration = "none"}>{user.name}</strong>
                                     </Typography>
                                 }
