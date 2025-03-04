@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { Container, Box, Typography, TextField, Button, Link } from "@mui/material";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 import { LOCAL_HOST } from "./variable";
 
 function SignIn({ info }) {
@@ -25,13 +26,22 @@ function SignIn({ info }) {
 
     autoLogin();
   }, []);
-  
+
+  const [socket, setSocket] = useState(null);
+
   const fetchProtectedData = async () => {
     try {
       const response = await axios.get(`https://gramsnap-backend.onrender.com/protected`, { withCredentials: true });
       if (response.status === 200) {
-        const { userId, name, email, profilePicture } = response.data;
-        localStorage.setItem('userInfo', JSON.stringify(response.data));
+        const { userId } = response.data;
+        console.log(userId);
+        console.log(response.data);
+        localStorage.setItem("userInfo", JSON.stringify(response.data));
+
+        // ✅ Establish WebSocket connection after successful login
+        const newSocket = io("https://gramsnap-backend.onrender.com");
+        newSocket.emit("userConnected", userId); // Inform backend that the user is online
+        setSocket(newSocket);
 
         navigate("/home");
       }
@@ -39,6 +49,7 @@ function SignIn({ info }) {
       console.error("Failed to fetch protected data:", error.response?.data?.message || error.message);
     }
   };
+
 
   // Handle logout
   const handleLogout = async () => {
@@ -61,9 +72,10 @@ function SignIn({ info }) {
         //fetchProtectedData();
         if (response.status === 200) {
           const { userId, name, email, profilePicture } = response.data;
-          console.log(response.data)
-          navigate("/home");
-          localStorage.setItem('userInfo', JSON.stringify(response.data));
+          //console.log(response.data)
+          fetchProtectedData();
+          //navigate("/home");
+          //localStorage.setItem('userInfo', JSON.stringify(response.data));
 
         }
       } catch (error) {
