@@ -218,7 +218,7 @@ export const Message = ({ info }) => {
                                                 borderRadius: "10px",
                                                 width: "100%",
                                                 cursor: "pointer",
-                                                backgroundColor: selectedUser?.id === user.id ? "#e0e0e0" : "transparent",
+                                                backgroundColor: selectedUser?.id === user.userId ? "#e0e0e0" : "transparent",
                                                 "&:hover": { backgroundColor: "#e0e0e0" }
                                             }}
                                             onClick={() => handleUserClick(user)}
@@ -373,10 +373,10 @@ export const Message = ({ info }) => {
                                     }
                                 }}>
                                     {users
-                                        .filter(user => user.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                                        .filter(user => user.username.toLowerCase().includes(searchTerm.toLowerCase()))
                                         .map(user => (
                                             <Box
-                                                key={user.id}
+                                                key={user.userId}
                                                 sx={{
                                                     display: "flex",
                                                     alignItems: "center",
@@ -384,14 +384,14 @@ export const Message = ({ info }) => {
                                                     borderRadius: "10px",
                                                     width: "100%",
                                                     cursor: "pointer",
-                                                    backgroundColor: selectedUser?.id === user.id ? "#e0e0e0" : "transparent",
+                                                    backgroundColor: selectedUser?.id === user.userId ? "#e0e0e0" : "transparent",
                                                     "&:hover": { backgroundColor: "#e0e0e0" }
                                                 }}
                                                 onClick={() => handleUserClick(user)}
                                             >
-                                                <Avatar src={user.avatar} sx={{ width: 40, height: 40, marginRight: "10px" }} />
+                                                <Avatar src={user.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                                 <Box>
-                                                    <Typography variant="body1" fontWeight="bold">{user.name}</Typography>
+                                                    <Typography variant="body1" fontWeight="bold">{user.username}</Typography>
                                                     <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
                                                 </Box>
                                             </Box>
