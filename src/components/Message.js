@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useMediaQuery, useTheme } from "@mui/material";
 import { Box, Typography, Avatar, Divider, Button, List, InputBase, IconButton, Paper, ListItem, ListItemAvatar, ListItemText, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -15,16 +15,36 @@ import DoneAllIcon from "@mui/icons-material/DoneAll"; // Double tick
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import axios from "axios";
 
 
 export const Message = ({ info }) => {
-    const users = [
-        { id: 1, name: "John Doe", avatar: "https://i.pravatar.cc/150?img=1", lastSeen: "Online", lastMessage: "Hey dude!" },
-        { id: 2, name: "Jane Smith", avatar: "https://i.pravatar.cc/150?img=2", lastSeen: "Last seen 5 min ago" },
-        { id: 3, name: "Mike Johnson", avatar: "https://i.pravatar.cc/150?img=3", lastSeen: "Last seen 20 min ago" },
-        { id: 4, name: "Emma Watson", avatar: "https://i.pravatar.cc/150?img=4", lastSeen: "Online" }
-    ];
-
+    const [users,setUsers] = useState([])
+    // const users = [
+    //     { id: 1, name: "John Doe", avatar: "https://i.pravatar.cc/150?img=1", lastSeen: "Online", lastMessage: "Hey dude!" },
+    //     { id: 2, name: "Jane Smith", avatar: "https://i.pravatar.cc/150?img=2", lastSeen: "Last seen 5 min ago" },
+    //     { id: 3, name: "Mike Johnson", avatar: "https://i.pravatar.cc/150?img=3", lastSeen: "Last seen 20 min ago" },
+    //     { id: 4, name: "Emma Watson", avatar: "https://i.pravatar.cc/150?img=4", lastSeen: "Online" }
+    // ];
+    
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const { userId, name, email, profilePicture } = userInfo;
+    useEffect(()=>{
+        const fetchUsersChat = async () =>{
+            try {
+                const response = await axios.get(`https://gramsnap-backend.onrender.com/chat/conversations/${userId}`, { withCredentials: true }); 
+                if (response.status === 200) {
+                    // Debug
+                    console.log(response.data)
+                   // setLoading(false);
+                    setUsers(response.data)
+                    // console.log(userProfile);
+                }
+            } catch (error) {
+                console.log("Error occured: " + error);
+            }
+        }
+    },[])
     const initialMessages = {
         1: [{ sender: "me", text: "Hello!", timestamp: "10:30 AM" }, { sender: "John Doe", text: "Hey, how are you?", timestamp: "10:31 AM" }],
         2: [{ sender: "me", text: "See you soon!", timestamp: "11:15 AM" }, { sender: "Jane Smith", text: "See you later!", timestamp: "11:16 AM" }],
@@ -39,8 +59,6 @@ export const Message = ({ info }) => {
     //  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
 
     // Menu Items
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    const { userId, name, email, profilePicture } = userInfo;
     const menuItems = [
         { name: "Home", icon: <HomeIcon />, route: "/home" },
         { name: "Search", icon: <SearchIcon />, route: "/search" },
@@ -191,7 +209,7 @@ export const Message = ({ info }) => {
                                     .filter(user => user.name.toLowerCase().includes(searchTerm.toLowerCase()))
                                     .map(user => (
                                         <Box
-                                            key={user.id}
+                                            key={user.userId}
                                             sx={{
                                                 display: "flex",
                                                 alignItems: "center",
@@ -204,9 +222,9 @@ export const Message = ({ info }) => {
                                             }}
                                             onClick={() => handleUserClick(user)}
                                         >
-                                            <Avatar src={user.avatar} sx={{ width: 40, height: 40, marginRight: "10px" }} />
+                                            <Avatar src={user.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                             <Box>
-                                                <Typography variant="body1" fontWeight="bold">{user.name}</Typography>
+                                                <Typography variant="body1" fontWeight="bold">{user.username}</Typography>
                                                 <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
                                             </Box>
                                         </Box>
