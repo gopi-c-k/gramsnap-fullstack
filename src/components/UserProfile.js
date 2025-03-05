@@ -79,7 +79,7 @@ const UserProfile = ({ userId }) => {
             }
         } catch (error) {
             console.error("Error occured: ",error);
-            setSnackbarMessage(errorMessage);  // Set a string instead of an object
+            setSnackbarMessage(error);  // Set a string instead of an object
             setSnackbarSeverity("error");
             setOpenSnackbar(true);
         }
