@@ -44,6 +44,7 @@ export const Message = ({ info }) => {
                 console.log("Error occured: " + error);
             }
         }
+        if (userId) fetchUsersChat();
     },[])
     const initialMessages = {
         1: [{ sender: "me", text: "Hello!", timestamp: "10:30 AM" }, { sender: "John Doe", text: "Hey, how are you?", timestamp: "10:31 AM" }],
