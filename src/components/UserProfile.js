@@ -70,7 +70,7 @@ const UserProfile = ({ userId }) => {
     const sendMessageHi = async () => {
         console.log("Function called");
         try {
-            const res = await axios.get('https://gramsnap-backend.onrender.com/chat/send',{senderId: userInfo.userId,receiverId:userId, message:"Hi"}, {withCredentials: true})
+            const res = await axios.post('https://gramsnap-backend.onrender.com/chat/send',{senderId: userInfo.userId,receiverId:userId, message:"Hi"}, {withCredentials: true})
             if(res.status === 200){
                 navigate('/message');
             }else{
