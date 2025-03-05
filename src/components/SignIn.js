@@ -17,8 +17,14 @@ function SignIn({ info }) {
   useEffect(() => {
     const autoLogin = async () => {
       try {
-        await axios.post(`https://gramsnap-backend.onrender.com/login-refresh`, {}, { withCredentials: true });
-        fetchProtectedData();
+        const response = await axios.post(`https://gramsnap-backend.onrender.com/login-refresh`, {}, { withCredentials: true });
+        if (response.status === 200) {
+          const { userId, name, email, profilePicture } = response.data;
+          //console.log(response.data)
+          fetchProtectedData();
+          //navigate("/home");
+          localStorage.setItem('userInfo', JSON.stringify(response.data));
+        }
       } catch (error) {
         console.log("Not logged in");
       }
@@ -34,8 +40,6 @@ function SignIn({ info }) {
       const response = await axios.get(`https://gramsnap-backend.onrender.com/protected`, { withCredentials: true });
       if (response.status === 200) {
         const { userId } = response.data.user;
-        console.log(userId);
-        console.log(response.data);
         //localStorage.setItem("userInfo", JSON.stringify(response.data));
 
         // ✅ Establish WebSocket connection after successful login
