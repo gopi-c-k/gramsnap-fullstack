@@ -207,7 +207,7 @@ export const Message = ({ info }) => {
                                 }
                             }}>
                                 {users
-                                    .filter(user => user.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                                    .filter(user => user.username.toLowerCase().includes(searchTerm.toLowerCase()))
                                     .map(user => (
                                         <Box
                                             key={user.userId}
