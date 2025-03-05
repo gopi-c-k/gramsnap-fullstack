@@ -33,10 +33,10 @@ function SignIn({ info }) {
     try {
       const response = await axios.get(`https://gramsnap-backend.onrender.com/protected`, { withCredentials: true });
       if (response.status === 200) {
-        const { userId } = response.data;
+        const { userId } = response.data.user;
         console.log(userId);
         console.log(response.data);
-        localStorage.setItem("userInfo", JSON.stringify(response.data));
+        //localStorage.setItem("userInfo", JSON.stringify(response.data));
 
         // ✅ Establish WebSocket connection after successful login
         const newSocket = io("https://gramsnap-backend.onrender.com");
@@ -75,7 +75,7 @@ function SignIn({ info }) {
           //console.log(response.data)
           fetchProtectedData();
           //navigate("/home");
-          //localStorage.setItem('userInfo', JSON.stringify(response.data));
+          localStorage.setItem('userInfo', JSON.stringify(response.data));
 
         }
       } catch (error) {

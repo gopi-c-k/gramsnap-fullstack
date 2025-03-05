@@ -9,6 +9,7 @@ import SendIcon from "@mui/icons-material/Send";
 import MessageIcon from '@mui/icons-material/Message';
 import CallIcon from "@mui/icons-material/Call";
 import VideocamIcon from "@mui/icons-material/Videocam";
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import DoneIcon from "@mui/icons-material/Done"; // Single tick
 import DoneAllIcon from "@mui/icons-material/DoneAll"; // Double tick
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -18,7 +19,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 export const Message = ({ info }) => {
     const users = [
-        { id: 1, name: "John Doe", avatar: "https://i.pravatar.cc/150?img=1", lastSeen: "Online", lastMessage:"Hey dude!" },
+        { id: 1, name: "John Doe", avatar: "https://i.pravatar.cc/150?img=1", lastSeen: "Online", lastMessage: "Hey dude!" },
         { id: 2, name: "Jane Smith", avatar: "https://i.pravatar.cc/150?img=2", lastSeen: "Last seen 5 min ago" },
         { id: 3, name: "Mike Johnson", avatar: "https://i.pravatar.cc/150?img=3", lastSeen: "Last seen 20 min ago" },
         { id: 4, name: "Emma Watson", avatar: "https://i.pravatar.cc/150?img=4", lastSeen: "Online" }
@@ -148,171 +149,333 @@ export const Message = ({ info }) => {
                 {/* Main Content To add mesage list  */}
                 <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "row" }}>
                     {/* Message chat recepient */}
-                    <Box sx={{ borderRight: "1px solid #ddd", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minWidth: "24%", padding: "10px", height: "100vh" }}>
-                        <Box>
-                            <Paper
-                                component="form"
-                                sx={{ display: 'flex', alignItems: 'center', width: '100%', borderRadius: '20px', padding: "5px", marginBottom: "10px", boxShadow: "none", border: "1px solid #e0e0e0" }}
-                            >
-                                <IconButton sx={{ p: '10px' }}>
-                                    <SearchIcon />
-                                </IconButton>
-                                <InputBase
-                                    placeholder="Search..."
-                                    value={searchTerm}
-                                    onChange={handleSearch}
-                                    sx={{ ml: 1, flex: 1 }}
-                                />
-                            </Paper>
-                        </Box>
-
-                        {/* Chat List */}
-                        <Box sx={{
-                            overflowY: "auto", flexGrow: 1, width: "100%", scrollbarWidth: "thin", // Firefox
-                            scrollbarColor: "#888 transparent", // Firefox
-
-                            "&::-webkit-scrollbar": {
-                                width: "8px"
-                            },
-                            "&::-webkit-scrollbar-track": {
-                                background: "transparent" // Hides the track
-                            },
-                            "&::-webkit-scrollbar-thumb": {
-                                backgroundColor: "#888", // Thumb color
-                                borderRadius: "10px"
-                            },
-                            "&::-webkit-scrollbar-thumb:hover": {
-                                backgroundColor: "#555" // Hover effect
-                            }
-                        }}>
-                            {users
-                                .filter(user => user.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                                .map(user => (
-                                    <Box
-                                        key={user.id}
-                                        sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            padding: "10px",
-                                            borderRadius: "10px",
-                                            width: "100%",
-                                            cursor: "pointer",
-                                            backgroundColor: selectedUser?.id === user.id ? "#e0e0e0" : "transparent",
-                                            "&:hover": { backgroundColor: "#e0e0e0" }
-                                        }}
-                                        onClick={() => handleUserClick(user)}
-                                    >
-                                        <Avatar src={user.avatar} sx={{ width: 40, height: 40, marginRight: "10px" }} />
-                                        <Box>
-                                            <Typography variant="body1" fontWeight="bold">{user.name}</Typography>
-                                            <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
-                                        </Box>
-                                    </Box>
-                                ))}
-                        </Box>
-                    </Box>
-                    {/* Message Page */}
-                    <Box sx={{ width: "75%", height: "100vh", display: "flex", flexDirection: "column", }}>
-                        {selectedUser ? (
-                            <>
-                                {/* Chat Header */}
-                                <Box sx={{ padding: "10px", borderBottom: "1px solid #e0e0e0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                    {/* User Info */}
-                                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                                        <Avatar src={selectedUser.avatar} sx={{ width: 40, height: 40, marginRight: "10px" }} />
-                                        <Box>
-                                            <Typography variant="h6">{selectedUser.name}</Typography>
-                                            <Typography variant="body2" color="textSecondary">{selectedUser.lastSeen}</Typography>
-                                        </Box>
-                                    </Box>
-
-                                    {/* Call Buttons */}
-                                    <Box>
-                                        <IconButton color="primary">
-                                            <CallIcon />
-                                        </IconButton>
-                                        <IconButton color="primary">
-                                            <VideocamIcon />
-                                        </IconButton>
-                                    </Box>
-                                </Box>
-
-                                {/* Chat Messages */}
-                                <Box sx={{
-                                    flexGrow: 1,
-                                    overflowY: "auto",
-                                    padding: "10px",
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    scrollbarWidth: "thin",
-                                    scrollbarColor: "#888 transparent",
-                                    "&::-webkit-scrollbar": { width: "8px" },
-                                    "&::-webkit-scrollbar-track": { background: "transparent" },
-                                    "&::-webkit-scrollbar-thumb": { backgroundColor: "#888", borderRadius: "10px" },
-                                    "&::-webkit-scrollbar-thumb:hover": { backgroundColor: "#555" }
-                                }}>
-                                    {messages[selectedUser.id]?.map((msg, index) => (
-                                        <>
-                                            <Box key={index} sx={{
-                                                maxWidth: "80%", // Limits message width for better readability
-                                                wordBreak: "break-word", // Ensures long words wrap instead of overflowing
-                                                whiteSpace: "pre-wrap",
-                                                padding: "8px 12px",
-                                                display:"flex",
-                                                flexDirection: "row",
-                                                borderRadius: "12px",
-                                                marginBottom: "8px",
-                                                alignSelf: msg.sender === "me" ? "flex-end" : "flex-start",
-                                                backgroundColor: msg.sender === "me" ? "#7b6cc2" : "#e0e0e0",
-                                                color: msg.sender === "me" ? "#fff" : "#000",
-                                                position: "relative"
-                                            }}>
-                                                {msg.text}
-                                                {msg.sender === "me" && (
-                                            <Box sx={{ marginLeft: "5px", display: "flex", alignItems: "flex-end" }}>
-                                                {msg.status === "sent" && <DoneIcon fontSize="small" />}
-                                                {msg.status === "delivered" && <DoneAllIcon fontSize="small" />}
-                                                {msg.status === "read" && <DoneAllIcon fontSize="small" sx={{ color: "blue" }} />}
-                                            </Box>
-                                        )}
-
-                                            </Box>
-                                            <Typography
-                                                variant="caption"
-                                                sx={{
-                                                    display: "block",
-                                                    fontSize: "0.7rem",
-                                                    textAlign: "right",
-                                                    alignSelf: msg.sender === "me" ? "flex-end" : "flex-start",
-                                                    marginTop: "3px"
-                                                }}
-                                            >
-                                                {msg.timestamp}
-                                            </Typography>
-                                        </>
-                                    ))}
-                                </Box>
-
-                                {/* Message Input */}
-                                <Box sx={{ padding: "10px", display: "flex", alignItems: "center" }}>
-                                    <TextField
-                                        fullWidth
-                                        placeholder="Type a message..."
-                                        value={newMessage}
-                                        onChange={(e) => setNewMessage(e.target.value)}
-                                        sx={{ flexGrow: 1, borderRadius: "20px" }}
-                                    />
-                                    <IconButton color="primary" onClick={handleSendMessage}>
-                                        <SendIcon />
+                    {isDesktop ? (<>
+                        <Box sx={{ borderRight: "1px solid #ddd", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minWidth: "24%", padding: "10px", height: "100vh" }}>
+                            <Box>
+                                <Paper
+                                    component="form"
+                                    sx={{ display: 'flex', alignItems: 'center', width: '100%', borderRadius: '20px', padding: "5px", marginBottom: "10px", boxShadow: "none", border: "1px solid #e0e0e0" }}
+                                >
+                                    <IconButton sx={{ p: '10px' }}>
+                                        <SearchIcon />
                                     </IconButton>
-                                </Box>
-                            </>
-                        ) : (
-                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", flexGrow: 1 }}>
-                                <Typography variant="h6" color="textSecondary">Select a chat to start messaging</Typography>
+                                    <InputBase
+                                        placeholder="Search..."
+                                        value={searchTerm}
+                                        onChange={handleSearch}
+                                        sx={{ ml: 1, flex: 1 }}
+                                    />
+                                </Paper>
                             </Box>
-                        )}
-                    </Box>
+
+                            {/* Chat List */}
+                            <Box sx={{
+                                overflowY: "auto", flexGrow: 1, width: "100%", scrollbarWidth: "thin", // Firefox
+                                scrollbarColor: "#888 transparent", // Firefox
+
+                                "&::-webkit-scrollbar": {
+                                    width: "8px"
+                                },
+                                "&::-webkit-scrollbar-track": {
+                                    background: "transparent" // Hides the track
+                                },
+                                "&::-webkit-scrollbar-thumb": {
+                                    backgroundColor: "#888", // Thumb color
+                                    borderRadius: "10px"
+                                },
+                                "&::-webkit-scrollbar-thumb:hover": {
+                                    backgroundColor: "#555" // Hover effect
+                                }
+                            }}>
+                                {users
+                                    .filter(user => user.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                                    .map(user => (
+                                        <Box
+                                            key={user.id}
+                                            sx={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                padding: "10px",
+                                                borderRadius: "10px",
+                                                width: "100%",
+                                                cursor: "pointer",
+                                                backgroundColor: selectedUser?.id === user.id ? "#e0e0e0" : "transparent",
+                                                "&:hover": { backgroundColor: "#e0e0e0" }
+                                            }}
+                                            onClick={() => handleUserClick(user)}
+                                        >
+                                            <Avatar src={user.avatar} sx={{ width: 40, height: 40, marginRight: "10px" }} />
+                                            <Box>
+                                                <Typography variant="body1" fontWeight="bold">{user.name}</Typography>
+                                                <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
+                                            </Box>
+                                        </Box>
+                                    ))}
+                            </Box>
+                        </Box>
+                        {/* Message Page */}
+                        <Box sx={{ width: "75%", height: "100vh", display: "flex", flexDirection: "column", }}>
+                            {selectedUser ? (
+                                <>
+                                    {/* Chat Header */}
+                                    <Box sx={{ padding: "10px", borderBottom: "1px solid #e0e0e0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                        {/* User Info */}
+                                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                                            <ArrowBackIosNewIcon fontSize="small" sx={{ margin: "10px" }} onClick={() => setSelectedUser(null)} cursor="pointer"></ArrowBackIosNewIcon>
+                                            <Avatar src={selectedUser.avatar} sx={{ width: 40, height: 40, marginRight: "10px" }} />
+                                            <Box>
+                                                <Typography variant="h6">{selectedUser.name}</Typography>
+                                                <Typography variant="body2" color="textSecondary">{selectedUser.lastSeen}</Typography>
+                                            </Box>
+                                        </Box>
+
+                                        {/* Call Buttons */}
+                                        <Box>
+                                            <IconButton color="primary">
+                                                <CallIcon />
+                                            </IconButton>
+                                            <IconButton color="primary">
+                                                <VideocamIcon />
+                                            </IconButton>
+                                        </Box>
+                                    </Box>
+
+                                    {/* Chat Messages */}
+                                    <Box sx={{
+                                        flexGrow: 1,
+                                        overflowY: "auto",
+                                        padding: "10px",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        scrollbarWidth: "thin",
+                                        scrollbarColor: "#888 transparent",
+                                        "&::-webkit-scrollbar": { width: "8px" },
+                                        "&::-webkit-scrollbar-track": { background: "transparent" },
+                                        "&::-webkit-scrollbar-thumb": { backgroundColor: "#888", borderRadius: "10px" },
+                                        "&::-webkit-scrollbar-thumb:hover": { backgroundColor: "#555" }
+                                    }}>
+                                        {messages[selectedUser.id]?.map((msg, index) => (
+                                            <>
+                                                <Box key={index} sx={{
+                                                    maxWidth: "80%", // Limits message width for better readability
+                                                    wordBreak: "break-word", // Ensures long words wrap instead of overflowing
+                                                    whiteSpace: "pre-wrap",
+                                                    padding: "8px 12px",
+                                                    display: "flex",
+                                                    flexDirection: "row",
+                                                    borderRadius: "12px",
+                                                    marginBottom: "8px",
+                                                    alignSelf: msg.sender === "me" ? "flex-end" : "flex-start",
+                                                    backgroundColor: msg.sender === "me" ? "#7b6cc2" : "#e0e0e0",
+                                                    color: msg.sender === "me" ? "#fff" : "#000",
+                                                    position: "relative"
+                                                }}>
+                                                    {msg.text}
+                                                    {msg.sender === "me" && (
+                                                        <Box sx={{ marginLeft: "5px", display: "flex", alignItems: "flex-end" }}>
+                                                            {msg.status === "sent" && <DoneIcon fontSize="small" />}
+                                                            {msg.status === "delivered" && <DoneAllIcon fontSize="small" />}
+                                                            {msg.status === "read" && <DoneAllIcon fontSize="small" sx={{ color: "blue" }} />}
+                                                        </Box>
+                                                    )}
+
+                                                </Box>
+                                                <Typography
+                                                    variant="caption"
+                                                    sx={{
+                                                        display: "block",
+                                                        fontSize: "0.7rem",
+                                                        textAlign: "right",
+                                                        alignSelf: msg.sender === "me" ? "flex-end" : "flex-start",
+                                                        marginTop: "3px"
+                                                    }}
+                                                >
+                                                    {msg.timestamp}
+                                                </Typography>
+                                            </>
+                                        ))}
+                                    </Box>
+
+                                    {/* Message Input */}
+                                    <Box sx={{ padding: "10px", display: "flex", alignItems: "center" }}>
+                                        <TextField
+                                            fullWidth
+                                            placeholder="Type a message..."
+                                            value={newMessage}
+                                            onChange={(e) => setNewMessage(e.target.value)}
+                                            sx={{ flexGrow: 1, borderRadius: "20px" }}
+                                        />
+                                        <IconButton color="primary" onClick={handleSendMessage}>
+                                            <SendIcon />
+                                        </IconButton>
+                                    </Box>
+                                </>
+                            ) : (
+                                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", flexGrow: 1 }}>
+                                    <Typography variant="h6" color="textSecondary">Select a chat to start messaging</Typography>
+                                </Box>
+                            )}
+                        </Box></>) : (<>
+                            {!selectedUser ? (<Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minWidth: "100%", padding: "10px", height: "100vh" }}>
+                                <Box sx={{marginRight:"auto",width:"100%"}}>
+                                    <Paper
+                                        component="form"
+                                        sx={{ display: 'flex', alignItems: 'center', width: '100%', borderRadius: '20px', padding: "5px", width:"100%", marginBottom: "10px",marginRight:"auto", boxShadow: "none", border: "1px solid #e0e0e0" }}
+                                    >
+                                        <IconButton sx={{ p: '10px' }}>
+                                            <SearchIcon />
+                                        </IconButton>
+                                        <InputBase
+                                            placeholder="Search..."
+                                            value={searchTerm}
+                                            onChange={handleSearch}
+                                            sx={{ ml: 1, flex: 1 }}
+                                        />
+                                    </Paper>
+                                </Box>
+
+                                {/* Chat List */}
+                                <Box sx={{
+                                    overflowY: "auto", flexGrow: 1, width: "100%", scrollbarWidth: "thin", // Firefox
+                                    scrollbarColor: "#888 transparent", // Firefox
+
+                                    "&::-webkit-scrollbar": {
+                                        width: "8px"
+                                    },
+                                    "&::-webkit-scrollbar-track": {
+                                        background: "transparent" // Hides the track
+                                    },
+                                    "&::-webkit-scrollbar-thumb": {
+                                        backgroundColor: "#888", // Thumb color
+                                        borderRadius: "10px"
+                                    },
+                                    "&::-webkit-scrollbar-thumb:hover": {
+                                        backgroundColor: "#555" // Hover effect
+                                    }
+                                }}>
+                                    {users
+                                        .filter(user => user.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                                        .map(user => (
+                                            <Box
+                                                key={user.id}
+                                                sx={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    padding: "10px",
+                                                    borderRadius: "10px",
+                                                    width: "100%",
+                                                    cursor: "pointer",
+                                                    backgroundColor: selectedUser?.id === user.id ? "#e0e0e0" : "transparent",
+                                                    "&:hover": { backgroundColor: "#e0e0e0" }
+                                                }}
+                                                onClick={() => handleUserClick(user)}
+                                            >
+                                                <Avatar src={user.avatar} sx={{ width: 40, height: 40, marginRight: "10px" }} />
+                                                <Box>
+                                                    <Typography variant="body1" fontWeight="bold">{user.name}</Typography>
+                                                    <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
+                                                </Box>
+                                            </Box>
+                                        ))}
+                                </Box>
+                            </Box>) : (<Box sx={{ width: "100%", height: "92vh", display: "flex", flexDirection: "column", marginBottom: "auto" }}>
+
+                                <>
+                                    {/* Chat Header */}
+                                    <Box sx={{ padding: "10px", borderBottom: "1px solid #e0e0e0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                        {/* User Info */}
+                                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                                            <ArrowBackIosNewIcon fontSize="small" sx={{ margin: "10px" }} onClick={() => setSelectedUser(null)} ></ArrowBackIosNewIcon>
+                                            <Avatar src={selectedUser.avatar} sx={{ width: 40, height: 40, marginRight: "10px" }} />
+                                            <Box>
+                                                <Typography variant="h6">{selectedUser.name}</Typography>
+                                                <Typography variant="body2" color="textSecondary">{selectedUser.lastSeen}</Typography>
+                                            </Box>
+                                        </Box>
+
+                                        {/* Call Buttons */}
+                                        <Box>
+                                            <IconButton color="primary">
+                                                <CallIcon />
+                                            </IconButton>
+                                            <IconButton color="primary">
+                                                <VideocamIcon />
+                                            </IconButton>
+                                        </Box>
+                                    </Box>
+
+                                    {/* Chat Messages */}
+                                    <Box sx={{
+                                        flexGrow: 1,
+                                        overflowY: "auto",
+                                        padding: "10px",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        scrollbarWidth: "thin",
+                                        scrollbarColor: "#888 transparent",
+                                        "&::-webkit-scrollbar": { width: "8px" },
+                                        "&::-webkit-scrollbar-track": { background: "transparent" },
+                                        "&::-webkit-scrollbar-thumb": { backgroundColor: "#888", borderRadius: "10px" },
+                                        "&::-webkit-scrollbar-thumb:hover": { backgroundColor: "#555" }
+                                    }}>
+                                        {messages[selectedUser.id]?.map((msg, index) => (
+                                            <>
+                                                <Box key={index} sx={{
+                                                    maxWidth: "80%", // Limits message width for better readability
+                                                    wordBreak: "break-word", // Ensures long words wrap instead of overflowing
+                                                    whiteSpace: "pre-wrap",
+                                                    padding: "8px 12px",
+                                                    display: "flex",
+                                                    flexDirection: "row",
+                                                    borderRadius: "12px",
+                                                    marginBottom: "8px",
+                                                    alignSelf: msg.sender === "me" ? "flex-end" : "flex-start",
+                                                    backgroundColor: msg.sender === "me" ? "#7b6cc2" : "#e0e0e0",
+                                                    color: msg.sender === "me" ? "#fff" : "#000",
+                                                    position: "relative"
+                                                }}>
+                                                    {msg.text}
+                                                    {msg.sender === "me" && (
+                                                        <Box sx={{ marginLeft: "5px", display: "flex", alignItems: "flex-end" }}>
+                                                            {msg.status === "sent" && <DoneIcon fontSize="small" />}
+                                                            {msg.status === "delivered" && <DoneAllIcon fontSize="small" />}
+                                                            {msg.status === "read" && <DoneAllIcon fontSize="small" sx={{ color: "blue" }} />}
+                                                        </Box>
+                                                    )}
+
+                                                </Box>
+                                                <Typography
+                                                    variant="caption"
+                                                    sx={{
+                                                        display: "block",
+                                                        fontSize: "0.7rem",
+                                                        textAlign: "right",
+                                                        alignSelf: msg.sender === "me" ? "flex-end" : "flex-start",
+                                                        marginTop: "3px"
+                                                    }}
+                                                >
+                                                    {msg.timestamp}
+                                                </Typography>
+                                            </>
+                                        ))}
+                                    </Box>
+
+                                    {/* Message Input */}
+                                    <Box sx={{ padding: "10px", display: "flex", alignItems: "center" }}>
+                                        <TextField
+                                            fullWidth
+                                            placeholder="Type a message..."
+                                            value={newMessage}
+                                            onChange={(e) => setNewMessage(e.target.value)}
+                                            sx={{ flexGrow: 1, borderRadius: "20px" }}
+                                        />
+                                        <IconButton color="primary" onClick={handleSendMessage}>
+                                            <SendIcon />
+                                        </IconButton>
+                                    </Box>
+                                </>
+                            </Box>)}
+                        </>)}
                 </Box>
                 {/* Bottom Navbar for Mobile/Tablets/Laptops */}
                 {!isDesktop && (
