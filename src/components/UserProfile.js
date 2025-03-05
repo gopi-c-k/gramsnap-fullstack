@@ -71,7 +71,7 @@ const UserProfile = ({ userId }) => {
         console.log("Function called");
         try {
             const res = await axios.post('https://gramsnap-backend.onrender.com/chat/send',{senderId: userInfo.userId,receiverId:userId, message:"Hi"}, {withCredentials: true})
-            if(res.status === 200){
+            if(res.status === 201){
                 navigate('/message');
             }else{
                 setSnackbarMessage("Unable to send message");
