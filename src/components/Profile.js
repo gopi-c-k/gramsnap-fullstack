@@ -28,6 +28,23 @@ const Profile = ({ info }) => {
     const handleFollow = () => {
         setFollowing(!following);
     };
+    const sendMessageHi = async () => {
+        try {
+            const res = await axios.get('https://gramsnap-backend.onrender.com/chat/send',{senderId: userInfo.userId,receiverId:userId, message:"Hi"}, {withCredentials: true})
+            if(res.status === 200){
+                navigate('/message');
+            }else{
+                setSnackbarMessage("Unable to send message");
+                setSnackbarSeverity("error");
+                setOpenSnackbar(true);
+            }
+        } catch (error) {
+            console.error("Error occured: ",error);
+            setSnackbarMessage(error);  // Set a string instead of an object
+            setSnackbarSeverity("error");
+            setOpenSnackbar(true);
+        }
+    }
     useEffect(() => {
         const autoLogin = async () => {
             try {
