@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Avatar, Button, CircularProgress, Backdrop, Snackbar, Alert } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -9,12 +10,14 @@ import { LOCAL_HOST } from "./variable";
 import { useMediaQuery, useTheme } from "@mui/material";
 
 const UserProfile = ({ userId }) => {
+    const navigate = useNavigate();
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [following, setFollowing] = useState(false);
     const muiTheme = useTheme();
     const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
 
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
     // For Snackbars
     const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -64,6 +67,23 @@ const UserProfile = ({ userId }) => {
             setLoading(false);
         }
     };
+    const sendMessageHi = async () => {
+        try {
+            const res = await axios.get('https://gramsnap-backend.onrender.com/chat/send',{senderId: userInfo.userId,receiverId:userId, message:"Hi"}, {withCredentials: true})
+            if(res.status === 200){
+                navigate('/message');
+            }else{
+                setSnackbarMessage("Unable to send message");
+                setSnackbarSeverity("error");
+                setOpenSnackbar(true);
+            }
+        } catch (error) {
+            console.error("Error occured: ",error);
+            setSnackbarMessage(errorMessage);  // Set a string instead of an object
+            setSnackbarSeverity("error");
+            setOpenSnackbar(true);
+        }
+    }
 
 
     if (loading) {
@@ -147,7 +167,7 @@ const UserProfile = ({ userId }) => {
                             {userProfile.isFollow ? "Unfollow" : userProfile?.isRequestSent ? "Request Sent" : "Follow"}
                         </Button>
                         {userProfile.isFollow && (
-                            <Button variant="contained" sx={{ width: 130, backgroundColor: "#7b6cc2" }} startIcon={<ChatIcon />}>
+                            <Button variant="contained" sx={{ width: 130, backgroundColor: "#7b6cc2" }} startIcon={<ChatIcon />} onClick={()=>{sendMessageHi()}}>
                                 Message
                             </Button>
                         )}
