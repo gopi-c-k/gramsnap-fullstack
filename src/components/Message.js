@@ -107,26 +107,27 @@ export const Message = ({ info }) => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    const [userPages, setUserPages] = useState({}); // ✅ Track pages per user
-    const [userMessages, setUserMessages] = useState({}); // ✅ Store messages per user
+    const [userMessages, setUserMessages] = useState({}); // ✅ Stores messages per user
+    const [userPages, setUserPages] = useState({}); // ✅ Tracks last page per user
 
     const handleUserClick = async (user, newChat = false) => {
         setMsgLoading(true);
         setSelectedUser(user);
 
-        const userIdKey = user.userId; // Unique key for each user
-        let currentPage = userPages[userIdKey] || 1; // ✅ Get stored page or default to 1
+        const userIdKey = user.userId; // Unique key per user
+        let currentPage = userPages[userIdKey] || 1; // ✅ Get stored page, default to 1
 
+        // ✅ If it's a new chat OR user has no messages, reset page & messages
         if (newChat || !userMessages[userIdKey]) {
-            currentPage = 1; // ✅ Reset page when opening a new chat
-            setUserMessages((prev) => ({ ...prev, [userIdKey]: [] })); // ✅ Clear messages for new chat
+            currentPage = 1;
+            setUserMessages((prev) => ({ ...prev, [userIdKey]: [] }));
         }
 
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/chat/messages`, {
                 params: {
-                    senderId: userId,  // ✅ Logged-in user ID
-                    receiverId: userIdKey,  // ✅ Clicked user ID
+                    senderId: userId,
+                    receiverId: userIdKey,
                     page: currentPage,
                     limit: 10,
                 },
@@ -139,9 +140,8 @@ export const Message = ({ info }) => {
                     ...prev,
                     [userIdKey]: newChat ? newMessages : [...(prev[userIdKey] || []), ...newMessages],
                 }));
-                console.log(userMessages);
-                setTotalPages(res.data.totalPages);
-                setUserPages((prev) => ({ ...prev, [userIdKey]: currentPage + 1 })); // ✅ Save page per user
+
+                setUserPages((prev) => ({ ...prev, [userIdKey]: currentPage + 1 })); // ✅ Store next page for this user
             }
         } catch (error) {
             console.error("Error fetching messages:", error);
@@ -149,6 +149,7 @@ export const Message = ({ info }) => {
             setMsgLoading(false);
         }
     };
+
 
 
     const chatBoxRef = useRef(null);
