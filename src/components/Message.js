@@ -109,16 +109,17 @@ export const Message = ({ info }) => {
                         receiverId: user, // Change this to the clicked user ID
                         page,
                         limit: 10, // Adjust limit as needed
+                        // `https://gramsnap-backend.onrender.com/chat/messages`
                     },
                 }
             );
 
             if (res.status === 200) {
                 setMessages((prevMessages) => [
-                    ...prevMessages,
-                    ...res.data.messages,
-                ]); // Append new messages
-                console.log("Msg from bn"+res.data);
+                    ...(Array.isArray(prevMessages) ? prevMessages : []), // Ensure prevMessages is an array
+                    ...(Array.isArray(res.data.messages) ? res.data.messages : []), // Ensure res.data.messages is an array
+                ]);
+                console.log(res.data);
                 setTotalPages(res.data.totalPages);
                 setPage((prevPage) => prevPage + 1);
             }
