@@ -143,6 +143,7 @@ export const Message = ({ info }) => {
 
                 setUserPages((prev) => ({ ...prev, [userIdKey]: currentPage + 1 })); // ✅ Store next page for this user
             }
+            console.log(userMessages);
         } catch (error) {
             console.error("Error fetching messages:", error);
         } finally {
@@ -303,7 +304,7 @@ export const Message = ({ info }) => {
                                             <Avatar src={user.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                             <Box>
                                                 <Typography variant="body1" fontWeight="bold">{user.username}</Typography>
-                                                <Box sx={{ display: "flex", flexDirection: "row" }}>
+                                                <Box sx={{ display: "flex", flexDirection: "row",width:"100%" }}>
                                                     <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
                                                     <Typography variant="body2" color="textSecondary" sx={{ marginLeft: "auto" }}>{getTimeAgo(user.createdAt)}</Typography>
                                                 </Box>
