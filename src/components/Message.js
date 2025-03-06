@@ -107,21 +107,23 @@ export const Message = ({ info }) => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    const [userMessages, setUserMessages] = useState({}); // ✅ Stores messages per user
-    const [userPages, setUserPages] = useState({}); // ✅ Tracks last page per user
+    const [userMessages, setUserMessages] = useState({}); // Stores messages per user
+    const [userPages, setUserPages] = useState({}); // Tracks last page per user
 
     const handleUserClick = async (user, newChat = false) => {
         setMsgLoading(true);
         setSelectedUser(user);
 
         const userIdKey = user.userId; // Unique key per user
-        let currentPage = userPages[userIdKey] || 1; // ✅ Get stored page, default to 1
 
-        // ✅ If it's a new chat OR user has no messages, reset page & messages
-        if (newChat || !userMessages[userIdKey]) {
-            currentPage = 1;
-            setUserMessages((prev) => ({ ...prev, [userIdKey]: [] }));
+        // If it's a new chat, reset page for this user
+        if (newChat) {
+            setUserPages(prev => ({ ...prev, [userIdKey]: 1 }));
+            setUserMessages(prev => ({ ...prev, [userIdKey]: [] }));
         }
+
+        // Get the current page after potentially resetting it above
+        const currentPage = newChat ? 1 : (userPages[userIdKey] || 1);
 
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/chat/messages`, {
@@ -136,12 +138,28 @@ export const Message = ({ info }) => {
             if (res.status === 200) {
                 const newMessages = Array.isArray(res.data.messages) ? res.data.messages : [];
 
-                setUserMessages((prev) => ({
-                    ...prev,
-                    [userIdKey]: newChat ? newMessages : [...(prev[userIdKey] || []), ...newMessages],
-                }));
+                // Use a callback to ensure we're working with the most current state
+                setUserMessages(prevMessages => {
+                    // Create a deep copy to avoid state update issues
+                    const updatedMessages = { ...prevMessages };
 
-                setUserPages((prev) => ({ ...prev, [userIdKey]: currentPage + 1 })); // ✅ Store next page for this user
+                    // Initialize the array if it doesn't exist
+                    if (!updatedMessages[userIdKey]) {
+                        updatedMessages[userIdKey] = [];
+                    }
+
+                    // Add new messages in the correct order
+                    updatedMessages[userIdKey] = newChat
+                        ? newMessages
+                        : [...newMessages, ...updatedMessages[userIdKey]];
+
+                    return updatedMessages;
+                });
+
+                // Only increment page if we received messages
+                if (newMessages.length > 0) {
+                    setUserPages(prev => ({ ...prev, [userIdKey]: currentPage + 1 }));
+                }
             }
             console.log(userMessages);
         } catch (error) {
@@ -304,7 +322,7 @@ export const Message = ({ info }) => {
                                             <Avatar src={user.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                             <Box>
                                                 <Typography variant="body1" fontWeight="bold">{user.username}</Typography>
-                                                <Box sx={{ display: "flex", flexDirection: "row",width:"100%" }}>
+                                                <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
                                                     <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
                                                     <Typography variant="body2" color="textSecondary" sx={{ marginLeft: "auto" }}>{getTimeAgo(user.createdAt)}</Typography>
                                                 </Box>
