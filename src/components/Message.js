@@ -274,7 +274,7 @@ export const Message = ({ info }) => {
                                                 borderRadius: "10px",
                                                 width: "100%",
                                                 cursor: "pointer",
-                                                backgroundColor: selectedUser.userId === user.userId ? "#7b6cc2" : "transparent",
+                                                backgroundColor: selectedUser?.userId === user.userId ? "#7b6cc2" : "transparent",
                                                 "&:hover": { backgroundColor: "#e0e0e0" }
                                             }}
                                             onClick={() => handleUserClick(user)}
@@ -469,7 +469,7 @@ export const Message = ({ info }) => {
                                                         borderRadius: "10px",
                                                         width: "100%",
                                                         cursor: "pointer",
-                                                        backgroundColor: selectedUser.userId === user.userId ? "#7b6cc2" : "transparent",
+                                                        backgroundColor: selectedUser?.userId === user.userId ? "#7b6cc2" : "transparent",
                                                         "&:hover": { backgroundColor: "#e0e0e0" }
                                                     }}
                                                     onClick={() => handleUserClick(user)}
