@@ -107,38 +107,41 @@ export const Message = ({ info }) => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
+    const [userPages, setUserPages] = useState({}); // ✅ Track pages per user
+    const [userMessages, setUserMessages] = useState({}); // ✅ Store messages per user
+
     const handleUserClick = async (user, newChat = false) => {
         setMsgLoading(true);
         setSelectedUser(user);
 
-        if (newChat) {
-            setMessages([]); // Clear previous chat if opening a new one
-            setPage(1);
+        const userIdKey = user.userId; // Unique key for each user
+        let currentPage = userPages[userIdKey] || 1; // ✅ Get stored page or default to 1
+
+        if (newChat || !userMessages[userIdKey]) {
+            currentPage = 1; // ✅ Reset page when opening a new chat
+            setUserMessages((prev) => ({ ...prev, [userIdKey]: [] })); // ✅ Clear messages for new chat
         }
 
         try {
-            const res = await axios.get(
-                `https://gramsnap-backend.onrender.com/chat/messages`,
-                {
-                    params: {
-                        senderId: userId, // Change this to the logged-in user ID
-                        receiverId: user.userId, // Change this to the clicked user ID
-                        page,
-                        limit: 10, // Adjust limit as needed
-                        // `https://gramsnap-backend.onrender.com/chat/messages`
-                    },
-                }
-            );
+            const res = await axios.get(`https://gramsnap-backend.onrender.com/chat/messages`, {
+                params: {
+                    senderId: userId,  // ✅ Logged-in user ID
+                    receiverId: userIdKey,  // ✅ Clicked user ID
+                    page: currentPage,
+                    limit: 10,
+                },
+            });
 
             if (res.status === 200) {
-                setMessages((prevMessages) => [
-                    ...(Array.isArray(prevMessages) ? prevMessages : []), // Ensure prevMessages is an array
-                    ...(Array.isArray(res.data.messages) ? res.data.messages : []), // Ensure res.data.messages is an array
-                ]);
-                console.log(res.data);
-                console.log(messages);
+                const newMessages = Array.isArray(res.data.messages) ? res.data.messages : [];
+
+                setUserMessages((prev) => ({
+                    ...prev,
+                    [userIdKey]: newChat ? newMessages : [...(prev[userIdKey] || []), ...newMessages],
+                }));
+                console.log(userMessages);
                 setTotalPages(res.data.totalPages);
-                setPage((prevPage) => prevPage + 1);
+                setUserPages((prev) => ({ ...prev, [userIdKey]: currentPage + 1 })); // ✅ Save page per user
             }
         } catch (error) {
             console.error("Error fetching messages:", error);
@@ -146,6 +149,7 @@ export const Message = ({ info }) => {
             setMsgLoading(false);
         }
     };
+
 
     const chatBoxRef = useRef(null);
 
@@ -300,7 +304,7 @@ export const Message = ({ info }) => {
                                                 <Typography variant="body1" fontWeight="bold">{user.username}</Typography>
                                                 <Box sx={{ display: "flex", flexDirection: "row" }}>
                                                     <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
-                                                    <Typography variant="body2" color="textSecondary" sx={{ marginRight: "auto" }}>{getTimeAgo(user.createdAt)}</Typography>
+                                                    <Typography variant="body2" color="textSecondary" sx={{ marginLeft: "auto" }}>{getTimeAgo(user.createdAt)}</Typography>
                                                 </Box>
                                             </Box>
                                         </Box>
@@ -496,7 +500,10 @@ export const Message = ({ info }) => {
                                                     <Avatar src={user.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                                     <Box>
                                                         <Typography variant="body1" fontWeight="bold">{user.username}</Typography>
-                                                        <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
+                                                        <Box sx={{ display: "flex", flexDirection: "row" }}>
+                                                            <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
+                                                            <Typography variant="body2" color="textSecondary" sx={{ marginLeft: "auto" }}>{getTimeAgo(user.createdAt)}</Typography>
+                                                        </Box>
                                                     </Box>
                                                 </Box>
                                             ))}
