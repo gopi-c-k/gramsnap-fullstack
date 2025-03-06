@@ -19,13 +19,26 @@ function App() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("https://gramsnap-backend.onrender.com", { withCredentials: true, transports: ["websocket"] });
+    const newSocket = io("https://gramsnap-backend.onrender.com", {
+      withCredentials: true,
+      transports: ["websocket"]
+    });
+
+    newSocket.on("connect", () => {
+      console.log("✅ Connected to WebSocket Server:", newSocket.id);
+    });
+
+    newSocket.on("connect_error", (err) => {
+      console.error("❌ WebSocket Connection Error:", err);
+    });
+
     setSocket(newSocket);
 
     return () => {
-      newSocket.disconnect();
+      newSocket.disconnect(); // Cleanup when component unmounts
     };
-  }, []);
+  }, []); // ✅ Empty dependency array means it runs once
+
   const theme = React.useMemo(
     () =>
       createTheme({
