@@ -19,7 +19,7 @@ function App() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("https://gramsnap-backend.onrender.com", { withCredentials: true });
+    const newSocket = io("https://gramsnap-backend.onrender.com", { withCredentials: true, transports: ["websocket"] });
     setSocket(newSocket);
 
     return () => {
