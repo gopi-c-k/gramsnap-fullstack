@@ -61,6 +61,22 @@ export const Message = ({ info }) => {
     const muiTheme = useTheme();
     const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
     //  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
+    const getTimeAgo = (timestamp) => {
+        const now = new Date();
+        const past = new Date(timestamp);
+        const diffInSeconds = Math.floor((now - past) / 1000); // Difference in seconds
+
+        if (diffInSeconds < 60) return "Just now"; // Less than 1 minute
+        const diffInMinutes = Math.floor(diffInSeconds / 60);
+        if (diffInMinutes < 60) return `${diffInMinutes} min ago`; // Less than 1 hour
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) return `${diffInHours} hr ago`; // Less than 1 day
+        const diffInDays = Math.floor(diffInHours / 24);
+        if (diffInDays < 7) return `${diffInDays} d ago`; // Less than a week
+        if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} w ago`; // Less than a month
+        if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} mo ago`; // Less than a year
+        return `${Math.floor(diffInDays / 365)} yr ago`; // 1+ years ago
+    };
 
     // Menu Items
     const menuItems = [
@@ -86,7 +102,7 @@ export const Message = ({ info }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [messages, setMessages] = useState(initialMessages);
+    const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -282,7 +298,10 @@ export const Message = ({ info }) => {
                                             <Avatar src={user.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                             <Box>
                                                 <Typography variant="body1" fontWeight="bold">{user.username}</Typography>
-                                                <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
+                                                <Box sx={{ display: "flex", flexDirection: "row" }}>
+                                                    <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
+                                                    <Typography variant="body2" color="textSecondary" sx={{ marginRight: "auto" }}>{getTimeAgo(user.createdAt)}</Typography>
+                                                </Box>
                                             </Box>
                                         </Box>
                                     ))}
@@ -303,7 +322,7 @@ export const Message = ({ info }) => {
                                             <ArrowBackIosNewIcon fontSize="small" sx={{ margin: "10px" }} onClick={() => setSelectedUser(null)} cursor="pointer"></ArrowBackIosNewIcon>
                                             <Avatar src={selectedUser.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                             <Box>
-                                                <Typography variant="h6">{selectedUser.name}</Typography>
+                                                <Typography variant="h6">{selectedUser.username}</Typography>
                                                 <Typography variant="body2" color="textSecondary">{selectedUser.lastSeen}</Typography>
                                             </Box>
                                         </Box>
@@ -496,7 +515,7 @@ export const Message = ({ info }) => {
                                                     <ArrowBackIosNewIcon fontSize="small" sx={{ margin: "10px" }} onClick={() => setSelectedUser(null)} ></ArrowBackIosNewIcon>
                                                     <Avatar src={selectedUser.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                                     <Box>
-                                                        <Typography variant="h6">{selectedUser.name}</Typography>
+                                                        <Typography variant="h6">{selectedUser.username}</Typography>
                                                         <Typography variant="body2" color="textSecondary">{selectedUser.lastSeen}</Typography>
                                                     </Box>
                                                 </Box>
