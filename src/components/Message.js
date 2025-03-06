@@ -106,7 +106,7 @@ export const Message = ({ info }) => {
                 {
                     params: {
                         senderId: userId, // Change this to the logged-in user ID
-                        receiverId: user, // Change this to the clicked user ID
+                        receiverId: user.userId, // Change this to the clicked user ID
                         page,
                         limit: 10, // Adjust limit as needed
                         // `https://gramsnap-backend.onrender.com/chat/messages`
@@ -120,6 +120,7 @@ export const Message = ({ info }) => {
                     ...(Array.isArray(res.data.messages) ? res.data.messages : []), // Ensure res.data.messages is an array
                 ]);
                 console.log(res.data);
+                console.log(messages);
                 setTotalPages(res.data.totalPages);
                 setPage((prevPage) => prevPage + 1);
             }
@@ -273,10 +274,10 @@ export const Message = ({ info }) => {
                                                 borderRadius: "10px",
                                                 width: "100%",
                                                 cursor: "pointer",
-                                                backgroundColor: selectedUser === user.userId ? "#7b6cc2" : "transparent",
+                                                backgroundColor: selectedUser.userId === user.userId ? "#7b6cc2" : "transparent",
                                                 "&:hover": { backgroundColor: "#e0e0e0" }
                                             }}
-                                            onClick={() => handleUserClick(user.userId)}
+                                            onClick={() => handleUserClick(user)}
                                         >
                                             <Avatar src={user.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                             <Box>
@@ -300,7 +301,7 @@ export const Message = ({ info }) => {
                                         {/* User Info */}
                                         <Box sx={{ display: "flex", alignItems: "center" }}>
                                             <ArrowBackIosNewIcon fontSize="small" sx={{ margin: "10px" }} onClick={() => setSelectedUser(null)} cursor="pointer"></ArrowBackIosNewIcon>
-                                            <Avatar src={selectedUser.avatar} sx={{ width: 40, height: 40, marginRight: "10px" }} />
+                                            <Avatar src={selectedUser.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                             <Box>
                                                 <Typography variant="h6">{selectedUser.name}</Typography>
                                                 <Typography variant="body2" color="textSecondary">{selectedUser.lastSeen}</Typography>
@@ -468,10 +469,10 @@ export const Message = ({ info }) => {
                                                         borderRadius: "10px",
                                                         width: "100%",
                                                         cursor: "pointer",
-                                                        backgroundColor: selectedUser === user.userId ? "#7b6cc2" : "transparent",
+                                                        backgroundColor: selectedUser.userId === user.userId ? "#7b6cc2" : "transparent",
                                                         "&:hover": { backgroundColor: "#e0e0e0" }
                                                     }}
-                                                    onClick={() => handleUserClick(user.userId)}
+                                                    onClick={() => handleUserClick(user)}
                                                 >
                                                     <Avatar src={user.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                                     <Box>
@@ -493,7 +494,7 @@ export const Message = ({ info }) => {
                                                 {/* User Info */}
                                                 <Box sx={{ display: "flex", alignItems: "center" }}>
                                                     <ArrowBackIosNewIcon fontSize="small" sx={{ margin: "10px" }} onClick={() => setSelectedUser(null)} ></ArrowBackIosNewIcon>
-                                                    <Avatar src={selectedUser.avatar} sx={{ width: 40, height: 40, marginRight: "10px" }} />
+                                                    <Avatar src={selectedUser.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                                     <Box>
                                                         <Typography variant="h6">{selectedUser.name}</Typography>
                                                         <Typography variant="body2" color="textSecondary">{selectedUser.lastSeen}</Typography>
