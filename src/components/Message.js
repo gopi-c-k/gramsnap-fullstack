@@ -16,9 +16,17 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import axios from "axios";
+import io from "socket.io-client";
 
 
 export const Message = ({ info }) => {
+
+
+    const socket = io("https://gramsnap-backend.onrender.com");
+
+
+
+
     // const [users, setUsers] = useState([{id:1,username:"Gopi",profilePicture:null,lastMessage:"Ilove you"}]);
     const [users, setUsers] = useState([]);
     const [msgLoading, setMsgLoading] = useState(false);
@@ -48,13 +56,14 @@ export const Message = ({ info }) => {
             }
         }
         if (userId) fetchUsersChat();
-    }, [])
-    const initialMessages = {
-        1: [{ sender: "me", text: "Hello!", timestamp: "10:30 AM" }, { sender: "John Doe", text: "Hey, how are you?", timestamp: "10:31 AM" }],
-        2: [{ sender: "me", text: "See you soon!", timestamp: "11:15 AM" }, { sender: "Jane Smith", text: "See you later!", timestamp: "11:16 AM" }],
-        3: [{ sender: "me", text: "Hey Mike!", timestamp: "12:45 PM" }, { sender: "Mike Johnson", text: "What's up?", timestamp: "12:46 PM" }],
-        4: [{ sender: "me", text: "Hi Emma!", timestamp: "1:00 PM" }, { sender: "Emma Watson", text: "Let's meet tomorrow.", timestamp: "1:01 PM" }]
-    };
+    }, []);
+
+    // const initialMessages = {
+    //     1: [{ sender: "me", text: "Hello!", timestamp: "10:30 AM" }, { sender: "John Doe", text: "Hey, how are you?", timestamp: "10:31 AM" }],
+    //     2: [{ sender: "me", text: "See you soon!", timestamp: "11:15 AM" }, { sender: "Jane Smith", text: "See you later!", timestamp: "11:16 AM" }],
+    //     3: [{ sender: "me", text: "Hey Mike!", timestamp: "12:45 PM" }, { sender: "Mike Johnson", text: "What's up?", timestamp: "12:46 PM" }],
+    //     4: [{ sender: "me", text: "Hi Emma!", timestamp: "1:00 PM" }, { sender: "Emma Watson", text: "Let's meet tomorrow.", timestamp: "1:01 PM" }]
+    // };
     const navigate = useNavigate();
     const { theme, prefersDarkMode } = info;
     const [selected, setSelected] = useState("Message");
@@ -110,20 +119,94 @@ export const Message = ({ info }) => {
     const [userMessages, setUserMessages] = useState({}); // Stores messages per user
     const [userPages, setUserPages] = useState({}); // Tracks last page per user
 
+
+    /// Sockets Listening
+    useEffect(() => {
+        // Listen for user going offline
+        socket.on("userOffline", ({ userId, lastSeen }) => {
+            console.log(`❌ User ${userId} went offline`);
+    
+            setUserMessages((prevMessages) => {
+                // Check if userId exists before updating
+                if (!prevMessages[userId]) return prevMessages;
+    
+                return {
+                    ...prevMessages,
+                    [userId]: {
+                        ...prevMessages[userId],
+                        lastSeen, // Update last seen
+                        online: false, // Set offline status
+                    },
+                };
+            });
+    
+            // If the offline user is the selected user, update its state
+            if (selectedUser?.userId === userId) {
+                setSelectedUser((prev) => ({ ...prev, online: false, lastSeen }));
+            }
+        });
+    
+        return () => {
+            socket.off("userOffline"); // Cleanup listener on unmount
+        };
+    }, [selectedUser]); // ✅ Added `selectedUser` dependency for correct updates
+    
+    useEffect(() => {
+        // Listen for user coming online
+        socket.on("userOnline", ({ userId }) => {
+            console.log(`🟢 User ${userId} is now online`);
+    
+            setUserMessages((prevMessages) => {
+                // Check if userId exists before updating state
+                if (!prevMessages[userId]) return prevMessages;
+    
+                return {
+                    ...prevMessages,
+                    [userId]: {
+                        ...prevMessages[userId],
+                        online: true, // Mark user as online
+                    },
+                };
+            });
+    
+            // If the online user is the selected user, update its state
+            if (selectedUser?.userId === userId) {
+                setSelectedUser((prev) => ({ ...prev, online: true }));
+            }
+        });
+    
+        return () => {
+            socket.off("userOnline"); // Cleanup listener on unmount
+        };
+    }, [selectedUser]); // ✅ Keeping selectedUser as dependency
+     // Add `selectedUser` as a dependency if needed
+
+
     const handleUserClick = async (user, newChat = false) => {
         setMsgLoading(true);
         setSelectedUser(user);
 
         const userIdKey = user.userId; // Unique key per user
 
-        // If it's a new chat, reset page for this user
-        if (newChat) {
-            setUserPages(prev => ({ ...prev, [userIdKey]: 1 }));
-            setUserMessages(prev => ({ ...prev, [userIdKey]: [] }));
+        // Set initial state for this user if it doesn't exist yet
+        if (!userMessages[userIdKey]) {
+            // Use functional update to ensure we're working with latest state
+            setUserMessages(prev => ({
+                ...prev,
+                [userIdKey]: []
+            }));
         }
 
-        // Get the current page after potentially resetting it above
+        // Calculate current page
         const currentPage = newChat ? 1 : (userPages[userIdKey] || 1);
+
+        // If it's a new chat, reset messages for this user
+        if (newChat) {
+            setUserMessages(prev => ({
+                ...prev,
+                [userIdKey]: []
+            }));
+        }
 
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/chat/messages`, {
@@ -132,40 +215,39 @@ export const Message = ({ info }) => {
                     receiverId: userIdKey,
                     page: currentPage,
                     limit: 10,
+
+                    //https://gramsnap-backend.onrender.com/chat/messages
                 },
             });
 
             if (res.status === 200) {
                 const newMessages = Array.isArray(res.data.messages) ? res.data.messages : [];
 
-                // Use a callback to ensure we're working with the most current state
-                setUserMessages(prevMessages => {
-                    // Create a deep copy to avoid state update issues
-                    const updatedMessages = { ...prevMessages };
-
-                    // Initialize the array if it doesn't exist
-                    if (!updatedMessages[userIdKey]) {
-                        updatedMessages[userIdKey] = [];
-                    }
-
-                    // Add new messages in the correct order
-                    updatedMessages[userIdKey] = newChat
-                        ? newMessages
-                        : [...newMessages, ...updatedMessages[userIdKey]];
-
-                    return updatedMessages;
+                // Immediately update messages for this specific user
+                setUserMessages(prev => {
+                    const currentUserMessages = prev[userIdKey] || [];
+                    return {
+                        ...prev,
+                        [userIdKey]: newChat
+                            ? newMessages
+                            : [...newMessages, ...currentUserMessages]
+                    };
                 });
-
-                // Only increment page if we received messages
+                setMsgLoading(false);
+                console.log(userMessages);
+                // Update page counter if we received messages
                 if (newMessages.length > 0) {
-                    setUserPages(prev => ({ ...prev, [userIdKey]: currentPage + 1 }));
+                    setUserPages(prev => ({
+                        ...prev,
+                        [userIdKey]: currentPage + 1
+                    }));
                 }
             }
-            console.log(userMessages);
+
         } catch (error) {
             console.error("Error fetching messages:", error);
         } finally {
-            setMsgLoading(false);
+            // setMsgLoading(false);
         }
     };
 
@@ -320,7 +402,7 @@ export const Message = ({ info }) => {
                                             onClick={() => handleUserClick(user)}
                                         >
                                             <Avatar src={user.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
-                                            <Box>
+                                            <Box sx={{ width: "100%" }}>
                                                 <Typography variant="body1" fontWeight="bold">{user.username}</Typography>
                                                 <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
                                                     <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
@@ -347,7 +429,20 @@ export const Message = ({ info }) => {
                                             <Avatar src={selectedUser.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                             <Box>
                                                 <Typography variant="h6">{selectedUser.username}</Typography>
-                                                <Typography variant="body2" color="textSecondary">{selectedUser.lastSeen}</Typography>
+                                                <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                                    <Box
+                                                        sx={{
+                                                            width: "8px", // Small dot size
+                                                            height: "8px",
+                                                            marginRight: "4px",
+                                                            borderRadius: "50%", // Makes it round
+                                                            backgroundColor: selectedUser.online ? "green" : "yellow", // Change to "green" for a green dot
+                                                            display: "inline-block", // Ensures it behaves like a small dot
+                                                        }}
+                                                    />
+                                                    <Typography variant="body2" color="textSecondary">{selectedUser.online ? "online" : getTimeAgo(selectedUser.lastSeen)}</Typography>
+
+                                                </Box>
                                             </Box>
                                         </Box>
 
@@ -364,81 +459,85 @@ export const Message = ({ info }) => {
 
                                     {/* Chat Messages */}
                                     <>
-                                        <Box sx={{
-                                            flexGrow: 1,
-                                            overflowY: "auto",
-                                            padding: "10px",
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            scrollbarWidth: "thin",
-                                            scrollbarColor: "#888 transparent",
-                                            "&::-webkit-scrollbar": { width: "8px" },
-                                            "&::-webkit-scrollbar-track": { background: "transparent" },
-                                            "&::-webkit-scrollbar-thumb": { backgroundColor: "#888", borderRadius: "10px" },
-                                            "&::-webkit-scrollbar-thumb:hover": { backgroundColor: "#555" }
-                                        }}>
-                                            {messages[selectedUser.id]?.map((msg, index) => (
-                                                <>
-                                                    <Box
-                                                        sx={{
-                                                            flexGrow: 1,
-                                                            overflowY: "auto",
-                                                            padding: "10px",
-                                                            display: "flex",
-                                                            flexDirection: "column-reverse", // Ensures new messages appear at the bottom
-                                                            scrollbarWidth: "thin",
-                                                            scrollbarColor: "#888 transparent",
-                                                            "&::-webkit-scrollbar": { width: "8px" },
-                                                            "&::-webkit-scrollbar-track": { background: "transparent" },
-                                                            "&::-webkit-scrollbar-thumb": { backgroundColor: "#888", borderRadius: "10px" },
-                                                            "&::-webkit-scrollbar-thumb:hover": { backgroundColor: "#555" }
-                                                        }}
-                                                        ref={chatBoxRef} // Attach ref for scroll detection
-                                                        onScroll={handleScroll} // Call function on scroll event
-                                                    >
-                                                        {messages.map((msg, index) => (
-                                                            <Box key={index}
-                                                                sx={{
-                                                                    maxWidth: "80%",
-                                                                    wordBreak: "break-word",
-                                                                    whiteSpace: "pre-wrap",
-                                                                    padding: "8px 12px",
-                                                                    display: "flex",
-                                                                    flexDirection: "row",
-                                                                    borderRadius: "12px",
-                                                                    marginBottom: "8px",
-                                                                    alignSelf: msg.sender === "me" ? "flex-end" : "flex-start",
-                                                                    backgroundColor: msg.sender === "me" ? "#7b6cc2" : "#e0e0e0",
-                                                                    color: msg.sender === "me" ? "#fff" : "#000",
-                                                                }}
-                                                            >
-                                                                {msg.message}
-                                                                {msg.sender === "me" && (
-                                                                    <Box sx={{ marginLeft: "5px", display: "flex", alignItems: "flex-end" }}>
-                                                                        {msg.status === "sent" && <DoneIcon fontSize="small" />}
-                                                                        {msg.status === "delivered" && <DoneAllIcon fontSize="small" />}
-                                                                        {msg.status === "read" && <DoneAllIcon fontSize="small" sx={{ color: "blue" }} />}
-                                                                    </Box>
-                                                                )}
-                                                            </Box>
-                                                        ))}
-                                                    </Box>
+                                        <Box
+                                            sx={{
+                                                flexGrow: 1,
+                                                overflowY: "auto",
+                                                padding: "10px",
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                alignItems: "flex-start", // Default alignment for received messages
+                                                scrollbarWidth: "thin",
+                                                scrollbarColor: "#888 transparent",
+                                                "&::-webkit-scrollbar": { width: "8px" },
+                                                "&::-webkit-scrollbar-track": { background: "transparent" },
+                                                "&::-webkit-scrollbar-thumb": { backgroundColor: "#888", borderRadius: "10px" },
+                                                "&::-webkit-scrollbar-thumb:hover": { backgroundColor: "#555" },
+                                            }}
+                                        >
+                                            {selectedUser?.userId && Array.isArray(userMessages[selectedUser.userId]) && userMessages[selectedUser.userId].length > 0 ? (
+                                                userMessages[selectedUser.userId].map((msg) => (
+                                                    <Box key={msg._id} sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+                                                        {/* Message Box */}
+                                                        <Box
+                                                            sx={{
+                                                                maxWidth: "80%",
+                                                                wordBreak: "break-word",
+                                                                display: "flex",
+                                                                flexDirection: "column",
+                                                                whiteSpace: "pre-wrap",
+                                                                padding: "8px 12px",
+                                                                display: "inline-block",
+                                                                borderRadius: "12px",
+                                                                marginBottom: "8px",
+                                                                backgroundColor: msg.senderId === userId ? "#7b6cc2" : "#e0e0e0",
+                                                                color: msg.senderId === userId ? "#fff" : "#000",
+                                                                position: "relative",
+                                                                alignSelf: msg.senderId === userId ? "flex-end" : "flex-start", // FIX: Align messages properly
+                                                            }}
+                                                        >
+                                                            {msg.message}
+                                                            {msg.senderId === userId && (
+                                                                <Box
+                                                                    sx={{
+                                                                        position: "absolute",
+                                                                        bottom: "0px",
+                                                                        right: "0px",
+                                                                        display: "flex",
+                                                                        alignItems: "center",
+                                                                    }}
+                                                                >
+                                                                    {msg.status === "sent" && <DoneIcon fontSize="10px" sx={{ opacity: 0.7 }} />}
+                                                                    {msg.status === "delivered" && <DoneAllIcon fontSize="10px" sx={{ opacity: 0.7 }} />}
+                                                                    {msg.status === "seen" && <DoneAllIcon fontSize="10px" sx={{ color: "blue", opacity: 0.7 }} />}
+                                                                </Box>
+                                                            )}
 
-                                                    <Typography
-                                                        variant="caption"
-                                                        sx={{
-                                                            display: "block",
-                                                            fontSize: "0.7rem",
-                                                            textAlign: "right",
-                                                            alignSelf: msg.sender === "me" ? "flex-end" : "flex-start",
-                                                            marginTop: "3px"
-                                                        }}
-                                                    >
-                                                        {msg.timestamp}
-                                                    </Typography>
-                                                </>
-                                            ))}
+
+                                                        </Box>
+
+                                                        {/* Timestamp */}
+                                                        <Typography
+                                                            variant="caption"
+                                                            sx={{
+                                                                fontSize: "0.7rem",
+                                                                textAlign: msg.senderId === userId ? "right" : "left",
+                                                                alignSelf: msg.senderId === userId ? "flex-end" : "flex-start", // FIX: Align timestamp correctly
+                                                                marginTop: "3px",
+                                                                marginBottom: "10px",
+                                                            }}
+                                                        >
+                                                            {getTimeAgo(msg.createdAt)}
+                                                        </Typography>
+                                                    </Box>
+                                                ))
+                                            ) : (
+                                                <Typography variant="caption" sx={{ textAlign: "center", marginTop: "10px", color: "#888" }}>
+                                                    No messages yet.
+                                                </Typography>
+                                            )}
                                         </Box>
+
 
                                         {/* Message Input */}
                                         <Box sx={{ padding: "10px", display: "flex", alignItems: "center" }}>
@@ -518,9 +617,9 @@ export const Message = ({ info }) => {
                                                     onClick={() => handleUserClick(user)}
                                                 >
                                                     <Avatar src={user.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
-                                                    <Box>
+                                                    <Box sx={{ width: "100%" }}>
                                                         <Typography variant="body1" fontWeight="bold">{user.username}</Typography>
-                                                        <Box sx={{ display: "flex", flexDirection: "row" }}>
+                                                        <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
                                                             <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
                                                             <Typography variant="body2" color="textSecondary" sx={{ marginLeft: "auto" }}>{getTimeAgo(user.createdAt)}</Typography>
                                                         </Box>
@@ -543,7 +642,20 @@ export const Message = ({ info }) => {
                                                     <Avatar src={selectedUser.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                                     <Box>
                                                         <Typography variant="h6">{selectedUser.username}</Typography>
-                                                        <Typography variant="body2" color="textSecondary">{selectedUser.lastSeen}</Typography>
+                                                        <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                                            <Box
+                                                                sx={{
+                                                                    width: "8px", // Small dot size
+                                                                    height: "8px",
+                                                                    marginRight: "4px",
+                                                                    borderRadius: "50%", // Makes it round
+                                                                    backgroundColor: selectedUser.online ? "green" : "yellow", // Change to "green" for a green dot
+                                                                    display: "inline-block", // Ensures it behaves like a small dot
+                                                                }}
+                                                            />
+                                                            <Typography variant="body2" color="textSecondary">{selectedUser.online ? "online" : getTimeAgo(selectedUser.lastSeen)}</Typography>
+
+                                                        </Box>
                                                     </Box>
                                                 </Box>
 
@@ -559,60 +671,86 @@ export const Message = ({ info }) => {
                                             </Box>
 
                                             {/* Chat Messages */}
-                                            <Box sx={{
-                                                flexGrow: 1,
-                                                overflowY: "auto",
-                                                padding: "10px",
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                scrollbarWidth: "thin",
-                                                scrollbarColor: "#888 transparent",
-                                                "&::-webkit-scrollbar": { width: "8px" },
-                                                "&::-webkit-scrollbar-track": { background: "transparent" },
-                                                "&::-webkit-scrollbar-thumb": { backgroundColor: "#888", borderRadius: "10px" },
-                                                "&::-webkit-scrollbar-thumb:hover": { backgroundColor: "#555" }
-                                            }}>
-                                                {messages[selectedUser.id]?.map((msg, index) => (
-                                                    <>
-                                                        <Box key={index} sx={{
-                                                            maxWidth: "80%", // Limits message width for better readability
-                                                            wordBreak: "break-word", // Ensures long words wrap instead of overflowing
-                                                            whiteSpace: "pre-wrap",
-                                                            padding: "8px 12px",
-                                                            display: "flex",
-                                                            flexDirection: "row",
-                                                            borderRadius: "12px",
-                                                            marginBottom: "8px",
-                                                            alignSelf: msg.sender === "me" ? "flex-end" : "flex-start",
-                                                            backgroundColor: msg.sender === "me" ? "#7b6cc2" : "#e0e0e0",
-                                                            color: msg.sender === "me" ? "#fff" : "#000",
-                                                            position: "relative"
-                                                        }}>
-                                                            {msg.text}
-                                                            {msg.sender === "me" && (
-                                                                <Box sx={{ marginLeft: "5px", display: "flex", alignItems: "flex-end" }}>
-                                                                    {msg.status === "sent" && <DoneIcon fontSize="small" />}
-                                                                    {msg.status === "delivered" && <DoneAllIcon fontSize="small" />}
-                                                                    {msg.status === "read" && <DoneAllIcon fontSize="small" sx={{ color: "blue" }} />}
-                                                                </Box>
-                                                            )}
+                                            <>
+                                                <Box
+                                                    sx={{
+                                                        flexGrow: 1,
+                                                        overflowY: "auto",
+                                                        padding: "10px",
+                                                        display: "flex",
+                                                        flexDirection: "column",
+                                                        alignItems: "flex-start", // Default alignment for received messages
+                                                        scrollbarWidth: "thin",
+                                                        scrollbarColor: "#888 transparent",
+                                                        "&::-webkit-scrollbar": { width: "8px" },
+                                                        "&::-webkit-scrollbar-track": { background: "transparent" },
+                                                        "&::-webkit-scrollbar-thumb": { backgroundColor: "#888", borderRadius: "10px" },
+                                                        "&::-webkit-scrollbar-thumb:hover": { backgroundColor: "#555" },
+                                                    }}
+                                                >
+                                                    {selectedUser?.userId && Array.isArray(userMessages[selectedUser.userId]) && userMessages[selectedUser.userId].length > 0 ? (
+                                                        userMessages[selectedUser.userId].map((msg) => (
+                                                            <Box key={msg._id} sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+                                                                {/* Message Box */}
+                                                                <Box
+                                                                    sx={{
+                                                                        maxWidth: "80%",
+                                                                        wordBreak: "break-word",
+                                                                        display: "flex",
+                                                                        flexDirection: "column",
+                                                                        whiteSpace: "pre-wrap",
+                                                                        padding: "8px 12px",
+                                                                        display: "inline-block",
+                                                                        borderRadius: "12px",
+                                                                        marginBottom: "8px",
+                                                                        backgroundColor: msg.senderId === userId ? "#7b6cc2" : "#e0e0e0",
+                                                                        color: msg.senderId === userId ? "#fff" : "#000",
+                                                                        position: "relative",
+                                                                        alignSelf: msg.senderId === userId ? "flex-end" : "flex-start", // FIX: Align messages properly
+                                                                    }}
+                                                                >
+                                                                    {msg.message}
+                                                                    {msg.senderId === userId && (
+                                                                        <Box
+                                                                            sx={{
+                                                                                position: "absolute",
+                                                                                bottom: "0px",
+                                                                                right: "0px",
+                                                                                display: "flex",
+                                                                                alignItems: "center",
+                                                                            }}
+                                                                        >
+                                                                            {msg.status === "sent" && <DoneIcon fontSize="10px" sx={{ opacity: 0.7 }} />}
+                                                                            {msg.status === "delivered" && <DoneAllIcon fontSize="10px" sx={{ opacity: 0.7 }} />}
+                                                                            {msg.status === "seen" && <DoneAllIcon fontSize="10px" sx={{ color: "blue", opacity: 0.7 }} />}
+                                                                        </Box>
+                                                                    )}
 
-                                                        </Box>
-                                                        <Typography
-                                                            variant="caption"
-                                                            sx={{
-                                                                display: "block",
-                                                                fontSize: "0.7rem",
-                                                                textAlign: "right",
-                                                                alignSelf: msg.sender === "me" ? "flex-end" : "flex-start",
-                                                                marginTop: "3px"
-                                                            }}
-                                                        >
-                                                            {msg.timestamp}
+
+                                                                </Box>
+
+                                                                {/* Timestamp */}
+                                                                <Typography
+                                                                    variant="caption"
+                                                                    sx={{
+                                                                        fontSize: "0.7rem",
+                                                                        textAlign: msg.senderId === userId ? "right" : "left",
+                                                                        alignSelf: msg.senderId === userId ? "flex-end" : "flex-start", // FIX: Align timestamp correctly
+                                                                        marginTop: "3px",
+                                                                        marginBottom: "10px",
+                                                                    }}
+                                                                >
+                                                                    {getTimeAgo(msg.createdAt)}
+                                                                </Typography>
+                                                            </Box>
+                                                        ))
+                                                    ) : (
+                                                        <Typography variant="caption" sx={{ textAlign: "center", marginTop: "10px", color: "#888" }}>
+                                                            No messages yet.
                                                         </Typography>
-                                                    </>
-                                                ))}
-                                            </Box>
+                                                    )}
+                                                </Box>
+                                            </>
 
                                             {/* Message Input */}
                                             <Box sx={{ padding: "10px", display: "flex", alignItems: "center" }}>
