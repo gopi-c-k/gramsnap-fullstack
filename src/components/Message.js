@@ -19,7 +19,8 @@ import axios from "axios";
 
 
 export const Message = ({ info }) => {
-    const [users, setUsers] = useState();
+    // const [users, setUsers] = useState([{id:1,username:"Gopi",profilePicture:null,lastMessage:"Ilove you"}]);
+    const [users, setUsers] = useState([]);
     const [msgLoading, setMsgLoading] = useState(false);
     const [loading, setLoading] = useState(false);
     // const users = [
@@ -37,7 +38,7 @@ export const Message = ({ info }) => {
                 const response = await axios.get(`https://gramsnap-backend.onrender.com/chat/conversations/${userId}`, { withCredentials: true });
                 if (response.status === 200) {
                     // // Debug
-                    // console.log(response.data)
+                    console.log(response.data)
                     setLoading(false);
                     setUsers(response.data)
                     // console.log(userProfile);
@@ -117,7 +118,7 @@ export const Message = ({ info }) => {
                     ...prevMessages,
                     ...res.data.messages,
                 ]); // Append new messages
-
+                console.log("Msg from bn"+res.data);
                 setTotalPages(res.data.totalPages);
                 setPage((prevPage) => prevPage + 1);
             }
@@ -260,7 +261,7 @@ export const Message = ({ info }) => {
                                 }
                             }}>
                                 {users
-                                    .filter(user => user.username.toLowerCase().includes(searchTerm.toLowerCase()))
+                                    .filter(user => user?.username.toLowerCase().includes(searchTerm.toLowerCase()))
                                     .map(user => (
                                         <Box
                                             key={user.userId}
