@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { LOCAL_HOST } from "./variable";
 
-function SignIn({ info }) {
+function SignIn({ info, socket }) {
   // dotenv.config();
   const { theme, prefersDarkMode } = info
   const navigate = useNavigate();
@@ -33,8 +33,6 @@ function SignIn({ info }) {
     autoLogin();
   }, []);
 
-  const [socket, setSocket] = useState(null);
-
   const fetchProtectedData = async () => {
     try {
       const response = await axios.get(`https://gramsnap-backend.onrender.com/protected`, { withCredentials: true });
@@ -43,10 +41,9 @@ function SignIn({ info }) {
         //localStorage.setItem("userInfo", JSON.stringify(response.data));
 
         // ✅ Establish WebSocket connection after successful login
-        const newSocket = io("https://gramsnap-backend.onrender.com");
-        newSocket.emit("userConnected", userId); // Inform backend that the user is online
-        setSocket(newSocket);
-
+        if (socket)
+          socket.emit("userConnected", userId); // Inform backend that the user is online
+        else console.log("Socket not recieved from app signin.j")
         navigate("/home");
       }
     } catch (error) {

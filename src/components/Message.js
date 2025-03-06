@@ -19,12 +19,7 @@ import axios from "axios";
 import io from "socket.io-client";
 
 
-export const Message = ({ info }) => {
-
-
-    const socket = io("https://gramsnap-backend.onrender.com");
-
-
+export const Message = ({ info, socket}) => {
 
 
     // const [users, setUsers] = useState([{id:1,username:"Gopi",profilePicture:null,lastMessage:"Ilove you"}]);
@@ -122,64 +117,66 @@ export const Message = ({ info }) => {
 
     /// Sockets Listening
     useEffect(() => {
-        // Listen for user going offline
-        socket.on("userOffline", ({ userId, lastSeen }) => {
-            console.log(`❌ User ${userId} went offline`);
+        if(socket){
+            socket.on("userOffline", ({ userId, lastSeen }) => { // ✅ Use `userId`, not `id`
+                console.log(`❌ User ${userId} went offline`);
     
-            setUserMessages((prevMessages) => {
-                // Check if userId exists before updating
-                if (!prevMessages[userId]) return prevMessages;
+                setUserMessages((prevMessages) => {
+                    if (!prevMessages[userId]) return prevMessages;
     
-                return {
-                    ...prevMessages,
-                    [userId]: {
-                        ...prevMessages[userId],
-                        lastSeen, // Update last seen
-                        online: false, // Set offline status
-                    },
-                };
+                    return {
+                        ...prevMessages,
+                        [userId]: {
+                            ...prevMessages[userId],
+                            lastSeen,
+                            online: false,
+                        },
+                    };
+                });
+    
+                if (selectedUser?.userId === userId) {
+                    setSelectedUser((prev) => ({ ...prev, online: false, lastSeen }));
+                }
             });
     
-            // If the offline user is the selected user, update its state
-            if (selectedUser?.userId === userId) {
-                setSelectedUser((prev) => ({ ...prev, online: false, lastSeen }));
-            }
-        });
-    
-        return () => {
-            socket.off("userOffline"); // Cleanup listener on unmount
-        };
-    }, [selectedUser]); // ✅ Added `selectedUser` dependency for correct updates
-    
+            return () => {
+                socket.off("userOffline");
+            };
+        }else{
+            console.log("Socket not got userOffline Message.js")
+        }
+    }, [selectedUser]);
+
     useEffect(() => {
-        // Listen for user coming online
-        socket.on("userOnline", ({ userId }) => {
-            console.log(`🟢 User ${userId} is now online`);
+        if(socket){
+            socket.on("userOnline", ({ userId }) => { // ✅ Now using `userId`
+                console.log(`🟢 User ${userId} is now online`);
     
-            setUserMessages((prevMessages) => {
-                // Check if userId exists before updating state
-                if (!prevMessages[userId]) return prevMessages;
+                setUserMessages((prevMessages) => {
+                    if (!prevMessages[userId]) return prevMessages;
     
-                return {
-                    ...prevMessages,
-                    [userId]: {
-                        ...prevMessages[userId],
-                        online: true, // Mark user as online
-                    },
-                };
+                    return {
+                        ...prevMessages,
+                        [userId]: {
+                            ...prevMessages[userId],
+                            online: true,
+                        },
+                    };
+                });
+    
+                if (selectedUser?.userId === userId) {
+                    setSelectedUser((prev) => ({ ...prev, online: true }));
+                }
             });
     
-            // If the online user is the selected user, update its state
-            if (selectedUser?.userId === userId) {
-                setSelectedUser((prev) => ({ ...prev, online: true }));
-            }
-        });
-    
-        return () => {
-            socket.off("userOnline"); // Cleanup listener on unmount
-        };
-    }, [selectedUser]); // ✅ Keeping selectedUser as dependency
-     // Add `selectedUser` as a dependency if needed
+            return () => {
+                socket.off("userOnline");
+            };
+        }else{
+            console.log("Socket not got userOffline Message.js");
+        }
+    }, [selectedUser]);
+
 
 
     const handleUserClick = async (user, newChat = false) => {

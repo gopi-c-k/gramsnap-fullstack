@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SignIn from './components/SignIn';
@@ -11,10 +11,21 @@ import Profile from "./components/Profile";
 import Settings from "./components/Settings";
 import Notifications from "./components/Notification";
 import { useMediaQuery } from "@mui/material";
+import { io } from "socket.io-client";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    const newSocket = io("https://gramsnap-backend.onrender.com", { withCredentials: true });
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
   const theme = React.useMemo(
     () =>
       createTheme({
@@ -40,20 +51,20 @@ function App() {
   );
 
   return (
-      <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
         <Routes>
           {/* Pass both theme and prefersDarkMode as properties of an object */}
-          <Route path="/signin" element={<SignIn info={{ theme, prefersDarkMode }} />} />
-          <Route path="/signup" element={<SignUp info={{ theme, prefersDarkMode }}/>} />
-          <Route path="/notifications" element={<Notifications info={{ theme, prefersDarkMode }}/>}/>
-          <Route path="/home" element={<Home info={{ theme, prefersDarkMode }}/>} />
-          <Route path="/search" element={<Search info={{ theme, prefersDarkMode }}/>} />
-          <Route path="/addpost" element={<AddPost info={{ theme, prefersDarkMode }}/>} />
-          <Route path="/message" element={<Message info={{ theme, prefersDarkMode }}/>} />
-          <Route path="/profile" element={<Profile info={{ theme, prefersDarkMode }}/>} />
-          <Route path="/settings" element={<Settings info={{ theme, prefersDarkMode }}/>} />
+          <Route path="/signin" element={<SignIn info={{ theme, prefersDarkMode }} socket={socket} />} />
+          <Route path="/signup" element={<SignUp info={{ theme, prefersDarkMode }} />} />
+          <Route path="/notifications" element={<Notifications info={{ theme, prefersDarkMode }} />} />
+          <Route path="/home" element={<Home info={{ theme, prefersDarkMode }} />} />
+          <Route path="/search" element={<Search info={{ theme, prefersDarkMode }} />} />
+          <Route path="/addpost" element={<AddPost info={{ theme, prefersDarkMode }} />} />
+          <Route path="/message" element={<Message info={{ theme, prefersDarkMode }} socket={socket} />} />
+          <Route path="/profile" element={<Profile info={{ theme, prefersDarkMode }} />} />
+          <Route path="/settings" element={<Settings info={{ theme, prefersDarkMode }} />} />
           {/*<Route path="/post" element={<Post info={{ theme, prefersDarkMode }}/>} /> */}
         </Routes>
       </Router>
