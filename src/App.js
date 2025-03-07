@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import SignIn from './components/SignIn';
-import SignUp from './components/SignUp';
+import SignIn from "./components/SignIn";
+import SignUp from "./components/SignUp";
 import Home from "./components/Home";
 import Search from "./components/Search";
 import { Message } from "./components/Message";
@@ -12,32 +12,46 @@ import Settings from "./components/Settings";
 import Notifications from "./components/Notification";
 import { useMediaQuery } from "@mui/material";
 import { io } from "socket.io-client";
+import useAuthRedirect from "./components/hook";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  //useAuthRedirect();
 
+  // ✅ State to track WebSocket connection
   const [socket, setSocket] = useState(null);
+  const [socketLoading, setSocketLoading] = useState(true); // Track when socket is initialized
 
   useEffect(() => {
     const newSocket = io("https://gramsnap-backend.onrender.com", {
       withCredentials: true,
-      transports: ["websocket"]
+      transports: ["websocket"],
     });
 
     newSocket.on("connect", () => {
       console.log("✅ Connected to WebSocket Server:", newSocket.id);
+      setSocket(newSocket);
+      setSocketLoading(false); // ✅ Mark as ready
     });
 
     newSocket.on("connect_error", (err) => {
       console.error("❌ WebSocket Connection Error:", err);
+      setSocketLoading(false); // Prevent infinite loading
     });
 
-    setSocket(newSocket);
-
     return () => {
-      newSocket.disconnect(); // Cleanup when component unmounts
+      newSocket.disconnect();
     };
-  }, []); // ✅ Empty dependency array means it runs once
+  }, []);
+
+  // ✅ Show a loading screen until socket is ready
+  if (socketLoading) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "50px", fontSize: "20px" }}>
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   const theme = React.useMemo(
     () =>
@@ -68,17 +82,15 @@ function App() {
       <CssBaseline />
       <Router>
         <Routes>
-          {/* Pass both theme and prefersDarkMode as properties of an object */}
           <Route path="/signin" element={<SignIn info={{ theme, prefersDarkMode }} socket={socket} />} />
           <Route path="/signup" element={<SignUp info={{ theme, prefersDarkMode }} />} />
           <Route path="/notifications" element={<Notifications info={{ theme, prefersDarkMode }} />} />
-          <Route path="/home" element={<Home info={{ theme, prefersDarkMode }} />} />
+          <Route path="/home" element={<Home info={{ theme, prefersDarkMode }} socket={socket} />} />
           <Route path="/search" element={<Search info={{ theme, prefersDarkMode }} />} />
           <Route path="/addpost" element={<AddPost info={{ theme, prefersDarkMode }} />} />
           <Route path="/message" element={<Message info={{ theme, prefersDarkMode }} socket={socket} />} />
           <Route path="/profile" element={<Profile info={{ theme, prefersDarkMode }} />} />
           <Route path="/settings" element={<Settings info={{ theme, prefersDarkMode }} />} />
-          {/*<Route path="/post" element={<Post info={{ theme, prefersDarkMode }}/>} /> */}
         </Routes>
       </Router>
     </ThemeProvider>
