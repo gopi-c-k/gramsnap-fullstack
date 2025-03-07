@@ -17,7 +17,29 @@ import useAuthRedirect from "./components/hook";
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   //useAuthRedirect();
-
+  const theme = React.useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: prefersDarkMode ? "dark" : "light",
+          primary: {
+            main: prefersDarkMode ? "#FFFFFF" : "#000000",
+          },
+          secondary: {
+            main: prefersDarkMode ? "#BBBBBB" : "#333333",
+          },
+          background: {
+            default: prefersDarkMode ? "#000000" : "#FFFFFF",
+            paper: prefersDarkMode ? "#121212" : "#F5F5F5",
+          },
+          text: {
+            primary: prefersDarkMode ? "#FFFFFF" : "#000000",
+            secondary: prefersDarkMode ? "#BBBBBB" : "#333333",
+          },
+        },
+      }),
+    [prefersDarkMode]
+  );
   // ✅ State to track WebSocket connection
   const [socket, setSocket] = useState(null);
   const [socketLoading, setSocketLoading] = useState(true); // Track when socket is initialized
@@ -52,30 +74,6 @@ function App() {
       </div>
     );
   }
-
-  const theme = React.useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: prefersDarkMode ? "dark" : "light",
-          primary: {
-            main: prefersDarkMode ? "#FFFFFF" : "#000000",
-          },
-          secondary: {
-            main: prefersDarkMode ? "#BBBBBB" : "#333333",
-          },
-          background: {
-            default: prefersDarkMode ? "#000000" : "#FFFFFF",
-            paper: prefersDarkMode ? "#121212" : "#F5F5F5",
-          },
-          text: {
-            primary: prefersDarkMode ? "#FFFFFF" : "#000000",
-            secondary: prefersDarkMode ? "#BBBBBB" : "#333333",
-          },
-        },
-      }),
-    [prefersDarkMode]
-  );
 
   return (
     <ThemeProvider theme={theme}>
