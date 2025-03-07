@@ -216,8 +216,6 @@ export const Message = ({ info, socket }) => {
                     receiverId: userIdKey,
                     page: currentPage,
                     limit: 10,
-
-                    //https://gramsnap-backend.onrender.com/chat/messages
                 },
             });
 
@@ -271,29 +269,27 @@ export const Message = ({ info, socket }) => {
         }
     };
 
-    const handleSendMessage = () => {
+    const handleSendMessage = async () => {
         if (!newMessage.trim() || !selectedUser) return;
 
-        const timestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-        const newMsg = { sender: "me", text: newMessage, timestamp, status: "sent" };
-
-        setMessages(prevMessages => ({
-            ...prevMessages,
-            [selectedUser.id]: [...(prevMessages[selectedUser.id] || []), newMsg]
-        }));
+        try {
+            const res = await axios.post("https://gramsnap-backend.onrender.com/chat/send",
+                {
+                    senderId: userId,
+                    receiverId: selectedUser.userId,
+                    message: newMessage,
+                },
+            { withCredentials: true });
+            if (res.status === 201) {
+                handleUserClick(selectedUser);
+            }
+        } catch (error) {
+            console.log("Error occured:", error);
+        }
 
         setNewMessage("");
 
-        // Simulate message delivery after 1 sec
-        setTimeout(() => {
-            setMessages(prevMessages => ({
-                ...prevMessages,
-                [selectedUser.id]: prevMessages[selectedUser.id].map((msg, index) =>
-                    index === prevMessages[selectedUser.id].length - 1 ? { ...msg, status: "delivered" } : msg
-                )
-            }));
-        }, 1000);
+
     };
     const handleSearch = async (event) => {
         const term = event.target.value;
