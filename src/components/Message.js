@@ -19,7 +19,7 @@ import axios from "axios";
 import io from "socket.io-client";
 
 
-export const Message = ({ info, socket}) => {
+export const Message = ({ info, socket }) => {
 
 
     // const [users, setUsers] = useState([{id:1,username:"Gopi",profilePicture:null,lastMessage:"Ilove you"}]);
@@ -117,13 +117,13 @@ export const Message = ({ info, socket}) => {
 
     /// Sockets Listening
     useEffect(() => {
-        if(socket){
+        if (socket) {
             socket.on("userOffline", ({ userId, lastSeen }) => { // ✅ Use `userId`, not `id`
                 console.log(`❌ User ${userId} went offline`);
-    
+
                 setUserMessages((prevMessages) => {
                     if (!prevMessages[userId]) return prevMessages;
-    
+
                     return {
                         ...prevMessages,
                         [userId]: {
@@ -133,28 +133,28 @@ export const Message = ({ info, socket}) => {
                         },
                     };
                 });
-    
+
                 if (selectedUser?.userId === userId) {
                     setSelectedUser((prev) => ({ ...prev, online: false, lastSeen }));
                 }
             });
-    
+
             return () => {
                 socket.off("userOffline");
             };
-        }else{
+        } else {
             console.log("Socket not got userOffline Message.js")
         }
     }, [selectedUser]);
 
     useEffect(() => {
-        if(socket){
+        if (socket) {
             socket.on("userOnline", ({ userId }) => { // ✅ Now using `userId`
                 console.log(`🟢 User ${userId} is now online`);
-    
+
                 setUserMessages((prevMessages) => {
                     if (!prevMessages[userId]) return prevMessages;
-    
+
                     return {
                         ...prevMessages,
                         [userId]: {
@@ -163,16 +163,16 @@ export const Message = ({ info, socket}) => {
                         },
                     };
                 });
-    
+
                 if (selectedUser?.userId === userId) {
                     setSelectedUser((prev) => ({ ...prev, online: true }));
                 }
             });
-    
+
             return () => {
                 socket.off("userOnline");
             };
-        }else{
+        } else {
             console.log("Socket not got userOffline Message.js");
         }
     }, [selectedUser]);
@@ -400,7 +400,19 @@ export const Message = ({ info, socket}) => {
                                         >
                                             <Avatar src={user.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                             <Box sx={{ width: "100%" }}>
-                                                <Typography variant="body1" fontWeight="bold">{user.username}</Typography>
+                                                <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
+                                                    <Typography variant="body1" fontWeight="bold">{user.username}</Typography>
+                                                    <Box
+                                                        sx={{
+                                                            width: "8px", // Small dot size
+                                                            height: "8px",
+                                                            marginLeft: "auto",
+                                                            borderRadius: "50%", // Makes it round
+                                                            backgroundColor: user.online ? "green" : "yellow", // Change to "green" for a green dot
+                                                            display: "inline-block", // Ensures it behaves like a small dot
+                                                        }}
+                                                    />
+                                                </Box>
                                                 <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
                                                     <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
                                                     <Typography variant="body2" color="textSecondary" sx={{ marginLeft: "auto" }}>{getTimeAgo(user.createdAt)}</Typography>
@@ -615,7 +627,19 @@ export const Message = ({ info, socket}) => {
                                                 >
                                                     <Avatar src={user.profilePicture} sx={{ width: 40, height: 40, marginRight: "10px" }} />
                                                     <Box sx={{ width: "100%" }}>
-                                                        <Typography variant="body1" fontWeight="bold">{user.username}</Typography>
+                                                        <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
+                                                            <Typography variant="body1" fontWeight="bold">{user.username}</Typography>
+                                                            <Box
+                                                                sx={{
+                                                                    width: "8px", // Small dot size
+                                                                    height: "8px",
+                                                                    marginLeft: "auto",
+                                                                    borderRadius: "50%", // Makes it round
+                                                                    backgroundColor: user.online ? "green" : "yellow", // Change to "green" for a green dot
+                                                                    display: "inline-block", // Ensures it behaves like a small dot
+                                                                }}
+                                                            />
+                                                        </Box>
                                                         <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
                                                             <Typography variant="body2" color="textSecondary">{user.lastMessage}</Typography>
                                                             <Typography variant="body2" color="textSecondary" sx={{ marginLeft: "auto" }}>{getTimeAgo(user.createdAt)}</Typography>
