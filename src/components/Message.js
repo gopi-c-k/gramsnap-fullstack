@@ -53,12 +53,6 @@ export const Message = ({ info, socket }) => {
         if (userId) fetchUsersChat();
     }, []);
 
-    // const initialMessages = {
-    //     1: [{ sender: "me", text: "Hello!", timestamp: "10:30 AM" }, { sender: "John Doe", text: "Hey, how are you?", timestamp: "10:31 AM" }],
-    //     2: [{ sender: "me", text: "See you soon!", timestamp: "11:15 AM" }, { sender: "Jane Smith", text: "See you later!", timestamp: "11:16 AM" }],
-    //     3: [{ sender: "me", text: "Hey Mike!", timestamp: "12:45 PM" }, { sender: "Mike Johnson", text: "What's up?", timestamp: "12:46 PM" }],
-    //     4: [{ sender: "me", text: "Hi Emma!", timestamp: "1:00 PM" }, { sender: "Emma Watson", text: "Let's meet tomorrow.", timestamp: "1:01 PM" }]
-    // };
     const navigate = useNavigate();
     const { theme, prefersDarkMode } = info;
     const [selected, setSelected] = useState("Message");
@@ -120,6 +114,11 @@ export const Message = ({ info, socket }) => {
         if (socket) {
             socket.on("userOffline", ({ userId, lastSeen }) => { // ✅ Use `userId`, not `id`
                 console.log(`❌ User ${userId} went offline`);
+                setUsers((prevUsers) =>
+                    prevUsers.map((user) =>
+                        user.userId === userId ? { ...user, online: false } : user
+                    )
+                );
 
                 setUserMessages((prevMessages) => {
                     if (!prevMessages[userId]) return prevMessages;
@@ -151,6 +150,11 @@ export const Message = ({ info, socket }) => {
         if (socket) {
             socket.on("userOnline", ({ userId }) => { // ✅ Now using `userId`
                 console.log(`🟢 User ${userId} is now online`);
+                setUsers((prevUsers) =>
+                    prevUsers.map((user) =>
+                        user.userId === userId ? { ...user, online: true } : user
+                    )
+                );
 
                 setUserMessages((prevMessages) => {
                     if (!prevMessages[userId]) return prevMessages;
