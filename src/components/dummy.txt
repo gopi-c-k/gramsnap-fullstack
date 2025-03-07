@@ -150,3 +150,11 @@
                     </Box>)}
 
                 </Box>)}
+
+
+
+                <img
+          src={`${process.env.PUBLIC_URL}/assets/Images/Logo.png`}
+          alt="Logo"
+          style={styles.logo}
+        />

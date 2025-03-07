@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
+import { createTheme, ThemeProvider, CssBaseline, CircularProgress, Button } from "@mui/material";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
@@ -12,65 +12,92 @@ import Settings from "./components/Settings";
 import Notifications from "./components/Notification";
 import { useMediaQuery } from "@mui/material";
 import { io } from "socket.io-client";
-import useAuthRedirect from "./components/hook";
+import AuthHandler from "./hooks/userSocket";// Import the new component
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-  //useAuthRedirect();
+
   const theme = React.useMemo(
     () =>
       createTheme({
         palette: {
           mode: prefersDarkMode ? "dark" : "light",
-          primary: {
-            main: prefersDarkMode ? "#FFFFFF" : "#000000",
-          },
-          secondary: {
-            main: prefersDarkMode ? "#BBBBBB" : "#333333",
-          },
-          background: {
-            default: prefersDarkMode ? "#000000" : "#FFFFFF",
-            paper: prefersDarkMode ? "#121212" : "#F5F5F5",
-          },
-          text: {
-            primary: prefersDarkMode ? "#FFFFFF" : "#000000",
-            secondary: prefersDarkMode ? "#BBBBBB" : "#333333",
-          },
+          primary: { main: prefersDarkMode ? "#FFFFFF" : "#000000" },
+          secondary: { main: prefersDarkMode ? "#BBBBBB" : "#333333" },
+          background: { default: prefersDarkMode ? "#000000" : "#FFFFFF" },
+          text: { primary: prefersDarkMode ? "#FFFFFF" : "#000000" },
         },
       }),
     [prefersDarkMode]
   );
-  // ✅ State to track WebSocket connection
-  const [socket, setSocket] = useState(null);
-  const [socketLoading, setSocketLoading] = useState(true); // Track when socket is initialized
 
-  useEffect(() => {
+  const [socket, setSocket] = useState(null);
+  const [socketLoading, setSocketLoading] = useState(true);
+  const [socketError, setSocketError] = useState(null);
+
+  // Initialize WebSocket
+  const initializeSocket = () => {
+    setSocketLoading(true);
+    setSocketError(null);
+
     const newSocket = io("https://gramsnap-backend.onrender.com", {
       withCredentials: true,
       transports: ["websocket"],
     });
 
     newSocket.on("connect", () => {
-      console.log("✅ Connected to WebSocket Server:", newSocket.id);
+      console.log("✅ Connected to WebSocket:", newSocket.id);
       setSocket(newSocket);
-      setSocketLoading(false); // ✅ Mark as ready
+      setSocketLoading(false);
     });
 
     newSocket.on("connect_error", (err) => {
       console.error("❌ WebSocket Connection Error:", err);
-      setSocketLoading(false); // Prevent infinite loading
+      setSocketError("Failed to connect to WebSocket. Please try again later.");
+      setSocketLoading(false);
     });
 
     return () => {
-      newSocket.disconnect();
+      if (newSocket) {
+        newSocket.off("connect");
+        newSocket.off("connect_error");
+        newSocket.disconnect();
+      }
     };
+  };
+
+  useEffect(() => {
+    initializeSocket();
   }, []);
 
-  // ✅ Show a loading screen until socket is ready
+  // ✅ Show loading screen while socket is connecting
   if (socketLoading) {
     return (
-      <div style={{ textAlign: "center", marginTop: "50px", fontSize: "20px" }}>
-        <p>Loading...</p>
+      <div style={styles.container}>
+        <img
+          src={`${process.env.PUBLIC_URL}/assets/Images/Logo.png`}
+          alt="Logo"
+          style={styles.logo}
+        />
+        <CircularProgress style={{ color: "#7b6cc2" }} size={50} />
+        <p style={styles.text}>Connecting to server...</p>
+      </div>
+    );
+  }
+
+  // ✅ Show error page if WebSocket connection fails
+  if (socketError) {
+    return (
+      <div style={styles.container}>
+        <img
+          src={`${process.env.PUBLIC_URL}/assets/Images/Logo.png`}
+          alt="Logo"
+          style={styles.logo}
+        />
+        <p style={styles.errorText}>{socketError}</p>
+        <Button variant="contained" color="primary" onClick={initializeSocket}>
+          Retry Connection
+        </Button>
       </div>
     );
   }
@@ -79,6 +106,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
+        {/* ✅ AuthHandler now runs inside Router */}
+        <AuthHandler socket={socket} />  
+
         <Routes>
           <Route path="/signin" element={<SignIn info={{ theme, prefersDarkMode }} socket={socket} />} />
           <Route path="/signup" element={<SignUp info={{ theme, prefersDarkMode }} />} />
@@ -96,3 +126,30 @@ function App() {
 }
 
 export default App;
+
+// ✅ Styles for Loading & Error Page
+const styles = {
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100vh",
+    textAlign: "center",
+    backgroundColor: "#121212",
+    color: "#ffffff",
+  },
+  logo: {
+    width: "150px",
+    marginBottom: "20px",
+  },
+  text: {
+    fontSize: "18px",
+    marginTop: "10px",
+  },
+  errorText: {
+    fontSize: "18px",
+    color: "red",
+    marginBottom: "20px",
+  },
+};
