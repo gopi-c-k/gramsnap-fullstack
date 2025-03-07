@@ -18,12 +18,14 @@ function SignIn({ info, socket }) {
     const autoLogin = async () => {
       try {
         const response = await axios.post(`https://gramsnap-backend.onrender.com/login-refresh`, {}, { withCredentials: true });
+
         if (response.status === 200) {
-          const { userId, name, email, profilePicture } = response.data;
-          //console.log(response.data)
-          fetchProtectedData();
-          //navigate("/home");
+          console.log("Auto-login successful.");
           localStorage.setItem('userInfo', JSON.stringify(response.data));
+
+          setTimeout(() => {
+            fetchProtectedData();
+          }, 500); // Delay to ensure socket is available
         }
       } catch (error) {
         console.log("Not logged in");
