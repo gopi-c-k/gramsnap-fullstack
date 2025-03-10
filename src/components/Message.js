@@ -272,7 +272,7 @@ export const Message = ({ info, socket }) => {
 
     const handleSendMessage = async () => {
         if (!newMessage.trim() || !selectedUser) return;
-    
+        setMsgLoading(true);
         const tempMessage = {
             _id: Date.now().toString(), // Temporary ID
             senderId: userId,
@@ -283,10 +283,10 @@ export const Message = ({ info, socket }) => {
         };
     
         // Optimistically update UI
-        setUserMessages((prev) => ({
-            ...prev,
-            [selectedUser.userId]: [...(prev[selectedUser.userId] || []), tempMessage],
-        }));
+        // setUserMessages((prev) => ({
+        //     ...prev,
+        //     [selectedUser.userId]: [...(prev[selectedUser.userId] || []), tempMessage],
+        // }));
     
         setNewMessage(""); // Clear input field
     
@@ -301,16 +301,14 @@ export const Message = ({ info, socket }) => {
             );
     
             if (res.status === 201) {
-                const savedMessage = res.data;
+                const newMessage = res.data;
     
                 // Replace temp message with actual message
-                setUserMessages((prev) => ({
-                    ...prev,
-                    [selectedUser.userId]: prev[selectedUser.userId].map(msg =>
-                        msg._id === tempMessage._id ? savedMessage : msg
-                    ),
-                }));
-    
+                setUserMessages(prevMessages => ({
+                    ...prevMessages,
+                    [selectedUser.userId]: newMessage // Using `_id` as a unique key
+                  }));
+                  setMsgLoading(false);
                 // Emit message in real-time
                 //socket.emit("sendMessage", savedMessage);
             }
