@@ -289,6 +289,7 @@ export const Message = ({ info, socket }) => {
                     }));
                     setPage(prevPage => prevPage + 1);
                 }
+                handleUserClick(selectedUser);
             }
         } catch (error) {
             console.error("Error fetching older messages:", error);
@@ -317,7 +318,7 @@ export const Message = ({ info, socket }) => {
         // //     [selectedUser.userId]: [...(prev[selectedUser.userId] || []), tempMessage],
         // // }));
 
-        setNewMessage(""); // Clear input field
+        // Clear input field
 
         try {
             const res = await axios.post(`${LOCAL_HOST}/chat/send`,
@@ -331,12 +332,12 @@ export const Message = ({ info, socket }) => {
 
             if (res.status === 201) {
                 //const newMessages = ;
-                const newMessage = res.data;
-
+                const newMessages = res.data;
+                newMessages.message = newMessage;
                 // Replace temp message with actual message
                 setUserMessages(prevMessages => ({
                     ...prevMessages,
-                    [selectedUser.userId]: newMessage
+                    [selectedUser.userId]: newMessages
                 }));
                 // Replace temp message with actual message
                 // setUserMessages(prevMessages => ({
@@ -352,6 +353,7 @@ export const Message = ({ info, socket }) => {
             // Show error in UI if needed
 
         }
+        setNewMessage("");
     };
 
 
