@@ -254,44 +254,27 @@ export const Message = ({ info, socket }) => {
 
     const chatBoxRef = useRef(null);
 
-    useEffect(() => {
-        const chatBox = chatBoxRef.current;
-        if (chatBox) {
-            chatBox.addEventListener("scroll", handleScroll);
-        }
-        return () => {
-            if (chatBox) {
-                chatBox.removeEventListener("scroll", handleScroll);
-            }
-        };
-    }, [selectedUser]); // Runs when user changes
+    const [loadingMore, setLoadingMore] = useState(false); // State to track loading status
 
     const handleScroll = () => {
-        if (!chatBoxRef.current || isLoading) return;
-
-        // ✅ Check if user scrolled to the top
-        if (chatBoxRef.current.scrollTop === 0) {
-            loadMoreMessages();
+        if (chatBoxRef.current) {
+            if (chatBoxRef.current.scrollTop === 0) { // User reached the top
+                loadMoreMessages();
+            }
         }
     };
 
     const loadMoreMessages = async () => {
-        if (!selectedUser) return;
+        if (loadingMore || page > totalPages) return; // Prevent duplicate API calls
 
-        const userIdKey = selectedUser.userId;
-        const currentPage = userPages[userIdKey] || 1;
-
-        // ✅ Stop fetching if already on the last page
-        if (currentPage >= totalPages) return;
-
-        setIsLoading(true); // Prevent multiple requests
+        setLoadingMore(true); // Show loader
 
         try {
-            const res = await axios.get(`https://gramsnap-backend.onrender.com/chat/messages`, {
+            const res = await axios.get(`${LOCAL_HOST}/chat/messages`, {
                 params: {
                     senderId: userId,
-                    receiverId: userIdKey,
-                    page: currentPage + 1, // Fetch next page
+                    receiverId: selectedUser.userId,
+                    page: page + 1, // Fetch next page
                     limit: 10,
                 },
             });
@@ -300,36 +283,20 @@ export const Message = ({ info, socket }) => {
                 const newMessages = res.data.messages || [];
 
                 if (newMessages.length > 0) {
-                    setUserMessages(prev => {
-                        const currentUserMessages = prev[userIdKey] || [];
-                        return {
-                            ...prev,
-                            [userIdKey]: [...newMessages, ...currentUserMessages] // Prepend older messages
-                        };
-                    });
-
-                    // ✅ Update page counter
-                    setUserPages(prev => ({
+                    setUserMessages(prev => ({
                         ...prev,
-                        [userIdKey]: currentPage + 1
+                        [selectedUser.userId]: [...newMessages, ...(prev[selectedUser.userId] || [])] // Append new messages at the top
                     }));
-
-                    // ✅ Maintain scroll position after adding new messages
-                    const chatBox = chatBoxRef.current;
-                    if (chatBox) {
-                        const previousHeight = chatBox.scrollHeight;
-                        setTimeout(() => {
-                            chatBox.scrollTop = chatBox.scrollHeight - previousHeight;
-                        }, 0);
-                    }
+                    setPage(prevPage => prevPage + 1);
                 }
             }
         } catch (error) {
-            console.error("Error loading older messages:", error);
+            console.error("Error fetching older messages:", error);
         } finally {
-            setIsLoading(false);
+            setLoadingMore(false); // Hide loader
         }
     };
+
 
 
     const handleSendMessage = async () => {
@@ -364,12 +331,18 @@ export const Message = ({ info, socket }) => {
 
             if (res.status === 201) {
                 //const newMessages = ;
+                const newMessage = res.data;
 
                 // Replace temp message with actual message
                 setUserMessages(prevMessages => ({
                     ...prevMessages,
-                    [selectedUser.userId]: res.data // Using `_id` as a unique key
+                    [selectedUser.userId]: newMessage
                 }));
+                // Replace temp message with actual message
+                // setUserMessages(prevMessages => ({
+                //     ...prevMessages,
+                //     [selectedUser.userId]: res.data // Using `_id` as a unique key
+                // }));
                 setMsgLoading(false);
                 // Emit message in real-time
                 //socket.emit("sendMessage", savedMessage);
@@ -514,7 +487,7 @@ export const Message = ({ info, socket }) => {
                             </Box>
                         </Box>
                         {/* Message Page */}
-                        <Box ref = {chatBoxRef} sx={{ width: "75%", height: "100vh", display: "flex", flexDirection: "column", }}>
+                        <Box sx={{ width: "75%", height: "100vh", display: "flex", flexDirection: "column", }}>
                             {selectedUser ? (
                                 msgLoading ? (<>
                                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
@@ -560,6 +533,7 @@ export const Message = ({ info, socket }) => {
                                     {/* Chat Messages */}
                                     <>
                                         <Box
+                                            ref={chatBoxRef}
                                             sx={{
                                                 flexGrow: 1,
                                                 overflowY: "auto",
@@ -575,6 +549,12 @@ export const Message = ({ info, socket }) => {
                                                 "&::-webkit-scrollbar-thumb:hover": { backgroundColor: "#555" },
                                             }}
                                         >
+                                            {/* Show Loading Indicator When Fetching Older Messages */}
+                                            {loadingMore && (
+                                                <Box sx={{ display: "flex", justifyContent: "center", padding: "10px" }}>
+                                                    <CircularProgress size={20} />
+                                                </Box>
+                                            )}
                                             {selectedUser?.userId && Array.isArray(userMessages[selectedUser.userId]) && userMessages[selectedUser.userId].length > 0 ? (
                                                 userMessages[selectedUser.userId].map((msg) => (
                                                     <Box key={msg._id} sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
@@ -785,6 +765,7 @@ export const Message = ({ info, socket }) => {
                                             {/* Chat Messages */}
                                             <>
                                                 <Box
+                                                    ref={chatBoxRef}
                                                     sx={{
                                                         flexGrow: 1,
                                                         overflowY: "auto",
@@ -800,6 +781,12 @@ export const Message = ({ info, socket }) => {
                                                         "&::-webkit-scrollbar-thumb:hover": { backgroundColor: "#555" },
                                                     }}
                                                 >
+                                                    {/* Show Loading Indicator When Fetching Older Messages */}
+                                                    {loadingMore && (
+                                                        <Box sx={{ display: "flex", justifyContent: "center", padding: "10px" }}>
+                                                            <CircularProgress size={20} />
+                                                        </Box>
+                                                    )}
                                                     {selectedUser?.userId && Array.isArray(userMessages[selectedUser.userId]) && userMessages[selectedUser.userId].length > 0 ? (
                                                         userMessages[selectedUser.userId].map((msg) => (
                                                             <Box key={msg._id} sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
