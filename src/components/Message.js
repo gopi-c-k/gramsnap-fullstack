@@ -360,6 +360,8 @@ export const Message = ({ info, socket }) => {
     useEffect(() => {
         if (socket) {
             socket.on("receiveMessage", (message) => {
+                console.log("Message Received");
+                console.log(message);
                 if (!userMessages[message.senderId]) {
                     // Use functional update to ensure we're working with latest state
                     setUserMessages(prev => ({
