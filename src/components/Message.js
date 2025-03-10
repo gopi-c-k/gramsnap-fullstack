@@ -250,25 +250,87 @@ export const Message = ({ info, socket }) => {
             // setMsgLoading(false);
         }
     };
-
-
+    const [isLoading, setIsLoading] = useState(false);
 
     const chatBoxRef = useRef(null);
 
-    const handleScroll = () => {
-        if (chatBoxRef.current) {
-            // Check if user scrolled to the top
-            if (chatBoxRef.current.scrollTop === 0) {
-                loadMoreMessages();
+    useEffect(() => {
+        const chatBox = chatBoxRef.current;
+        if (chatBox) {
+            chatBox.addEventListener("scroll", handleScroll);
+        }
+        return () => {
+            if (chatBox) {
+                chatBox.removeEventListener("scroll", handleScroll);
             }
+        };
+    }, [selectedUser]); // Runs when user changes
+
+    const handleScroll = () => {
+        if (!chatBoxRef.current || isLoading) return;
+
+        // ✅ Check if user scrolled to the top
+        if (chatBoxRef.current.scrollTop === 0) {
+            loadMoreMessages();
         }
     };
 
     const loadMoreMessages = async () => {
-        if (page <= totalPages) {
-            await handleUserClick(selectedUser); // Fetch older messages
+        if (!selectedUser) return;
+
+        const userIdKey = selectedUser.userId;
+        const currentPage = userPages[userIdKey] || 1;
+
+        // ✅ Stop fetching if already on the last page
+        if (currentPage >= totalPages) return;
+
+        setIsLoading(true); // Prevent multiple requests
+
+        try {
+            const res = await axios.get(`https://gramsnap-backend.onrender.com/chat/messages`, {
+                params: {
+                    senderId: userId,
+                    receiverId: userIdKey,
+                    page: currentPage + 1, // Fetch next page
+                    limit: 10,
+                },
+            });
+
+            if (res.status === 200) {
+                const newMessages = res.data.messages || [];
+
+                if (newMessages.length > 0) {
+                    setUserMessages(prev => {
+                        const currentUserMessages = prev[userIdKey] || [];
+                        return {
+                            ...prev,
+                            [userIdKey]: [...newMessages, ...currentUserMessages] // Prepend older messages
+                        };
+                    });
+
+                    // ✅ Update page counter
+                    setUserPages(prev => ({
+                        ...prev,
+                        [userIdKey]: currentPage + 1
+                    }));
+
+                    // ✅ Maintain scroll position after adding new messages
+                    const chatBox = chatBoxRef.current;
+                    if (chatBox) {
+                        const previousHeight = chatBox.scrollHeight;
+                        setTimeout(() => {
+                            chatBox.scrollTop = chatBox.scrollHeight - previousHeight;
+                        }, 0);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error loading older messages:", error);
+        } finally {
+            setIsLoading(false);
         }
     };
+
 
     const handleSendMessage = async () => {
         if (!newMessage.trim() || !selectedUser) return;
@@ -281,17 +343,17 @@ export const Message = ({ info, socket }) => {
         //     status: "sending", // Temporary status
         //     createdAt: new Date().toISOString(),
         // };
-    
+
         // // Optimistically update UI
         // // setUserMessages((prev) => ({
         // //     ...prev,
         // //     [selectedUser.userId]: [...(prev[selectedUser.userId] || []), tempMessage],
         // // }));
-    
+
         setNewMessage(""); // Clear input field
-    
+
         try {
-            const res = await axios.post(`${LOCAL_HOST}/chat/send`, 
+            const res = await axios.post(`${LOCAL_HOST}/chat/send`,
                 {
                     senderId: userId,
                     receiverId: selectedUser.userId,
@@ -299,26 +361,26 @@ export const Message = ({ info, socket }) => {
                 },
                 { withCredentials: true }
             );
-    
+
             if (res.status === 201) {
-                const newMessages = res.data;
-    
+                //const newMessages = ;
+
                 // Replace temp message with actual message
                 setUserMessages(prevMessages => ({
                     ...prevMessages,
-                    [selectedUser.userId]: newMessages // Using `_id` as a unique key
-                  }));
-                  setMsgLoading(false);
+                    [selectedUser.userId]: res.data // Using `_id` as a unique key
+                }));
+                setMsgLoading(false);
                 // Emit message in real-time
                 //socket.emit("sendMessage", savedMessage);
             }
         } catch (error) {
             console.error("Error sending message:", error);
             // Show error in UI if needed
-            
+
         }
     };
-    
+
 
     const handleSearch = async (event) => {
         const term = event.target.value;
@@ -452,7 +514,7 @@ export const Message = ({ info, socket }) => {
                             </Box>
                         </Box>
                         {/* Message Page */}
-                        <Box sx={{ width: "75%", height: "100vh", display: "flex", flexDirection: "column", }}>
+                        <Box ref = {chatBoxRef} sx={{ width: "75%", height: "100vh", display: "flex", flexDirection: "column", }}>
                             {selectedUser ? (
                                 msgLoading ? (<>
                                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
