@@ -12,6 +12,7 @@ import VideocamIcon from "@mui/icons-material/Videocam";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import DoneIcon from "@mui/icons-material/Done"; // Single tick
 import DoneAllIcon from "@mui/icons-material/DoneAll"; // Double tick
+import { LOCAL_HOST } from "./variable";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -38,7 +39,7 @@ export const Message = ({ info, socket }) => {
     useEffect(() => {
         const fetchUsersChat = async () => {
             try {
-                const response = await axios.get(`https://gramsnap-backend.onrender.com/chat/conversations/${userId}`, { withCredentials: true });
+                const response = await axios.get(`${LOCAL_HOST}/chat/conversations/${userId}`, { withCredentials: true });
                 if (response.status === 200) {
                     // // Debug
                     console.log(response.data)
@@ -271,26 +272,61 @@ export const Message = ({ info, socket }) => {
 
     const handleSendMessage = async () => {
         if (!newMessage.trim() || !selectedUser) return;
-
+    
+        const tempMessage = {
+            _id: Date.now().toString(), // Temporary ID
+            senderId: userId,
+            receiverId: selectedUser.userId,
+            message: newMessage,
+            status: "sending", // Temporary status until confirmed
+            createdAt: new Date().toISOString(),
+        };
+    
+        // Optimistically update UI
+        setUserMessages(prev => ({
+            ...prev,
+            [selectedUser.userId]: [...(prev[selectedUser.userId] || []), tempMessage]
+        }));
+    
+        setNewMessage("");
+    
         try {
             const res = await axios.post("https://gramsnap-backend.onrender.com/chat/send",
                 {
                     senderId: userId,
                     receiverId: selectedUser.userId,
-                    message: newMessage,
+                    message: tempMessage.message,
                 },
-            { withCredentials: true });
+                { withCredentials: true }
+            );
+    
             if (res.status === 201) {
-                handleUserClick(selectedUser);
+                const savedMessage = res.data;
+    
+                // Update UI with real message from backend
+                setUserMessages(prev => ({
+                    ...prev,
+                    [selectedUser.userId]: prev[selectedUser.userId].map(msg =>
+                        msg._id === tempMessage._id ? savedMessage : msg
+                    ),
+                }));
+    
+                // Emit the message in real-time
+                socket.emit("sendMessage", savedMessage);
             }
         } catch (error) {
-            console.log("Error occured:", error);
+            console.log("Error occurred:", error);
+    
+            // Show error state in UI (optional)
+            // setUserMessages(prev => ({
+            //     ...prev,
+            //     [selectedUser.userId]: prev[selectedUser.userId].map(msg =>
+            //         msg._id === tempMessage._id ? { ...msg, status: "failed" } : msg
+            //     ),
+            // }));
         }
-
-        setNewMessage("");
-
-
     };
+    
     const handleSearch = async (event) => {
         const term = event.target.value;
         setSearchTerm(term);
