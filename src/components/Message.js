@@ -271,8 +271,9 @@ export const Message = ({ info, socket }) => {
     };
 
     const handleSendMessage = async () => {
+        setMsgLoading(true);
         if (!newMessage.trim() || !selectedUser) return;
-    
+
         const tempMessage = {
             _id: Date.now().toString(), // Temporary ID
             senderId: userId,
@@ -281,15 +282,15 @@ export const Message = ({ info, socket }) => {
             status: "sending", // Temporary status until confirmed
             createdAt: new Date().toISOString(),
         };
-    
+
         // Optimistically update UI
         setUserMessages(prev => ({
             ...prev,
             [selectedUser.userId]: [...(prev[selectedUser.userId] || []), tempMessage]
         }));
-    
+
         setNewMessage("");
-    
+
         try {
             const res = await axios.post("https://gramsnap-backend.onrender.com/chat/send",
                 {
@@ -299,10 +300,11 @@ export const Message = ({ info, socket }) => {
                 },
                 { withCredentials: true }
             );
-    
+
             if (res.status === 201) {
                 const savedMessage = res.data;
-    
+                setMsgLoading(false);
+                setSelectedUser(selectedUser);
                 // Update UI with real message from backend
                 setUserMessages(prev => ({
                     ...prev,
@@ -310,13 +312,13 @@ export const Message = ({ info, socket }) => {
                         msg._id === tempMessage._id ? savedMessage : msg
                     ),
                 }));
-    
+
                 // Emit the message in real-time
                 socket.emit("sendMessage", savedMessage);
             }
         } catch (error) {
             console.log("Error occurred:", error);
-    
+
             // Show error state in UI (optional)
             // setUserMessages(prev => ({
             //     ...prev,
@@ -326,7 +328,7 @@ export const Message = ({ info, socket }) => {
             // }));
         }
     };
-    
+
     const handleSearch = async (event) => {
         const term = event.target.value;
         setSearchTerm(term);
