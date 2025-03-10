@@ -272,13 +272,26 @@ export const Message = ({ info, socket }) => {
 
     const handleSendMessage = async () => {
         if (!newMessage.trim() || !selectedUser) return;
+        setMsgLoading(true);
+        // const tempMessage = {
+        //     _id: Date.now().toString(), // Temporary ID
+        //     senderId: userId,
+        //     receiverId: selectedUser.userId,
+        //     message: newMessage,
+        //     status: "sending", // Temporary status
+        //     createdAt: new Date().toISOString(),
+        // };
     
-       
+        // // Optimistically update UI
+        // // setUserMessages((prev) => ({
+        // //     ...prev,
+        // //     [selectedUser.userId]: [...(prev[selectedUser.userId] || []), tempMessage],
+        // // }));
     
-       // setNewMessage("");
+        setNewMessage(""); // Clear input field
     
         try {
-            const res = await axios.post("https://gramsnap-backend.onrender.com/chat/send",
+            const res = await axios.post(`${LOCAL_HOST}/chat/send`, 
                 {
                     senderId: userId,
                     receiverId: selectedUser.userId,
@@ -289,30 +302,24 @@ export const Message = ({ info, socket }) => {
     
             if (res.status === 201) {
                 const newMessages = res.data;
-                newMessages.message = newMessage;
+    
                 // Replace temp message with actual message
                 setUserMessages(prevMessages => ({
                     ...prevMessages,
                     [selectedUser.userId]: newMessages // Using `_id` as a unique key
                   }));
-    
-                // Emit the message in real-time
+                  setMsgLoading(false);
+                // Emit message in real-time
                 //socket.emit("sendMessage", savedMessage);
             }
         } catch (error) {
-            console.log("Error occurred:", error);
-    
-            // Show error state in UI (optional)
-            // setUserMessages(prev => ({
-            //     ...prev,
-            //     [selectedUser.userId]: prev[selectedUser.userId].map(msg =>
-            //         msg._id === tempMessage._id ? { ...msg, status: "failed" } : msg
-            //     ),
-            // }));
+            console.error("Error sending message:", error);
+            // Show error in UI if needed
+            
         }
-        setNewMessage("");
     };
     
+
     const handleSearch = async (event) => {
         const term = event.target.value;
         setSearchTerm(term);
