@@ -271,63 +271,61 @@ export const Message = ({ info, socket }) => {
     };
 
     const handleSendMessage = async () => {
-        setMsgLoading(true);
         if (!newMessage.trim() || !selectedUser) return;
-
+    
         const tempMessage = {
             _id: Date.now().toString(), // Temporary ID
             senderId: userId,
             receiverId: selectedUser.userId,
             message: newMessage,
-            status: "sending", // Temporary status until confirmed
+            status: "sending", // Temporary status
             createdAt: new Date().toISOString(),
         };
-
+    
         // Optimistically update UI
-        setUserMessages(prev => ({
+        setUserMessages((prev) => ({
             ...prev,
-            [selectedUser.userId]: [...(prev[selectedUser.userId] || []), tempMessage]
+            [selectedUser.userId]: [...(prev[selectedUser.userId] || []), tempMessage],
         }));
-
-        setNewMessage("");
-
+    
+        setNewMessage(""); // Clear input field
+    
         try {
-            const res = await axios.post("https://gramsnap-backend.onrender.com/chat/send",
+            const res = await axios.post(`${LOCAL_HOST}/chat/send`, 
                 {
                     senderId: userId,
                     receiverId: selectedUser.userId,
-                    message: tempMessage.message,
+                    message: newMessage,
                 },
                 { withCredentials: true }
             );
-
+    
             if (res.status === 201) {
                 const savedMessage = res.data;
-                setMsgLoading(false);
-                //setSelectedUser(selectedUser);
-                // Update UI with real message from backend
-                setUserMessages(prev => ({
+    
+                // Replace temp message with actual message
+                setUserMessages((prev) => ({
                     ...prev,
                     [selectedUser.userId]: prev[selectedUser.userId].map(msg =>
                         msg._id === tempMessage._id ? savedMessage : msg
                     ),
                 }));
-
-                // Emit the message in real-time
-                socket.emit("sendMessage", savedMessage);
+    
+                // Emit message in real-time
+                //socket.emit("sendMessage", savedMessage);
             }
         } catch (error) {
-            console.log("Error occurred:", error);
-
-            // Show error state in UI (optional)
-            // setUserMessages(prev => ({
-            //     ...prev,
-            //     [selectedUser.userId]: prev[selectedUser.userId].map(msg =>
-            //         msg._id === tempMessage._id ? { ...msg, status: "failed" } : msg
-            //     ),
-            // }));
+            console.error("Error sending message:", error);
+            // Show error in UI if needed
+            setUserMessages((prev) => ({
+                ...prev,
+                [selectedUser.userId]: prev[selectedUser.userId].map(msg =>
+                    msg._id === tempMessage._id ? { ...msg, status: "failed" } : msg
+                ),
+            }));
         }
     };
+    
 
     const handleSearch = async (event) => {
         const term = event.target.value;
