@@ -297,7 +297,7 @@ export const Message = ({ info, socket }) => {
                   }));
     
                 // Emit the message in real-time
-                socket.emit("sendMessage", savedMessage);
+                //socket.emit("sendMessage", savedMessage);
             }
         } catch (error) {
             console.log("Error occurred:", error);
