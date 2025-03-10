@@ -304,7 +304,7 @@ export const Message = ({ info, socket }) => {
             if (res.status === 201) {
                 const savedMessage = res.data;
                 setMsgLoading(false);
-                setSelectedUser(selectedUser);
+                //setSelectedUser(selectedUser);
                 // Update UI with real message from backend
                 setUserMessages(prev => ({
                     ...prev,
