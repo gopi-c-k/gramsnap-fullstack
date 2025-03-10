@@ -313,11 +313,11 @@ export const Message = ({ info, socket }) => {
             createdAt: new Date().toISOString(),
         };
 
-        // Optimistically update UI (show the message instantly)
-        setUserMessages(prevMessages => ({
-            ...prevMessages,
-            [selectedUser.userId]: [...(prevMessages[selectedUser.userId] || []), tempMessage]
-        }));
+        // // Optimistically update UI (show the message instantly)
+        // setUserMessages(prevMessages => ({
+        //     ...prevMessages,
+        //     [selectedUser.userId]: [...(prevMessages[selectedUser.userId] || []), tempMessage]
+        // }));
 
         setNewMessage(""); // Clear input field
 
@@ -338,8 +338,10 @@ export const Message = ({ info, socket }) => {
                 }));
 
                 // Emit message in real-time to receiver
-                if (socket)
+                if (socket){
                     socket.emit("sendMessage", savedMessage);
+                    console.log(savedMessage);
+                }
             }
         } catch (error) {
             console.error("Error sending message:", error);
