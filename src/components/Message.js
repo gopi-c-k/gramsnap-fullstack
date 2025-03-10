@@ -150,7 +150,7 @@ export const Message = ({ info, socket }) => {
     useEffect(() => {
         if (socket) {
             socket.on("userOnline", ({ userId }) => { // ✅ Now using `userId`
-                console.log(`🟢 User ${userId} is now online`);
+                //   console.log(`🟢 User ${userId} is now online`);
                 setUsers((prevUsers) =>
                     prevUsers.map((user) =>
                         user.userId === userId ? { ...user, online: true } : user
@@ -303,58 +303,79 @@ export const Message = ({ info, socket }) => {
     const handleSendMessage = async () => {
         if (!newMessage.trim() || !selectedUser) return;
         setMsgLoading(true);
-        // const tempMessage = {
-        //     _id: Date.now().toString(), // Temporary ID
-        //     senderId: userId,
-        //     receiverId: selectedUser.userId,
-        //     message: newMessage,
-        //     status: "sending", // Temporary status
-        //     createdAt: new Date().toISOString(),
-        // };
 
-        // // Optimistically update UI
-        // // setUserMessages((prev) => ({
-        // //     ...prev,
-        // //     [selectedUser.userId]: [...(prev[selectedUser.userId] || []), tempMessage],
-        // // }));
+        const tempMessage = {
+            _id: Date.now().toString(), // Temporary ID
+            senderId: userId,
+            receiverId: selectedUser.userId,
+            message: newMessage,
+            status: "sending", // Temporary status
+            createdAt: new Date().toISOString(),
+        };
 
-        // Clear input field
+        // Optimistically update UI (show the message instantly)
+        setUserMessages(prevMessages => ({
+            ...prevMessages,
+            [selectedUser.userId]: [...(prevMessages[selectedUser.userId] || []), tempMessage]
+        }));
+
+        setNewMessage(""); // Clear input field
 
         try {
-            const res = await axios.post(`${LOCAL_HOST}/chat/send`,
-                {
-                    senderId: userId,
-                    receiverId: selectedUser.userId,
-                    message: newMessage,
-                },
-                { withCredentials: true }
-            );
+            const res = await axios.post(`${LOCAL_HOST}/chat/send`, {
+                senderId: userId,
+                receiverId: selectedUser.userId,
+                message: newMessage,
+            }, { withCredentials: true });
 
             if (res.status === 201) {
-                //const newMessages = ;
-                const newMessages = res.data;
-                newMessages.message = newMessage;
-                // Replace temp message with actual message
+                const savedMessage = res.data;
+
+                // Replace temporary message with the actual message from the backend
                 setUserMessages(prevMessages => ({
                     ...prevMessages,
-                    [selectedUser.userId]: newMessages
+                    [selectedUser.userId]: savedMessage
                 }));
-                // Replace temp message with actual message
-                // setUserMessages(prevMessages => ({
-                //     ...prevMessages,
-                //     [selectedUser.userId]: res.data // Using `_id` as a unique key
-                // }));
-                setMsgLoading(false);
-                // Emit message in real-time
-                //socket.emit("sendMessage", savedMessage);
+
+                // Emit message in real-time to receiver
+                if (socket)
+                    socket.emit("sendMessage", savedMessage);
             }
         } catch (error) {
             console.error("Error sending message:", error);
-            // Show error in UI if needed
 
+            // Mark message as "failed" in UI if the request fails
+            // setUserMessages(prevMessages => ({
+            //     ...prevMessages,
+            //     [selectedUser.userId]: prevMessages[selectedUser.userId].map(msg =>
+            //         msg._id === tempMessage._id ? { ...msg, status: "failed" } : msg
+            //     )
+            // }));
         }
-        setNewMessage("");
+
+        setMsgLoading(false);
     };
+    useEffect(() => {
+        if (socket) {
+            socket.on("receiveMessage", (message) => {
+                if (!userMessages[message.senderId]) {
+                    // Use functional update to ensure we're working with latest state
+                    setUserMessages(prev => ({
+                        ...prev,
+                        [message.senderId]: []
+                    }));
+                }
+                setUserMessages(prevMessages => ({
+                    ...prevMessages,
+                    [message.senderId]: message
+                }));
+            });
+        }
+
+        return () => {
+            socket.off("receiveMessage");
+        };
+    }, [socket]);
 
 
     const handleSearch = async (event) => {
