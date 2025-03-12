@@ -40,7 +40,7 @@ export const Message = ({ info, socket }) => {
                 const response = await axios.get(`${LOCAL_HOST}/chat/conversations/${userId}`, { withCredentials: true });
                 if (response.status === 200) {
                     // // Debug
-                  //  console.log(response.data)
+                    //  console.log(response.data)
                     setLoading(false);
                     setUsers(response.data)
                     // console.log(userProfile);
@@ -251,7 +251,7 @@ export const Message = ({ info, socket }) => {
 
     const chatBoxRef = useRef(null);
 
-    const [loadingMore, setLoadingMore] = useState(false); 
+    const [loadingMore, setLoadingMore] = useState(false);
     const handleScroll = () => {
         if (chatBoxRef.current) {
             if (chatBoxRef.current.scrollTop === 0) { // User reached the top
@@ -299,7 +299,7 @@ export const Message = ({ info, socket }) => {
     const handleSendMessage = async () => {
         if (!newMessage.trim() || !selectedUser) return;
         setMsgLoading(true);
-        
+
         try {
             const res = await axios.post(`${LOCAL_HOST}/chat/send`, {
                 senderId: userId,
@@ -308,17 +308,19 @@ export const Message = ({ info, socket }) => {
             }, { withCredentials: true });
 
             if (res.status === 201) {
-                
-                res.data.message = newMessage;
+
+                const newMsgData = res.data;
+                newMsgData.message = newMessage; // Ensure the message is included
 
                 setUserMessages(prevMessages => ({
                     ...prevMessages,
-                    [selectedUser.userId]: res.data
+                    [selectedUser.userId]: [
+                        ...(prevMessages[selectedUser.userId] || []), // Keep previous messages
+                        newMsgData, // Append new message
+                    ]
                 }));
-
-                if (socket){
-                    socket.emit("sendMessage", res.data);
-                    console.log(userMessages);
+                if (socket) {
+                    socket.emit("sendMessage", newMsgData);
                 }
                 setMsgLoading(false);
             }
@@ -326,7 +328,7 @@ export const Message = ({ info, socket }) => {
             console.error("Error sending message:", error);
         }
         setNewMessage(""); // Clear input field
-        
+
     };
     useEffect(() => {
         if (socket) {
