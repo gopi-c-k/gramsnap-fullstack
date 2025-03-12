@@ -224,12 +224,15 @@ export const Message = ({ info, socket }) => {
 
                 // Immediately update messages for this specific user
                 setUserMessages(prev => {
-                    const currentUserMessages = prev[userIdKey] || [];
+                    // Ensure both newMessages and currentUserMessages are arrays
+                    const currentUserMessages = Array.isArray(prev[userIdKey]) ? prev[userIdKey] : [];
+                    const newMessages = Array.isArray(res.data?.messages) ? res.data.messages : [];
+
                     return {
                         ...prev,
                         [userIdKey]: newChat
-                            ? newMessages
-                            : [...newMessages, ...currentUserMessages]
+                            ? newMessages // Replace messages if it's a new chat
+                            : [...newMessages, ...currentUserMessages], // Append older messages
                     };
                 });
                 setMsgLoading(false);
@@ -312,22 +315,22 @@ export const Message = ({ info, socket }) => {
 
     const handleSendMessage = async () => {
         if (!newMessage.trim() || !selectedUser) return;
-        const tempMessageId = Date.now().toString();
-        const tempMessage = {
-            _id: tempMessageId, // Temporary ID
-            senderId: userId,
-            receiverId: selectedUser.userId,
-            message: newMessage,
-            status: "sending",
-            createdAt: new Date().toISOString(),
-        };
-        setUserMessages(prevMessages => ({
-            ...prevMessages,
-            [selectedUser.userId]: [
-                ...(prevMessages[selectedUser.userId] || []), // Keep previous messages
-                tempMessage, // Append new message
-            ]
-        }));
+        // const tempMessageId = Date.now().toString();
+        // const tempMessage = {
+        //     _id: tempMessageId, // Temporary ID
+        //     senderId: userId,
+        //     receiverId: selectedUser.userId,
+        //     message: newMessage,
+        //     status: "sending",
+        //     createdAt: new Date().toISOString(),
+        // };
+        // setUserMessages(prevMessages => ({
+        //     ...prevMessages,
+        //     [selectedUser.userId]: [
+        //         ...(prevMessages[selectedUser.userId] || []), // Keep previous messages
+        //         tempMessage, // Append new message
+        //     ]
+        // }));
         try {
             const res = await axios.post(`${LOCAL_HOST}/chat/send`, {
                 senderId: userId,
@@ -340,11 +343,18 @@ export const Message = ({ info, socket }) => {
                 const newMsgData = res.data;
                 newMsgData.message = newMessage; // Ensure the message is included
 
+                // setUserMessages(prevMessages => ({
+                //     ...prevMessages,
+                //     [selectedUser.userId]: prevMessages[selectedUser.userId].map(msg =>
+                //         msg._id === tempMessageId ? { ...msg, status: newMsgData.status } : msg
+                //     ),
+                // }));
                 setUserMessages(prevMessages => ({
                     ...prevMessages,
-                    [selectedUser.userId]: prevMessages[selectedUser.userId].map(msg =>
-                        msg._id === tempMessageId ? { ...msg, status: newMsgData.status } : msg
-                    ),
+                    [selectedUser.userId]: [
+                        ...(prevMessages[selectedUser.userId] || []), // Keep previous messages
+                        newMsgData, // Append new message
+                    ]
                 }));
                 if (socket) {
                     socket.emit("sendMessage", newMsgData);
@@ -370,7 +380,10 @@ export const Message = ({ info, socket }) => {
                 }
                 setUserMessages(prevMessages => ({
                     ...prevMessages,
-                    [message.senderId]: message
+                    [message.senderId]: [
+                        ...(prevMessages[message.senderId] || []), // Keep previous messages
+                        message, // Append new message
+                    ]
                 }));
             });
         }
