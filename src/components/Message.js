@@ -320,12 +320,13 @@ export const Message = ({ info, socket }) => {
                     socket.emit("sendMessage", res.data);
                     console.log(userMessages);
                 }
+                setMsgLoading(false);
             }
         } catch (error) {
             console.error("Error sending message:", error);
         }
         setNewMessage(""); // Clear input field
-        setMsgLoading(false);
+        
     };
     useEffect(() => {
         if (socket) {
