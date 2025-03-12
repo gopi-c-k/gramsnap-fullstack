@@ -13,11 +13,9 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import DoneIcon from "@mui/icons-material/Done"; // Single tick
 import DoneAllIcon from "@mui/icons-material/DoneAll"; // Double tick
 import { LOCAL_HOST } from "./variable";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import axios from "axios";
-import io from "socket.io-client";
 
 
 export const Message = ({ info, socket }) => {
@@ -234,7 +232,6 @@ export const Message = ({ info, socket }) => {
                     };
                 });
                 setMsgLoading(false);
-                console.log(userMessages);
                 // Update page counter if we received messages
                 if (newMessages.length > 0) {
                     setUserPages(prev => ({
@@ -313,14 +310,7 @@ export const Message = ({ info, socket }) => {
             createdAt: new Date().toISOString(),
         };
 
-        // // Optimistically update UI (show the message instantly)
-        // setUserMessages(prevMessages => ({
-        //     ...prevMessages,
-        //     [selectedUser.userId]: [...(prevMessages[selectedUser.userId] || []), tempMessage]
-        // }));
-
-        setNewMessage(""); // Clear input field
-
+        
         try {
             const res = await axios.post(`${LOCAL_HOST}/chat/send`, {
                 senderId: userId,
@@ -331,10 +321,11 @@ export const Message = ({ info, socket }) => {
             if (res.status === 201) {
                 const savedMessage = res.data;
                 
+                res.data.message = newMessage;
                 // Replace temporary message with the actual message from the backend
                 setUserMessages(prevMessages => ({
                     ...prevMessages,
-                    [selectedUser.userId]: savedMessage
+                    [selectedUser.userId]: res.data
                 }));
 
                 // Emit message in real-time to receiver
@@ -355,7 +346,7 @@ export const Message = ({ info, socket }) => {
             //     )
             // }));
         }
-
+        setNewMessage(""); // Clear input field
         setMsgLoading(false);
     };
     useEffect(() => {
