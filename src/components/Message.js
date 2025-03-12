@@ -10,6 +10,7 @@ import MessageIcon from '@mui/icons-material/Message';
 import CallIcon from "@mui/icons-material/Call";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import PendingIcon from '@mui/icons-material/Pending';
 import DoneIcon from "@mui/icons-material/Done"; // Single tick
 import DoneAllIcon from "@mui/icons-material/DoneAll"; // Double tick
 import { LOCAL_HOST } from "./variable";
@@ -250,6 +251,19 @@ export const Message = ({ info, socket }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const chatBoxRef = useRef(null);
+    useEffect(() => {
+        if (chatBoxRef.current) {
+            chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+        }
+    }, [newMessage]); // Runs when messages update
+
+    useEffect(() => {
+        setTimeout(() => {
+            if (chatBoxRef.current) {
+                chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+            }
+        }, 0); // Ensure it runs after first render
+    }, []);
 
     const [loadingMore, setLoadingMore] = useState(false);
     const handleScroll = () => {
@@ -298,8 +312,22 @@ export const Message = ({ info, socket }) => {
 
     const handleSendMessage = async () => {
         if (!newMessage.trim() || !selectedUser) return;
-        setMsgLoading(true);
-
+        const tempMessageId = Date.now().toString();
+        const tempMessage = {
+            _id: tempMessageId, // Temporary ID
+            senderId: userId,
+            receiverId: selectedUser.userId,
+            message: newMessage,
+            status: "sending",
+            createdAt: new Date().toISOString(),
+        };
+        setUserMessages(prevMessages => ({
+            ...prevMessages,
+            [selectedUser.userId]: [
+                ...(prevMessages[selectedUser.userId] || []), // Keep previous messages
+                tempMessage, // Append new message
+            ]
+        }));
         try {
             const res = await axios.post(`${LOCAL_HOST}/chat/send`, {
                 senderId: userId,
@@ -314,15 +342,13 @@ export const Message = ({ info, socket }) => {
 
                 setUserMessages(prevMessages => ({
                     ...prevMessages,
-                    [selectedUser.userId]: [
-                        ...(prevMessages[selectedUser.userId] || []), // Keep previous messages
-                        newMsgData, // Append new message
-                    ]
+                    [selectedUser.userId]: prevMessages[selectedUser.userId].map(msg =>
+                        msg._id === tempMessageId ? { ...msg, status: newMsgData.status } : msg
+                    ),
                 }));
                 if (socket) {
                     socket.emit("sendMessage", newMsgData);
                 }
-                setMsgLoading(false);
             }
         } catch (error) {
             console.error("Error sending message:", error);
@@ -564,7 +590,7 @@ export const Message = ({ info, socket }) => {
                                                                 maxWidth: "80%",
                                                                 wordBreak: "break-word",
                                                                 display: "flex",
-                                                                flexDirection: "column",
+                                                                flexDirection: "row",
                                                                 whiteSpace: "pre-wrap",
                                                                 padding: "8px 12px",
                                                                 display: "inline-block",
@@ -579,15 +605,16 @@ export const Message = ({ info, socket }) => {
                                                             {msg.message}
                                                             {msg.senderId === userId && (
                                                                 <Box
-                                                                    sx={{
-                                                                        position: "absolute",
-                                                                        bottom: "0px",
-                                                                        right: "0px",
-                                                                        display: "flex",
-                                                                        alignItems: "center",
-                                                                    }}
+                                                                // sx={{
+                                                                //     position: "absolute",
+                                                                //     bottom: "0px",
+                                                                //     right: "0px",
+                                                                //     display: "flex",
+                                                                //     alignItems: "center",
+                                                                // }}
                                                                 >
                                                                     {msg.status === "sent" && <DoneIcon fontSize="10px" sx={{ opacity: 0.7 }} />}
+                                                                    {msg.status === "sending" && <PendingIcon fontSize="10px" sx={{ opacity: 0.7 }} />}
                                                                     {msg.status === "delivered" && <DoneAllIcon fontSize="10px" sx={{ opacity: 0.7 }} />}
                                                                     {msg.status === "seen" && <DoneAllIcon fontSize="10px" sx={{ color: "blue", opacity: 0.7 }} />}
                                                                 </Box>
@@ -811,15 +838,16 @@ export const Message = ({ info, socket }) => {
                                                                     {msg.message}
                                                                     {msg.senderId === userId && (
                                                                         <Box
-                                                                            sx={{
-                                                                                position: "absolute",
-                                                                                bottom: "0px",
-                                                                                right: "0px",
-                                                                                display: "flex",
-                                                                                alignItems: "center",
-                                                                            }}
+                                                                        // sx={{
+                                                                        //     position: "absolute",
+                                                                        //     bottom: "0px",
+                                                                        //     right: "0px",
+                                                                        //     display: "flex",
+                                                                        //     alignItems: "center",
+                                                                        // }}
                                                                         >
                                                                             {msg.status === "sent" && <DoneIcon fontSize="10px" sx={{ opacity: 0.7 }} />}
+                                                                            {msg.status === "sending" && <PendingIcon fontSize="10px" sx={{ opacity: 0.7 }} />}
                                                                             {msg.status === "delivered" && <DoneAllIcon fontSize="10px" sx={{ opacity: 0.7 }} />}
                                                                             {msg.status === "seen" && <DoneAllIcon fontSize="10px" sx={{ color: "blue", opacity: 0.7 }} />}
                                                                         </Box>
