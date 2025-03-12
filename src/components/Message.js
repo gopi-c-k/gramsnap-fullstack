@@ -40,7 +40,7 @@ export const Message = ({ info, socket }) => {
                 const response = await axios.get(`${LOCAL_HOST}/chat/conversations/${userId}`, { withCredentials: true });
                 if (response.status === 200) {
                     // // Debug
-                    console.log(response.data)
+                  //  console.log(response.data)
                     setLoading(false);
                     setUsers(response.data)
                     // console.log(userProfile);
@@ -251,8 +251,7 @@ export const Message = ({ info, socket }) => {
 
     const chatBoxRef = useRef(null);
 
-    const [loadingMore, setLoadingMore] = useState(false); // State to track loading status
-
+    const [loadingMore, setLoadingMore] = useState(false); 
     const handleScroll = () => {
         if (chatBoxRef.current) {
             if (chatBoxRef.current.scrollTop === 0) { // User reached the top
@@ -300,16 +299,6 @@ export const Message = ({ info, socket }) => {
     const handleSendMessage = async () => {
         if (!newMessage.trim() || !selectedUser) return;
         setMsgLoading(true);
-
-        const tempMessage = {
-            _id: Date.now().toString(), // Temporary ID
-            senderId: userId,
-            receiverId: selectedUser.userId,
-            message: newMessage,
-            status: "sending", // Temporary status
-            createdAt: new Date().toISOString(),
-        };
-
         
         try {
             const res = await axios.post(`${LOCAL_HOST}/chat/send`, {
@@ -319,32 +308,21 @@ export const Message = ({ info, socket }) => {
             }, { withCredentials: true });
 
             if (res.status === 201) {
-                const savedMessage = res.data;
                 
                 res.data.message = newMessage;
-                // Replace temporary message with the actual message from the backend
+
                 setUserMessages(prevMessages => ({
                     ...prevMessages,
                     [selectedUser.userId]: res.data
                 }));
 
-                // Emit message in real-time to receiver
                 if (socket){
-                    socket.emit("sendMessage", savedMessage);
-                   // console.log(savedMessage);
+                    socket.emit("sendMessage", res.data);
                     console.log(userMessages);
                 }
             }
         } catch (error) {
             console.error("Error sending message:", error);
-
-            // Mark message as "failed" in UI if the request fails
-            // setUserMessages(prevMessages => ({
-            //     ...prevMessages,
-            //     [selectedUser.userId]: prevMessages[selectedUser.userId].map(msg =>
-            //         msg._id === tempMessage._id ? { ...msg, status: "failed" } : msg
-            //     )
-            // }));
         }
         setNewMessage(""); // Clear input field
         setMsgLoading(false);
