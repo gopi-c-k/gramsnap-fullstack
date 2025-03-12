@@ -330,7 +330,7 @@ export const Message = ({ info, socket }) => {
 
             if (res.status === 201) {
                 const savedMessage = res.data;
-
+                
                 // Replace temporary message with the actual message from the backend
                 setUserMessages(prevMessages => ({
                     ...prevMessages,
@@ -340,7 +340,8 @@ export const Message = ({ info, socket }) => {
                 // Emit message in real-time to receiver
                 if (socket){
                     socket.emit("sendMessage", savedMessage);
-                    console.log(savedMessage);
+                   // console.log(savedMessage);
+                    console.log(userMessages);
                 }
             }
         } catch (error) {
