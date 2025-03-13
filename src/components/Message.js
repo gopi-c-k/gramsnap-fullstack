@@ -369,7 +369,7 @@ export const Message = ({ info, socket }) => {
     useEffect(() => {
         if (socket) {
             socket.on("receiveMessage", (message) => {
-                console.log("Message Received");
+                // console.log("Message Received");
                 // if (selectedUser) {
                 //     let idOfSelectedUser = selectedUser.userId
                 //     if (message.senderId === idOfSelectedUser) {
@@ -391,6 +391,13 @@ export const Message = ({ info, socket }) => {
                         message, // Append new message
                     ]
                 }));
+                console.log(message.senderId);
+                console.log(selectedUser.userId);
+                let idOfSelectedUser = selectedUser.userId;
+                console.log(idOfSelectedUser);
+                if(message.senderId === selectedUser.userId){
+                    console.log("Same");
+                }
             });
         }
 
