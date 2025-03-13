@@ -342,7 +342,9 @@ export const Message = ({ info, socket }) => {
 
                 const newMsgData = res.data;
                 newMsgData.message = newMessage; // Ensure the message is included
-                selectedUser.lastMessage = newMessage;
+                let user = selectedUser;
+                user.lastMessage = newMessage;
+                setSelectedUser(user);
 
                 // setUserMessages(prevMessages => ({
                 //     ...prevMessages,
@@ -358,6 +360,7 @@ export const Message = ({ info, socket }) => {
                     ]
                 }));
                 if (socket) {
+                    console.log(newMsgData);
                     socket.emit("sendMessage", newMsgData);
                 }
             }
@@ -367,7 +370,7 @@ export const Message = ({ info, socket }) => {
         setNewMessage(""); // Clear input field
 
     };
-  //  const selectedUserRef = useRef(selectedUser);
+    //  const selectedUserRef = useRef(selectedUser);
     useEffect(() => {
         if (socket) {
             socket.on("receiveMessage", (message) => {
@@ -381,7 +384,9 @@ export const Message = ({ info, socket }) => {
                     }));
                     console.log("Same User");
                     message.status = "seen";
-                    selectedUser.lastMessage=message.message;
+                    let user = selectedUser;
+                    user.lastMessage = message.message;
+                    setSelectedUser(user);
                     socket.emit("markMessageSeen", message);
                 }
             });
@@ -390,7 +395,7 @@ export const Message = ({ info, socket }) => {
         return () => {
             socket.off("receiveMessage");
         };
-    }, [socket,selectedUser]);
+    }, [socket, selectedUser]);
     useEffect(() => {
         if (socket) {
             socket.on("markMessageSee", (message) => {
@@ -405,12 +410,12 @@ export const Message = ({ info, socket }) => {
                 }
             });
         }
-    
+
         return () => {
             socket.off("markMessageSee");
         };
     }, [socket, selectedUser]);
-    
+
 
 
     const handleSearch = async (event) => {
