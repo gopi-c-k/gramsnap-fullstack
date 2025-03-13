@@ -371,7 +371,8 @@ export const Message = ({ info, socket }) => {
             socket.on("receiveMessage", (message) => {
                 console.log("Message Received");
                 if (selectedUser) {
-                    if (message.senderId === selectedUser.userId) {
+                    let idOfSelectedUser = selectedUser.userId
+                    if (message.senderId === idOfSelectedUser) {
                         setUserMessages(prevMessages => ({
                             ...prevMessages,
                             [message.senderId]: [
