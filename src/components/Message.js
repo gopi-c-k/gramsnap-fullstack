@@ -342,6 +342,7 @@ export const Message = ({ info, socket }) => {
 
                 const newMsgData = res.data;
                 newMsgData.message = newMessage; // Ensure the message is included
+                selectedUser.lastMessage = newMessage;
 
                 // setUserMessages(prevMessages => ({
                 //     ...prevMessages,
@@ -370,21 +371,6 @@ export const Message = ({ info, socket }) => {
     useEffect(() => {
         if (socket) {
             socket.on("receiveMessage", (message) => {
-                console.log("Message Received");
-                // if (selectedUser) {
-                //     let idOfSelectedUser = selectedUser.userId
-                //     if (message.senderId === idOfSelectedUser) {
-                //         setUserMessages(prevMessages => ({
-                //             ...prevMessages,
-                //             [message.senderId]: [
-                //                 ...(prevMessages[message.senderId] || []), // Keep previous messages
-                //                 message, // Append new message
-                //             ]
-                //         }));
-                //         message.status = "seen";
-                //         socket.emit("markMessageSeen", message);
-                //     }
-                // }
                 if (message.senderId === selectedUser.userId) {
                     setUserMessages(prevMessages => ({
                         ...prevMessages,
@@ -395,6 +381,7 @@ export const Message = ({ info, socket }) => {
                     }));
                     console.log("Same User");
                     message.status = "seen";
+                    selectedUser.lastMessage=message.message;
                     socket.emit("markMessageSeen", message);
                 }
             });
@@ -404,6 +391,26 @@ export const Message = ({ info, socket }) => {
             socket.off("receiveMessage");
         };
     }, [socket,selectedUser]);
+    useEffect(() => {
+        if (socket) {
+            socket.on("markMessageSee", (message) => {
+                console.log("Markmessagesee");
+                if (message.receiverId === selectedUser.userId) {
+                    setUserMessages(prevMessages => ({
+                        ...prevMessages,
+                        [message.receiverId]: prevMessages[message.receiverId]?.map(msg =>
+                            msg.id === message.id ? { ...msg, status: "seen" } : msg
+                        ) || []
+                    }));
+                }
+            });
+        }
+    
+        return () => {
+            socket.off("markMessageSee");
+        };
+    }, [socket, selectedUser]);
+    
 
 
     const handleSearch = async (event) => {
