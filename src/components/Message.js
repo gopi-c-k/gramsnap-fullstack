@@ -370,21 +370,17 @@ export const Message = ({ info, socket }) => {
         if (socket) {
             socket.on("receiveMessage", (message) => {
                 console.log("Message Received");
-                console.log(message);
-                if (!userMessages[message.senderId]) {
-                    // Use functional update to ensure we're working with latest state
-                    setUserMessages(prev => ({
-                        ...prev,
-                        [message.senderId]: []
+                if (message.senderId === selectedUser.userId) {
+                    setUserMessages(prevMessages => ({
+                        ...prevMessages,
+                        [message.senderId]: [
+                            ...(prevMessages[message.senderId] || []), // Keep previous messages
+                            message, // Append new message
+                        ]
                     }));
+                    message.status="seen";
+                    socket.emit("markMessageSeen",message);
                 }
-                setUserMessages(prevMessages => ({
-                    ...prevMessages,
-                    [message.senderId]: [
-                        ...(prevMessages[message.senderId] || []), // Keep previous messages
-                        message, // Append new message
-                    ]
-                }));
             });
         }
 
