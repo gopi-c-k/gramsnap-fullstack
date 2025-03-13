@@ -366,6 +366,7 @@ export const Message = ({ info, socket }) => {
         setNewMessage(""); // Clear input field
 
     };
+    const selectedUserRef = useRef(selectedUser);
     useEffect(() => {
         if (socket) {
             socket.on("receiveMessage", (message) => {
@@ -384,19 +385,17 @@ export const Message = ({ info, socket }) => {
                 //         socket.emit("markMessageSeen", message);
                 //     }
                 // }
-                setUserMessages(prevMessages => ({
-                    ...prevMessages,
-                    [message.senderId]: [
-                        ...(prevMessages[message.senderId] || []), // Keep previous messages
-                        message, // Append new message
-                    ]
-                }));
-                console.log(message.senderId);
-                console.log(selectedUser.userId);
-                let idOfSelectedUser = selectedUser.userId;
-                console.log(idOfSelectedUser);
-                if(message.senderId === selectedUser.userId){
-                    console.log("Same");
+                if (selectedUserRef.current && message.senderId === selectedUserRef.current.userId) {
+                    setUserMessages(prevMessages => ({
+                        ...prevMessages,
+                        [message.senderId]: [
+                            ...(prevMessages[message.senderId] || []), // Keep previous messages
+                            message, // Append new message
+                        ]
+                    }));
+                    console.log("Same User");
+                    message.status = "seen";
+                    socket.emit("markMessageSeen", message);
                 }
             });
         }
