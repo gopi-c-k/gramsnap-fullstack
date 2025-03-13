@@ -366,11 +366,11 @@ export const Message = ({ info, socket }) => {
         setNewMessage(""); // Clear input field
 
     };
-    const selectedUserRef = useRef(selectedUser);
+  //  const selectedUserRef = useRef(selectedUser);
     useEffect(() => {
         if (socket) {
             socket.on("receiveMessage", (message) => {
-                // console.log("Message Received");
+                console.log("Message Received");
                 // if (selectedUser) {
                 //     let idOfSelectedUser = selectedUser.userId
                 //     if (message.senderId === idOfSelectedUser) {
@@ -385,7 +385,7 @@ export const Message = ({ info, socket }) => {
                 //         socket.emit("markMessageSeen", message);
                 //     }
                 // }
-                if (selectedUserRef.current && message.senderId === selectedUserRef.current.userId) {
+                if (message.senderId === selectedUser.userId) {
                     setUserMessages(prevMessages => ({
                         ...prevMessages,
                         [message.senderId]: [
@@ -403,7 +403,7 @@ export const Message = ({ info, socket }) => {
         return () => {
             socket.off("receiveMessage");
         };
-    }, [socket]);
+    }, [socket,selectedUser]);
 
 
     const handleSearch = async (event) => {
