@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Box, Typography, Avatar, Divider, Button, List, ListItem,CircularProgress, ListItemAvatar, ListItemText, TextField } from "@mui/material";
+import { Box, Typography, Avatar, Divider, Button, List, ListItem, CircularProgress, ListItemAvatar, ListItemText, TextField } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import PersonIcon from "@mui/icons-material/Person";
@@ -144,7 +144,7 @@ const Home = ({ info }) => {
             try {
                 console.log("Fetching home posts...");
                 const res = await axios.get("https://gramsnap-backend.onrender.com/home", { withCredentials: true });
-    
+
                 if (res.status === 200 && res.data?.homePosts) {
                     console.log("Home posts fetched:", res.data.homePosts);
                     setHomePost(res.data.homePosts);
@@ -158,10 +158,10 @@ const Home = ({ info }) => {
                 navigate("/signin");
             }
         };
-    
+
         fetchHomePosts();
     }, [navigate]); // ✅ Added `navigate` as a dependency to prevent stale references
-    
+
 
     // ✅ Fetch notifications function
     const fetchNotifications = useCallback(async () => {
@@ -346,12 +346,17 @@ const Home = ({ info }) => {
                                             <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center" }}>
                                                 <Avatar src={posts.profilePicture} sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
                                                 <Box sx={{ display: "flex", flexDirection: "column", gap: "3px", alignItems: "center" }}>
-                                                <Typography variant="body1" sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222" }} onClick={() => setSelectedUser(posts.userId)}>
-                                                    {posts.userId}
-                                                </Typography>
-                                                <Typography variant="body2" sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222" }}>
-                                                    {posts.name}
-                                                </Typography>
+                                                    <Typography
+                                                        variant="body1"
+                                                        sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222", cursor: "pointer" }}
+                                                        onClick={() => setSelectedUser(posts.userId)}
+                                                    >
+                                                        {posts.userId}
+                                                    </Typography>
+
+                                                    <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>
+                                                        {posts.name}
+                                                    </Typography>
                                                 </Box>
                                                 <Typography variant="body2" sx={{ fontWeight: 200, color: "#0077cc", cursor: "pointer" }}>
                                                     Follow
