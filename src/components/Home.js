@@ -349,7 +349,7 @@ const Home = ({ info }) => {
                                                     <Typography
                                                         variant="body1"
                                                         sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222", cursor: "pointer" }}
-                                                        onClick={() => setSelectedUser(posts.userId)}
+                                                        onClick={() => setSelectedUser(posts)}
                                                     >
                                                         {posts.userId}
                                                     </Typography>
