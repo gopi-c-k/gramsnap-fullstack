@@ -52,9 +52,8 @@ const AddPost = ({ info }) => {
         }
         try {
 
-            const response = await axios.post(`https://gramsnap-backend.onrender.com/createPost`, formData, {
+            const response = await axios.post(`https://gramsnap-backend.onrender.com/createPost`, formData, { withCredentials: true }, {
                 headers: { "Content-Type": "multipart/form-data" },
-                withCredentials: true, // Send authentication cookies
             });
             alert("Post uploaded successfully!");
         } catch (error) {
