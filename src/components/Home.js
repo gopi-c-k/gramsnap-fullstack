@@ -86,38 +86,6 @@ const Home = ({ info }) => {
             comments: 10
         },
         {
-            username: "user2",
-            profileImg: "https://via.placeholder.com/50",
-            postImg: "https://via.placeholder.com/300",
-            caption: "Had an amazing brunch today! 🍽️ #Foodie",
-            likes: 89,
-            comments: 15
-        },
-        {
-            username: "user3",
-            profileImg: "https://via.placeholder.com/50",
-            postImg: "https://via.placeholder.com/300",
-            caption: "Throwback to my beach vacation! 🌊🏖️",
-            likes: 200,
-            comments: 25
-        },
-        {
-            username: "user4",
-            profileImg: "https://via.placeholder.com/50",
-            postImg: "https://via.placeholder.com/300",
-            caption: "Coding and coffee ☕💻 #DeveloperLife",
-            likes: 150,
-            comments: 20
-        },
-        {
-            username: "user5",
-            profileImg: "https://via.placeholder.com/50",
-            postImg: "https://via.placeholder.com/300",
-            caption: "Exploring new places 🏕️🌍",
-            likes: 175,
-            comments: 30
-        },
-        {
             username: "user6",
             profileImg: "https://via.placeholder.com/50",
             postImg: "https://via.placeholder.com/300",
@@ -377,9 +345,14 @@ const Home = ({ info }) => {
                                             {/* User Profile Section */}
                                             <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center" }}>
                                                 <Avatar src={posts.profilePicture} sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                <Box sx={{ display: "flex", flexDirection: "column", gap: "3px", alignItems: "center" }}>
+                                                <Typography variant="body1" sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222" }} onClick={() => setSelectedUser(posts.userId)}>
+                                                    {posts.userId}
+                                                </Typography>
                                                 <Typography variant="body2" sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222" }}>
                                                     {posts.name}
                                                 </Typography>
+                                                </Box>
                                                 <Typography variant="body2" sx={{ fontWeight: 200, color: "#0077cc", cursor: "pointer" }}>
                                                     Follow
                                                 </Typography>
