@@ -168,6 +168,19 @@ const Home = ({ info }) => {
     }, []);
     const [notifications, setNotifications] = useState([]);
     const [recommendedUsers, setRecommendedUsers] = useState([]);
+    useEffect(() => {
+        const fetchHomePosts = async () => {
+          try {
+            console.log("Fetch Post Called")
+            const res = await axios.get("https://gramsnap-backend.onrender.com/home", { withCredentials: true });
+            console.log(res.data);
+            console.log(res.data.homePosts);
+          } catch (error) {
+            console.error("Error fetching home posts:", error);
+          }
+        };
+        fetchHomePosts();
+      }, []);      
 
     // ✅ Fetch notifications function
     const fetchNotifications = useCallback(async () => {
