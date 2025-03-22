@@ -75,6 +75,7 @@ const Home = ({ info }) => {
         { username: "user4", img: "https://via.placeholder.com/100" },
         { username: "user5", img: "https://via.placeholder.com/100" },
     ];
+
     const posts = [
         {
             username: "user1",
@@ -133,6 +134,7 @@ const Home = ({ info }) => {
             comments: 50
         },
     ];
+    const [homePost, setHomePost] = useState(posts);
     // const notifications = [
     //     { id: 1, type: "like", user: "John Doe", avatar: "/assets/Images/user1.jpg", message: "liked your post" },
     //     { id: 2, type: "follow-request", user: "Jane Smith", avatar: "/assets/Images/user2.jpg", message: "sent you a follow request" },
@@ -168,19 +170,30 @@ const Home = ({ info }) => {
     }, []);
     const [notifications, setNotifications] = useState([]);
     const [recommendedUsers, setRecommendedUsers] = useState([]);
+    const [homePostLoading, setHomePostLoading] = useState(true);
     useEffect(() => {
         const fetchHomePosts = async () => {
-          try {
-            console.log("Fetch Post Called")
-            const res = await axios.get("https://gramsnap-backend.onrender.com/home", { withCredentials: true });
-            console.log(res.data);
-            console.log(res.data.homePosts);
-          } catch (error) {
-            console.error("Error fetching home posts:", error);
-          }
+            try {
+                console.log("Fetching home posts...");
+                const res = await axios.get("https://gramsnap-backend.onrender.com/home", { withCredentials: true });
+    
+                if (res.status === 200 && res.data?.homePosts) {
+                    console.log("Home posts fetched:", res.data.homePosts);
+                    setHomePost(res.data.homePosts);
+                    setHomePostLoading(false);
+                } else {
+                    console.error("Invalid response from server:", res);
+                    navigate("/signin");
+                }
+            } catch (error) {
+                console.error("Error fetching home posts:", error);
+                navigate("/signin");
+            }
         };
+    
         fetchHomePosts();
-      }, []);      
+    }, [navigate]); // ✅ Added `navigate` as a dependency to prevent stale references
+    
 
     // ✅ Fetch notifications function
     const fetchNotifications = useCallback(async () => {
@@ -346,96 +359,114 @@ const Home = ({ info }) => {
                                 padding: isDesktop && "10px",
                                 gap: isDesktop ? 2 : 1
                             }}>
-                                {posts.map((posts, index) => (
-                                    <Box key={index} sx={{
-                                        minHeight: isDesktop ? `${parentWidth * 0.8}px` : `${parentWidth * 0.9}px`,
-                                        width: isDesktop ? `${parentWidth * 0.8}px` : `${parentWidth * 0.9}px`,
-                                        borderRadius: "2%",
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        padding: "10px",
-                                        backgroundColor: prefersDarkMode ? "#333" : "white",
-                                        boxShadow: !prefersDarkMode
-                                            && "0px 4px 8px rgba(0, 0, 0, 0.1)",
-
-                                    }}>
-                                        <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center" }}>
-                                            <AccountCircleIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
-                                            <Typography variant="body2" sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222" }}>
-                                                {posts.username}
-                                            </Typography>
-                                            <Typography variant="body2" sx={{ fontWeight: 200, color: "#0077cc", cursor: "pointer" }}>
-                                                Follow
-                                            </Typography>
-                                        </Box>
-                                        <img
-                                            src={`${process.env.PUBLIC_URL}/assets/Images/sk.jpeg`}
-                                            alt="Story"
-                                            style={{
-                                                width: isDesktop ? `${parentWidth * 0.75}px` : `${parentWidth * 0.85}px`,
-                                                height: isDesktop ? `${parentWidth * 0.75}px` : `${parentWidth * 0.85}px`,
-                                                objectFit: "cover",
-                                                marginBottom: "10px",
-                                                padding: "10px 0px"
-                                            }}
-                                        />
-                                        <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center" }}>
-                                            <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} ></FavoriteBorderIcon>
-                                            <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center", ml: "auto", mr: "0px" }}>
-                                                <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} ></SendIcon>
-                                                <BookmarksOutlinedIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} ></BookmarksOutlinedIcon>
-                                            </Box>
-                                        </Box>
-                                        <Typography
-                                            variant="body2"
+                                {!homePostLoading ? (
+                                    homePost.map((posts, index) => (
+                                        <Box
+                                            key={posts.postId}
                                             sx={{
-                                                color: prefersDarkMode ? "#ddd" : "#333",
-                                                fontSize: "14px",
-                                                marginTop: "8px",
-                                                lineHeight: 1.5,
+                                                minHeight: isDesktop ? `${parentWidth * 0.8}px` : `${parentWidth * 0.9}px`,
+                                                width: isDesktop ? `${parentWidth * 0.8}px` : `${parentWidth * 0.9}px`,
+                                                borderRadius: "2%",
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                padding: "10px",
+                                                backgroundColor: prefersDarkMode ? "#333" : "white",
+                                                boxShadow: !prefersDarkMode && "0px 4px 8px rgba(0, 0, 0, 0.1)",
                                             }}
                                         >
-                                            <strong>{posts.username}</strong> {posts.caption}
-                                        </Typography>
-                                        {comments.length !== 0 && (comments.map((comment, index) => (
-                                            <Box key={index} sx={{ display: "flex", gap: 1, alignItems: "center", mb: 1, padding: "2px" }}>
-                                                <AccountCircleIcon sx={{ fontSize: 22, color: prefersDarkMode ? "#bbb" : "#777" }} />
-                                                <Typography variant="body2" sx={{ color: prefersDarkMode ? "#ddd" : "#444" }}>
-                                                    <strong>user{index + 1}</strong> {comment}
+                                            {/* User Profile Section */}
+                                            <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center" }}>
+                                                <Avatar src={posts.profilePicture} sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                <Typography variant="body2" sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222" }}>
+                                                    {posts.name}
                                                 </Typography>
-                                                <FavoriteBorderIcon sx={{ fontSize: 22, color: prefersDarkMode ? "#bbb" : "#777", ml: "auto" }}></FavoriteBorderIcon>
+                                                <Typography variant="body2" sx={{ fontWeight: 200, color: "#0077cc", cursor: "pointer" }}>
+                                                    Follow
+                                                </Typography>
                                             </Box>
-                                        )))}
-                                        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                                            <TextField
-                                                variant="outlined"
-                                                size="small"
-                                                placeholder="Add a comment..."
-                                                value={commentText}
-                                                onChange={(e) => setCommentText(e.target.value)}
-                                                sx={{
-                                                    flex: 1,
-                                                    backgroundColor: prefersDarkMode ? "#444" : "#f0f0f0",
-                                                    borderRadius: "5px",
-                                                    "& fieldset": { border: "none" },
+
+                                            {/* Post Image */}
+                                            <img
+                                                src={posts.postPic ? posts.postPic : `${process.env.PUBLIC_URL}/assets/Images/default.jpg`}
+                                                alt="Post"
+                                                style={{
+                                                    width: isDesktop ? `${parentWidth * 0.75}px` : `${parentWidth * 0.85}px`,
+                                                    height: isDesktop ? `${parentWidth * 0.75}px` : `${parentWidth * 0.85}px`,
+                                                    objectFit: "cover",
+                                                    marginBottom: "10px",
+                                                    padding: "10px 0px",
                                                 }}
                                             />
-                                            <Button
-                                                variant="contained"
-                                                size="small"
-                                                onClick={handleCommentSubmit}
-                                                disabled={!commentText.trim()}
+
+                                            {/* Post Actions (Like, Share, Bookmark) */}
+                                            <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center" }}>
+                                                <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center", ml: "auto", mr: "0px" }}>
+                                                    <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                    <BookmarksOutlinedIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                </Box>
+                                            </Box>
+
+                                            {/* Post Caption */}
+                                            <Typography
+                                                variant="body2"
                                                 sx={{
-                                                    backgroundColor: "#0095f6",
-                                                    color: "#fff",
-                                                    "&:hover": { backgroundColor: "#0077cc" },
+                                                    color: prefersDarkMode ? "#ddd" : "#333",
+                                                    fontSize: "14px",
+                                                    marginTop: "8px",
+                                                    lineHeight: 1.5,
                                                 }}
                                             >
-                                                Post
-                                            </Button>
+                                                <strong>{posts.name}</strong> {posts.caption}
+                                            </Typography>
+
+                                            {/* Comments Section */}
+                                            {comments.length !== 0 &&
+                                                comments.map((comment, index) => (
+                                                    <Box key={index} sx={{ display: "flex", gap: 1, alignItems: "center", mb: 1, padding: "2px" }}>
+                                                        <AccountCircleIcon sx={{ fontSize: 22, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                        <Typography variant="body2" sx={{ color: prefersDarkMode ? "#ddd" : "#444" }}>
+                                                            <strong>user{index + 1}</strong> {comment}
+                                                        </Typography>
+                                                        <FavoriteBorderIcon sx={{ fontSize: 22, color: prefersDarkMode ? "#bbb" : "#777", ml: "auto" }} />
+                                                    </Box>
+                                                ))}
+
+                                            {/* Add Comment Input */}
+                                            <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                                                <TextField
+                                                    variant="outlined"
+                                                    size="small"
+                                                    placeholder="Add a comment..."
+                                                    value={commentText}
+                                                    onChange={(e) => setCommentText(e.target.value)}
+                                                    sx={{
+                                                        flex: 1,
+                                                        backgroundColor: prefersDarkMode ? "#444" : "#f0f0f0",
+                                                        borderRadius: "5px",
+                                                        "& fieldset": { border: "none" },
+                                                    }}
+                                                />
+                                                <Button
+                                                    variant="contained"
+                                                    size="small"
+                                                    onClick={handleCommentSubmit}
+                                                    disabled={!commentText.trim()}
+                                                    sx={{
+                                                        backgroundColor: "#0095f6",
+                                                        color: "#fff",
+                                                        "&:hover": { backgroundColor: "#0077cc" },
+                                                    }}
+                                                >
+                                                    Post
+                                                </Button>
+                                            </Box>
                                         </Box>
-                                    </Box>
-                                ))}
+                                    ))
+                                ) : (
+                                    <CircularProgress color="inherit" />
+                                )}
+
                             </Box>
 
                         </Box>
