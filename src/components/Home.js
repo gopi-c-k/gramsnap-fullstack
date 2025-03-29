@@ -378,7 +378,10 @@ const Home = ({ info }) => {
 
                                             {/* Post Actions (Like, Share, Bookmark) */}
                                             <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center" }}>
-                                                <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                {posts.isLiked ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />}
+                                                <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>
+                                                        {posts.likes}
+                                                    </Typography>
                                                 <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center", ml: "auto", mr: "0px" }}>
                                                     <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
                                                     <BookmarksOutlinedIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
