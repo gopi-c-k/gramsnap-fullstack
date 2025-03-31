@@ -6,7 +6,9 @@ import SignUp from "./components/SignUp";
 import Home from "./components/Home";
 import Search from "./components/Search";
 import { Message } from "./components/Message";
+import { HelmetProvider } from "react-helmet-async";
 import AddPost from "./components/AddPost";
+import PostPage from "./components/PostPage"; 
 import Profile from "./components/Profile";
 import Settings from "./components/Settings";
 import Notifications from "./components/Notification";
@@ -103,25 +105,28 @@ function App() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        {/* ✅ AuthHandler now runs inside Router */}
-        <AuthHandler socket={socket} />  
+    <HelmetProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          {/* ✅ AuthHandler now runs inside Router */}
+          <AuthHandler socket={socket} />
 
-        <Routes>
-          <Route path="/signin" element={<SignIn info={{ theme, prefersDarkMode }} socket={socket} />} />
-          <Route path="/signup" element={<SignUp info={{ theme, prefersDarkMode }} />} />
-          <Route path="/notifications" element={<Notifications info={{ theme, prefersDarkMode }} />} />
-          <Route path="/home" element={<Home info={{ theme, prefersDarkMode }} socket={socket} />} />
-          <Route path="/search" element={<Search info={{ theme, prefersDarkMode }} />} />
-          <Route path="/addpost" element={<AddPost info={{ theme, prefersDarkMode }} />} />
-          <Route path="/message" element={<Message info={{ theme, prefersDarkMode }} socket={socket} />} />
-          <Route path="/profile" element={<Profile info={{ theme, prefersDarkMode }} />} />
-          <Route path="/settings" element={<Settings info={{ theme, prefersDarkMode }} />} />
-        </Routes>
-      </Router>
-    </ThemeProvider>
+          <Routes>
+            <Route path="/signin" element={<SignIn info={{ theme, prefersDarkMode }} socket={socket} />} />
+            <Route path="/signup" element={<SignUp info={{ theme, prefersDarkMode }} />} />
+            <Route path="/notifications" element={<Notifications info={{ theme, prefersDarkMode }} />} />
+            <Route path="/home" element={<Home info={{ theme, prefersDarkMode }} socket={socket} />} />
+            <Route path="/search" element={<Search info={{ theme, prefersDarkMode }} />} />
+            <Route path="/addpost" element={<AddPost info={{ theme, prefersDarkMode }} />} />
+            <Route path="/message" element={<Message info={{ theme, prefersDarkMode }} socket={socket} />} />
+            <Route path="/profile" element={<Profile info={{ theme, prefersDarkMode }} />} />
+            <Route path="/settings" element={<Settings info={{ theme, prefersDarkMode }} />} />
+            <Route path="/post/:postId" element={<PostPage info={{ theme, prefersDarkMode }} />} />
+          </Routes>
+        </Router>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 }
 
