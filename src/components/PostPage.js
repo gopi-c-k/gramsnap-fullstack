@@ -60,10 +60,22 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
             console.error("Error fetching post:", error);
         }
     }, [postId]);
-
+    const [likesCount,setLikesCount] = useState(post.likes)
     useEffect(() => {
         fetchPost();
     }, [fetchPost]);
+    const putLike = async () =>{
+        try {
+            setTempLike(!tempLike);
+            const res = await axios.put(`https://gramsnap-backend.onrender.com/${postId}/like`, { withCredentials: true });
+            if (res.status === 200){
+                console.log("Like Success");
+                setLikesCount(res.data.likesCount);
+            }
+        } catch (error) {
+            console.error("Error fetching post:", error);
+        }
+    }
 
     const handleCommentSubmit = async () => {
         if (!commentText.trim()) return;
@@ -75,6 +87,8 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
             console.error("Error posting comment:", error);
         }
     };
+    const [tempLike,setTempLike] = useState(false);
+
 
     if (!post) {
         return (
@@ -139,11 +153,11 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
                 {/* Likes & Actions */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: "6px", mt: 1 }}>
                     <IconButton>
-                        {post.isLiked ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />}
+                        {post.isLiked || tempLike ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} onClick={putLike}/> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={putLike}/>}
                     </IconButton>
-                    <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>{post.likes}</Typography>
+                    <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>{likesCount}</Typography>
                     <Box sx={{ display: "flex", gap: "6px", ml: "auto", mr: "0px" }}>
-                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={handleShareClick} />
+                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777", cursor: "pointer" }} onClick={handleShareClick} />
                         <Menu
                             anchorEl={anchorEl}
                             open={Boolean(anchorEl)}
