@@ -17,7 +17,7 @@ export default function PostPage({ postId: propPostId, open, onClose, theme, pre
         if (!postId) return;
 
         try {
-            const res = await axios.get(`https://gram-snap-backend.onrender.com/post/${postId}`, { withCredentials: true });
+            const res = await axios.get(`https://gramsnap-backend.onrender.com/post/${postId}`, { withCredentials: true });
             setPost(res.data);
 
             // ✅ Update meta tags dynamically
