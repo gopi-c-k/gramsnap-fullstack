@@ -103,26 +103,26 @@ const Home = ({ info }) => {
     const [homePost, setHomePost] = useState(posts);
 
     // Post Share
-     const [anchorEl, setAnchorEl] = useState(null);
-        
-    
-        const handleShareClick = (event) => {
-            setAnchorEl(event.currentTarget);
-        };
-    
-        const handleClose = () => {
-            setAnchorEl(null);
-        };
-    
-        const handleCopyLink = async (postId) => {
-            try {
-                await navigator.clipboard.writeText(`https://gram-snap.vercel.app/post/${postId}`);
-                alert("Link copied to clipboard!");
-            } catch (err) {
-                console.error("Failed to copy:", err);
-            }
-        };
-    
+    const [anchorEl, setAnchorEl] = useState(null);
+
+
+    const handleShareClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleCopyLink = async (postId) => {
+        try {
+            await navigator.clipboard.writeText(`https://gram-snap.vercel.app/post/${postId}`);
+            alert("Link copied to clipboard!");
+        } catch (err) {
+            console.error("Failed to copy:", err);
+        }
+    };
+
     // const notifications = [
     //     { id: 1, type: "like", user: "John Doe", avatar: "/assets/Images/user1.jpg", message: "liked your post" },
     //     { id: 2, type: "follow-request", user: "Jane Smith", avatar: "/assets/Images/user2.jpg", message: "sent you a follow request" },
@@ -195,7 +195,12 @@ const Home = ({ info }) => {
         console.log("Like Function Called");
         console.log(postId);
         try {
-            const res = await axios.put(`https://gramsnap-backend.onrender.com/${postId}/like`, { withCredentials: true });
+            const res = await axios.put(
+                `https://gramsnap-backend.onrender.com/${postId}/like`,
+                {}, // Empty body for PUT request
+                { withCredentials: true } // Ensure cookies are sent
+            );
+            // const res = await axios.put(`https://gramsnap-backend.onrender.com/${postId}/like`, { withCredentials: true });
             if (res.status === 200) {
                 console.log("Like Success");
                 setHomePost(toggleLike(homePost, postId, res.data.likesCount));
@@ -422,14 +427,14 @@ const Home = ({ info }) => {
                                             {/* Post Actions (Like, Share, Bookmark) */}
                                             <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center" }}>
                                                 <IconButton>
-                                                    {posts.isLiked ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} onClick={putLike(posts.postId)} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={putLike(posts.postId)} />}
+                                                    {posts.isLiked ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} onClick={() => putLike(posts.postId)} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={() => putLike(posts.postId)} />}
                                                 </IconButton>
                                                 <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>
                                                     {posts.likes}
                                                 </Typography>
                                                 <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center", ml: "auto", mr: "0px" }}>
                                                     <IconButton>
-                                                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={handleShareClick(posts.postId)} />
+                                                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={(event) =>handleShareClick(event)} />
                                                     </IconButton>
                                                     <Menu
                                                         anchorEl={anchorEl}
@@ -437,7 +442,7 @@ const Home = ({ info }) => {
                                                         onClose={handleClose}
                                                         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                                                     >
-                                                        <MenuItem onClick={handleCopyLink(posts.postId)}>
+                                                        <MenuItem onClick={() => handleCopyLink(posts.postId)}>
                                                             <ContentCopyIcon sx={{ mr: 1 }} />
                                                             Copy Link
                                                         </MenuItem>
