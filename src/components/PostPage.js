@@ -10,7 +10,7 @@ export default function PostPage({ postId: propPostId, open, onClose, theme, pre
     const postId = propPostId || urlPostId;
     const navigate = useNavigate();
     const [post, setPost] = useState(null);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);// https://gramsnap-backend.onrender.com/
 
     useEffect(() => {
         if (postId) {
