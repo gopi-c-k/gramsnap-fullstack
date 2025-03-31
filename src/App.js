@@ -6,7 +6,6 @@ import SignUp from "./components/SignUp";
 import Home from "./components/Home";
 import Search from "./components/Search";
 import { Message } from "./components/Message";
-import { HelmetProvider } from "react-helmet-async";
 import AddPost from "./components/AddPost";
 import PostPage from "./components/PostPage"; 
 import Profile from "./components/Profile";
@@ -105,7 +104,6 @@ function App() {
   }
 
   return (
-    <HelmetProvider>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
@@ -126,7 +124,6 @@ function App() {
           </Routes>
         </Router>
       </ThemeProvider>
-    </HelmetProvider>
   );
 }
 
