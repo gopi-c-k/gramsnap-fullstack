@@ -2,6 +2,10 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Box, Typography, Avatar, Divider, Button, List, ListItem, CircularProgress, ListItemAvatar, ListItemText, TextField, IconButton } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import { Menu, MenuItem } from "@mui/material";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import FacebookIcon from "@mui/icons-material/Facebook";
 import PersonIcon from "@mui/icons-material/Person";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import HomeIcon from '@mui/icons-material/Home';
@@ -94,17 +98,31 @@ const Home = ({ info }) => {
             caption: "City lights and late-night drives 🚗💨",
             likes: 99,
             comments: 12
-        },
-        {
-            username: "user7",
-            profileImg: "https://via.placeholder.com/50",
-            postImg: "https://via.placeholder.com/300",
-            caption: "Best day of my life! ❤️🎉 #Memories",
-            likes: 300,
-            comments: 50
-        },
+        }
     ];
     const [homePost, setHomePost] = useState(posts);
+
+    // Post Share
+     const [anchorEl, setAnchorEl] = useState(null);
+        
+    
+        const handleShareClick = (event) => {
+            setAnchorEl(event.currentTarget);
+        };
+    
+        const handleClose = () => {
+            setAnchorEl(null);
+        };
+    
+        const handleCopyLink = async (postId) => {
+            try {
+                await navigator.clipboard.writeText(`https://gram-snap.vercel.app/post/${postId}`);
+                alert("Link copied to clipboard!");
+            } catch (err) {
+                console.error("Failed to copy:", err);
+            }
+        };
+    
     // const notifications = [
     //     { id: 1, type: "like", user: "John Doe", avatar: "/assets/Images/user1.jpg", message: "liked your post" },
     //     { id: 2, type: "follow-request", user: "Jane Smith", avatar: "/assets/Images/user2.jpg", message: "sent you a follow request" },
@@ -164,23 +182,28 @@ const Home = ({ info }) => {
         fetchHomePosts();
     }, [navigate]); // ✅ Added `navigate` as a dependency to prevent stale references
 
-    
+
     /// Post Section
-    
-    const [likesCount,setLikesCount] = useState(0)
-    const [tempLike,setTempLike] = useState(homePost);
-    const putLike = async (postId) =>{
-            try {
-                setTempLike(!homePost.postId.isLiked);
-                const res = await axios.put(`https://gramsnap-backend.onrender.com/${postId}/like`, { withCredentials: true });
-                if (res.status === 200){
-                    console.log("Like Success");
-                    setLikesCount(res.data.likesCount);
-                }
-            } catch (error) {
-                console.error("Error liking post:", error);
+    const toggleLike = (posts, postId, likesCount) => {
+        return posts.map(post =>
+            post.postId === postId
+                ? { ...post, isLiked: !post.isLiked, likes: likesCount } // Toggle isLiked for the matched post
+                : post // Keep other posts unchanged
+        );
+    };
+    const putLike = async (postId) => {
+        console.log("Like Function Called");
+        console.log(postId);
+        try {
+            const res = await axios.put(`https://gramsnap-backend.onrender.com/${postId}/like`, { withCredentials: true });
+            if (res.status === 200) {
+                console.log("Like Success");
+                setHomePost(toggleLike(homePost, postId, res.data.likesCount));
             }
+        } catch (error) {
+            console.error("Error liking post:", error);
         }
+    }
 
 
     // ✅ Fetch notifications function
@@ -399,18 +422,43 @@ const Home = ({ info }) => {
                                             {/* Post Actions (Like, Share, Bookmark) */}
                                             <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center" }}>
                                                 <IconButton>
-                                                    {posts.isLiked ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />}
+                                                    {posts.isLiked ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} onClick={putLike(posts.postId)} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={putLike(posts.postId)} />}
                                                 </IconButton>
                                                 <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>
                                                     {posts.likes}
                                                 </Typography>
                                                 <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center", ml: "auto", mr: "0px" }}>
-                                                <IconButton>
-                                                    <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
-                                                </IconButton>
-                                                <IconButton>
-                                                    <BookmarksOutlinedIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
-                                                </IconButton>
+                                                    <IconButton>
+                                                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={handleShareClick(posts.postId)} />
+                                                    </IconButton>
+                                                    <Menu
+                                                        anchorEl={anchorEl}
+                                                        open={Boolean(anchorEl)}
+                                                        onClose={handleClose}
+                                                        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                                                    >
+                                                        <MenuItem onClick={handleCopyLink(posts.postId)}>
+                                                            <ContentCopyIcon sx={{ mr: 1 }} />
+                                                            Copy Link
+                                                        </MenuItem>
+
+                                                        <MenuItem
+                                                            onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`https://gram-snap.vercel.app/post/${posts.postId}`)}`, "_blank")}
+                                                        >
+                                                            <WhatsAppIcon sx={{ mr: 1, color: "green" }} />
+                                                            Share on WhatsApp
+                                                        </MenuItem>
+
+                                                        <MenuItem
+                                                            onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://gram-snap.vercel.app/post/${posts.postId}`)}`, "_blank")}
+                                                        >
+                                                            <FacebookIcon sx={{ mr: 1, color: "#1877F2" }} />
+                                                            Share on Facebook
+                                                        </MenuItem>
+                                                    </Menu>
+                                                    <IconButton>
+                                                        <BookmarksOutlinedIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                    </IconButton>
                                                 </Box>
                                             </Box>
 

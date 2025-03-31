@@ -55,6 +55,7 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/post/${postId}`, { withCredentials: true });
             setPost(res.data);
             setLikesCount(res.data.likes);
+            setTempLike(res.data.isLiked);
             setComments(res.data.comments || []);
             updateMetaTags(`${res.data.title} | GramSnap`, res.data.description || "Check out this post on GramSnap", res.data.image);
         } catch (error) {
@@ -163,7 +164,9 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
                     </IconButton>
                     <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>{likesCount}</Typography>
                     <Box sx={{ display: "flex", gap: "6px", ml: "auto", mr: "0px" }}>
-                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777", cursor: "pointer" }} onClick={handleShareClick} />
+                        <IconButton>
+                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={handleShareClick} />
+                        </IconButton>
                         <Menu
                             anchorEl={anchorEl}
                             open={Boolean(anchorEl)}
