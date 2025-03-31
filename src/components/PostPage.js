@@ -1,31 +1,35 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Drawer, Dialog, IconButton, Typography, Box, Avatar, Button } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Box, Avatar, Typography, TextField, Button } from "@mui/material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import SendIcon from "@mui/icons-material/Send";
+import BookmarksOutlinedIcon from "@mui/icons-material/BookmarksOutlined";
 import updateMetaTags from "./updateMetaTag";
 
-export default function PostPage({ postId: propPostId, open, onClose, theme, prefersDarkMode }) {
+export default function PostPage({ postId: propPostId, prefersDarkMode }) {
     const { postId: urlPostId } = useParams();
     const postId = propPostId || urlPostId;
     const navigate = useNavigate();
     const [post, setPost] = useState(null);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [comments, setComments] = useState([]);
+    const [commentText, setCommentText] = useState("");
+    const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsDesktop(window.innerWidth > 768);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const fetchPost = useCallback(async () => {
         if (!postId) return;
-
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/post/${postId}`, { withCredentials: true });
             setPost(res.data);
-
-            // ✅ Update meta tags dynamically
-            updateMetaTags(
-                `${res.data.title} | GramSnap`,
-                res.data.description || "Check out this post on GramSnap",
-                res.data.image
-            );
+            setComments(res.data.comments || []);
+            updateMetaTags(`${res.data.title} | GramSnap`, res.data.description || "Check out this post on GramSnap", res.data.image);
         } catch (error) {
             console.error("Error fetching post:", error);
         }
@@ -35,91 +39,111 @@ export default function PostPage({ postId: propPostId, open, onClose, theme, pre
         fetchPost();
     }, [fetchPost]);
 
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 768);
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    const handleClose = () => {
-        onClose ? onClose() : navigate(-1);
+    const handleCommentSubmit = async () => {
+        if (!commentText.trim()) return;
+        try {
+            const res = await axios.post(`https://gramsnap-backend.onrender.com/post/${postId}/comment`, { text: commentText }, { withCredentials: true });
+            setComments(res.data.comments);
+            setCommentText("");
+        } catch (error) {
+            console.error("Error posting comment:", error);
+        }
     };
 
     if (!post) {
         return (
             <Box sx={{ textAlign: "center", mt: 4 }}>
                 <Typography variant="h6">Post Not Found</Typography>
-                <Button 
-                    variant="contained" 
-                    color="primary" 
-                    onClick={() => navigate("/home")}
-                    sx={{ mt: 2 }}
-                >
+                <Button variant="contained" color="primary" onClick={() => navigate("/home")} sx={{ mt: 2 }}>
                     Go to Home
                 </Button>
             </Box>
         );
     }
-    
 
     return (
         <Box
             sx={{
                 display: "flex",
-                flexDirection: "row",
-                height: "100vh",
-                p: 2,
-                bgcolor: prefersDarkMode ? "#121212" : "#ffffff",
-                color: prefersDarkMode ? "#ffffff" : "#000000",
+                flexDirection: isDesktop ? "row" : "column",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "100vw",
+                minHeight: "90vh",
+                backgroundColor: prefersDarkMode ? "#222" : "#f5f5f5",
+                padding: 2,
+                gap: 2,
             }}
         >
-            <IconButton sx={{ position: "absolute", top: 10, right: 10 }} onClick={handleClose}>
-                {isMobile ? <ArrowBackIcon fontSize="large" /> : <CloseIcon fontSize="large" />}
-            </IconButton>
-
-            <Box sx={{ flex: 2, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-                    <Avatar src={post.profilePic} sx={{ width: 50, height: 50 }} />
-                    <Box>
-                        <Typography variant="h6">{post.username}</Typography>
-                        <Typography variant="body2" color="textSecondary">@{post.userId}</Typography>
-                    </Box>
-                </Box>
-                <Typography variant="h5" sx={{ mb: 2 }}>{post.title}</Typography>
-                <Box
-                    component="img"
-                    src={post.image}
-                    alt="Post"
-                    sx={{ width: "100%", borderRadius: "10px", maxHeight: "400px", objectFit: "cover" }}
-                />
-            </Box>
-
+            {/* Left Side - Post Image */}
             <Box
                 sx={{
-                    flex: 1,
-                    p: 2,
-                    bgcolor: prefersDarkMode ? "#1E1E1E" : "#f8f8f8",
+                    width: isDesktop ? "60%" : "100%",
+                    maxWidth: "600px",
+                    backgroundColor: prefersDarkMode ? "#333" : "white",
+                    padding: "10px",
                     borderRadius: "10px",
-                    maxHeight: "400px",
-                    overflowY: "auto",
-                    "&::-webkit-scrollbar": { display: "none" },
                 }}
             >
-                <Typography variant="h6" sx={{ mb: 2 }}>Comments</Typography>
-                {post.comments?.length > 0 ? (
-                    <Box component="ul" sx={{ p: 0, listStyle: "none" }}>
-                        {post.comments.map((comment, index) => (
-                            <Box component="li" key={index} sx={{ mb: 1 }}>
-                                <Typography variant="body2">
-                                    <strong>{comment.username}:</strong> {comment.text}
-                                </Typography>
-                            </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <Avatar src={post.profilePic} />
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222" }}>{post.username}</Typography>
+                </Box>
+
+                <img
+                    src={post.image}
+                    alt="Post"
+                    style={{ width: "100%", height: "auto", objectFit: "cover", borderRadius: "10px", margin: "10px 0" }}
+                />
+
+                <Box sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    {post.isLiked ? <FavoriteIcon sx={{ color: "red" }} /> : <FavoriteBorderIcon sx={{ color: prefersDarkMode ? "#bbb" : "#777" }} />}
+                    <Typography>{post.likes}</Typography>
+                    <Box sx={{ ml: "auto" }}>
+                        <SendIcon sx={{ color: prefersDarkMode ? "#bbb" : "#777" }} />
+                        <BookmarksOutlinedIcon sx={{ color: prefersDarkMode ? "#bbb" : "#777" }} />
+                    </Box>
+                </Box>
+                <Typography variant="body2" sx={{ mt: 1 }}><strong>{post.username}</strong> {post.caption}</Typography>
+            </Box>
+
+            {/* Right Side - Comments Section (Only on Desktop) */}
+            {isDesktop && (
+                <Box
+                    sx={{
+                        width: "40%",
+                        maxWidth: "400px",
+                        backgroundColor: prefersDarkMode ? "#333" : "white",
+                        padding: "10px",
+                        borderRadius: "10px",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                    }}
+                >
+                    <Typography variant="h6">Comments</Typography>
+                    <Box sx={{ maxHeight: "300px", overflowY: "auto" }}>
+                        {comments.map((comment, index) => (
+                            <Typography key={index} variant="body2" sx={{ mt: 1 }}>
+                                <strong>{comment.username}</strong> {comment.text}
+                            </Typography>
                         ))}
                     </Box>
-                ) : (
-                    <Typography>No comments yet.</Typography>
-                )}
-            </Box>
+                    <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                        <TextField
+                            variant="outlined"
+                            size="small"
+                            placeholder="Add a comment..."
+                            value={commentText}
+                            onChange={(e) => setCommentText(e.target.value)}
+                            sx={{ flex: 1, backgroundColor: prefersDarkMode ? "#444" : "#f0f0f0" }}
+                        />
+                        <Button variant="contained" size="small" onClick={handleCommentSubmit} disabled={!commentText.trim()}>
+                            Post
+                        </Button>
+                    </Box>
+                </Box>
+            )}
         </Box>
     );
 }
