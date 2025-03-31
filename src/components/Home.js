@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Box, Typography, Avatar, Divider, Button, List, ListItem, CircularProgress, ListItemAvatar, ListItemText, TextField } from "@mui/material";
+import { Box, Typography, Avatar, Divider, Button, List, ListItem, CircularProgress, ListItemAvatar, ListItemText, TextField, IconButton } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import PersonIcon from "@mui/icons-material/Person";
@@ -40,6 +40,8 @@ const Home = ({ info }) => {
         }
     };
     const [users, setUser] = useState(null);
+
+
 
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const { userId, name, email, profilePicture } = userInfo;
@@ -161,6 +163,24 @@ const Home = ({ info }) => {
 
         fetchHomePosts();
     }, [navigate]); // ✅ Added `navigate` as a dependency to prevent stale references
+
+    
+    /// Post Section
+    
+    const [likesCount,setLikesCount] = useState(0)
+    const [tempLike,setTempLike] = useState(homePost);
+    const putLike = async (postId) =>{
+            try {
+                setTempLike(!homePost.postId.isLiked);
+                const res = await axios.put(`https://gramsnap-backend.onrender.com/${postId}/like`, { withCredentials: true });
+                if (res.status === 200){
+                    console.log("Like Success");
+                    setLikesCount(res.data.likesCount);
+                }
+            } catch (error) {
+                console.error("Error liking post:", error);
+            }
+        }
 
 
     // ✅ Fetch notifications function
@@ -378,13 +398,19 @@ const Home = ({ info }) => {
 
                                             {/* Post Actions (Like, Share, Bookmark) */}
                                             <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center" }}>
-                                                {posts.isLiked ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />}
+                                                <IconButton>
+                                                    {posts.isLiked ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />}
+                                                </IconButton>
                                                 <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>
-                                                        {posts.likes}
-                                                    </Typography>
+                                                    {posts.likes}
+                                                </Typography>
                                                 <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center", ml: "auto", mr: "0px" }}>
+                                                <IconButton>
                                                     <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                </IconButton>
+                                                <IconButton>
                                                     <BookmarksOutlinedIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                </IconButton>
                                                 </Box>
                                             </Box>
 

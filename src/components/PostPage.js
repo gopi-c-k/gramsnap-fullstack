@@ -48,7 +48,7 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
-    const [likesCount,setLikesCount] = useState(0)
+    const [likesCount, setLikesCount] = useState(0)
     const fetchPost = useCallback(async () => {
         if (!postId) return;
         try {
@@ -61,22 +61,27 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
             console.error("Error fetching post:", error);
         }
     }, [postId]);
-    
+
     useEffect(() => {
         fetchPost();
     }, [fetchPost]);
-    const putLike = async () =>{
+    const putLike = async () => {
         try {
             setTempLike(!tempLike);
-            const res = await axios.put(`https://gramsnap-backend.onrender.com/${postId}/like`, { withCredentials: true });
-            if (res.status === 200){
+            const res = await axios.put(
+                `https://gramsnap-backend.onrender.com/${postId}/like`,
+                {}, // Empty body for PUT request
+                { withCredentials: true } // Ensure cookies are sent
+            );
+            if (res.status === 200) {
                 console.log("Like Success");
                 setLikesCount(res.data.likesCount);
             }
         } catch (error) {
             console.error("Error liking post:", error);
         }
-    }
+    };
+
 
     const handleCommentSubmit = async () => {
         if (!commentText.trim()) return;
@@ -88,7 +93,7 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
             console.error("Error posting comment:", error);
         }
     };
-    const [tempLike,setTempLike] = useState(false);
+    const [tempLike, setTempLike] = useState(false);
 
 
     if (!post) {
@@ -154,7 +159,7 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
                 {/* Likes & Actions */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: "6px", mt: 1 }}>
                     <IconButton>
-                        {post.isLiked || tempLike ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} onClick={putLike}/> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={putLike}/>}
+                        {post.isLiked || tempLike ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} onClick={putLike} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={putLike} />}
                     </IconButton>
                     <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>{likesCount}</Typography>
                     <Box sx={{ display: "flex", gap: "6px", ml: "auto", mr: "0px" }}>
