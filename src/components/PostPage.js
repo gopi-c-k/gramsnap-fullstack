@@ -2,6 +2,11 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Box, Avatar, Typography, TextField, Button, IconButton } from "@mui/material";
+import { Menu, MenuItem } from "@mui/material";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import ShareIcon from "@mui/icons-material/Share";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import SendIcon from "@mui/icons-material/Send";
@@ -18,7 +23,26 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
     const [comments, setComments] = useState([]);
     const [commentText, setCommentText] = useState("");
     const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
-    
+    const [anchorEl, setAnchorEl] = useState(null);
+    const postLink = `https://gram-snap.vercel.app/post/${postId}`;
+
+    const handleShareClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleCopyLink = async () => {
+        try {
+            await navigator.clipboard.writeText(postLink);
+            alert("Link copied to clipboard!");
+        } catch (err) {
+            console.error("Failed to copy:", err);
+        }
+    };
+
     useEffect(() => {
         const handleResize = () => setIsDesktop(window.innerWidth > 768);
         window.addEventListener("resize", handleResize);
@@ -95,6 +119,9 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
                     <Typography sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222" }}>
                         {post.username}
                     </Typography>
+                    <Button variant="contained" color="primary" onClick={() => navigate("/home")} sx={{ mt: 2, ml: "auto", mr: "0px" }}>
+                        Go to Home
+                    </Button>
                 </Box>
 
                 <img
@@ -112,18 +139,42 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
                 {/* Likes & Actions */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: "6px", mt: 1 }}>
                     <IconButton>
-                        {post.isLiked ? <FavoriteIcon sx={{ color: "red" }} /> : <FavoriteBorderIcon sx={{ color: prefersDarkMode ? "#bbb" : "#777" }} />}
+                        {post.isLiked ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />}
                     </IconButton>
                     <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>{post.likes}</Typography>
-                    <Box sx={{ display: "flex", gap: "6px", ml: "auto" }}>
-                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
-                        <BookmarksOutlinedIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                    <Box sx={{ display: "flex", gap: "6px", ml: "auto", mr: "0px" }}>
+                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={handleShareClick} />
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl)}
+                            onClose={handleClose}
+                            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                        >
+                            <MenuItem onClick={handleCopyLink}>
+                                <ContentCopyIcon sx={{ mr: 1 }} />
+                                Copy Link
+                            </MenuItem>
+
+                            <MenuItem
+                                onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(postLink)}`, "_blank")}
+                            >
+                                <WhatsAppIcon sx={{ mr: 1, color: "green" }} />
+                                Share on WhatsApp
+                            </MenuItem>
+
+                            <MenuItem
+                                onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postLink)}`, "_blank")}
+                            >
+                                <FacebookIcon sx={{ mr: 1, color: "#1877F2" }} />
+                                Share on Facebook
+                            </MenuItem>
+                        </Menu>
                     </Box>
                 </Box>
 
                 {/* Caption */}
                 <Typography variant="body2" sx={{ color: prefersDarkMode ? "#ddd" : "#333", mt: 1, width: "100%" }}>
-                    <strong>{post.username}</strong> {post.caption}
+                    <strong>{post.username}</strong> {post.title}
                 </Typography>
             </Box>
 
