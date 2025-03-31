@@ -74,7 +74,7 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
                 setLikesCount(res.data.likesCount);
             }
         } catch (error) {
-            console.error("Error fetching post:", error);
+            console.error("Error liking post:", error);
         }
     }
 
