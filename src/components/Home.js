@@ -6,6 +6,7 @@ import { Menu, MenuItem } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import FacebookIcon from "@mui/icons-material/Facebook";
+import BookmarksIcon from '@mui/icons-material/Bookmarks';
 import PersonIcon from "@mui/icons-material/Person";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import HomeIcon from '@mui/icons-material/Home';
@@ -191,9 +192,14 @@ const Home = ({ info }) => {
                 : post // Keep other posts unchanged
         );
     };
+    const toggleSave = (posts, postId) => {
+        return posts.map(post =>
+            post.postId === postId
+                ? { ...post, isSaved: !post.isSaved } // Toggle isLiked for the matched post
+                : post // Keep other posts unchanged
+        );
+    };
     const putLike = async (postId) => {
-        console.log("Like Function Called");
-        console.log(postId);
         try {
             const res = await axios.put(
                 `https://gramsnap-backend.onrender.com/${postId}/like`,
@@ -202,11 +208,25 @@ const Home = ({ info }) => {
             );
             // const res = await axios.put(`https://gramsnap-backend.onrender.com/${postId}/like`, { withCredentials: true });
             if (res.status === 200) {
-                console.log("Like Success");
                 setHomePost(toggleLike(homePost, postId, res.data.likesCount));
             }
         } catch (error) {
             console.error("Error liking post:", error);
+        }
+    }
+    const savePost = async (postId) => {
+        try {
+            const res = await axios.put(
+                `https://gramsnap-backend.onrender.com/${postId}/save`,
+                {}, // Empty body for PUT request
+                { withCredentials: true } // Ensure cookies are sent
+            );
+            // const res = await axios.put(`https://gramsnap-backend.onrender.com/${postId}/like`, { withCredentials: true });
+            if (res.status === 200) {
+                setHomePost(toggleSave(homePost, postId));
+            }
+        } catch (error) {
+            console.error("Error Saving post:", error);
         }
     }
 
@@ -466,8 +486,9 @@ const Home = ({ info }) => {
                                                             Share on Facebook
                                                         </MenuItem>
                                                     </Menu>
-                                                    <IconButton>
-                                                        <BookmarksOutlinedIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                    <IconButton onClick={() => savePost(posts.postId)}>{
+                                                        posts.isSaved ? <BookmarksIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} /> : <BookmarksOutlinedIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                    }
                                                     </IconButton>
                                                 </Box>
                                             </Box>
