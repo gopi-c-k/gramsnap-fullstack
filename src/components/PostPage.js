@@ -48,19 +48,20 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
-
+    const [likesCount,setLikesCount] = useState(0)
     const fetchPost = useCallback(async () => {
         if (!postId) return;
         try {
             const res = await axios.get(`https://gramsnap-backend.onrender.com/post/${postId}`, { withCredentials: true });
             setPost(res.data);
+            setLikesCount(res.data.likes);
             setComments(res.data.comments || []);
             updateMetaTags(`${res.data.title} | GramSnap`, res.data.description || "Check out this post on GramSnap", res.data.image);
         } catch (error) {
             console.error("Error fetching post:", error);
         }
     }, [postId]);
-    const [likesCount,setLikesCount] = useState(post.likes)
+    
     useEffect(() => {
         fetchPost();
     }, [fetchPost]);
