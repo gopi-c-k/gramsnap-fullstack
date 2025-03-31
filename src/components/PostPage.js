@@ -1,34 +1,39 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Drawer, Dialog, IconButton, Typography, Box, Avatar } from "@mui/material";
+import axios from "axios";
+import { Drawer, Dialog, IconButton, Typography, Box, Avatar, Button } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import updateMetaTags from "./updateMetaTag"; // ✅ Import utility
+import updateMetaTags from "./updateMetaTag";
 
 export default function PostPage({ postId: propPostId, open, onClose, theme, prefersDarkMode }) {
     const { postId: urlPostId } = useParams();
     const postId = propPostId || urlPostId;
     const navigate = useNavigate();
     const [post, setPost] = useState(null);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);// https://gramsnap-backend.onrender.com/
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-    useEffect(() => {
-        if (postId) {
-            fetch(`https://gram-snap-backend.onrender.com/post/${postId}`)
-                .then(res => res.json())
-                .then(data => {
-                    setPost(data);
+    const fetchPost = useCallback(async () => {
+        if (!postId) return;
 
-                    // ✅ Update meta tags dynamically
-                    updateMetaTags(
-                        `${data.title} | GramSnap`,
-                        data.description || "Check out this post on GramSnap",
-                        data.image
-                    );
-                })
-                .catch(err => console.error(err));
+        try {
+            const res = await axios.get(`https://gram-snap-backend.onrender.com/post/${postId}`, { withCredentials: true });
+            setPost(res.data);
+
+            // ✅ Update meta tags dynamically
+            updateMetaTags(
+                `${res.data.title} | GramSnap`,
+                res.data.description || "Check out this post on GramSnap",
+                res.data.image
+            );
+        } catch (error) {
+            console.error("Error fetching post:", error);
         }
     }, [postId]);
+
+    useEffect(() => {
+        fetchPost();
+    }, [fetchPost]);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -40,7 +45,22 @@ export default function PostPage({ postId: propPostId, open, onClose, theme, pre
         onClose ? onClose() : navigate(-1);
     };
 
-    if (!post) return null;
+    if (!post) {
+        return (
+            <Box sx={{ textAlign: "center", mt: 4 }}>
+                <Typography variant="h6">Post Not Found</Typography>
+                <Button 
+                    variant="contained" 
+                    color="primary" 
+                    onClick={() => navigate("/home")}
+                    sx={{ mt: 2 }}
+                >
+                    Go to Home
+                </Button>
+            </Box>
+        );
+    }
+    
 
     return (
         <Box
