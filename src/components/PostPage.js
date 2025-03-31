@@ -160,12 +160,12 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
                 {/* Likes & Actions */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: "6px", mt: 1 }}>
                     <IconButton>
-                        {post.isLiked || tempLike ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} onClick={putLike} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={putLike} />}
+                        {post.isLiked || tempLike ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} onClick={()=>putLike} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={putLike} />}
                     </IconButton>
                     <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>{likesCount}</Typography>
                     <Box sx={{ display: "flex", gap: "6px", ml: "auto", mr: "0px" }}>
                         <IconButton>
-                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={handleShareClick} />
+                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={(event)=>handleShareClick(event)} />
                         </IconButton>
                         <Menu
                             anchorEl={anchorEl}

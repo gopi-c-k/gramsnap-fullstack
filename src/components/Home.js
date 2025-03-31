@@ -426,15 +426,20 @@ const Home = ({ info }) => {
 
                                             {/* Post Actions (Like, Share, Bookmark) */}
                                             <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center" }}>
-                                                <IconButton>
-                                                    {posts.isLiked ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} onClick={() => putLike(posts.postId)} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={() => putLike(posts.postId)} />}
+                                                <IconButton onClick={() => putLike(posts.postId)}>
+                                                    {posts.isLiked ? (
+                                                        <FavoriteIcon sx={{ fontSize: 24, color: "red" }} />
+                                                    ) : (
+                                                        <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                    )}
                                                 </IconButton>
+
                                                 <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>
                                                     {posts.likes}
                                                 </Typography>
                                                 <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center", ml: "auto", mr: "0px" }}>
                                                     <IconButton>
-                                                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={(event) =>handleShareClick(event)} />
+                                                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={(event) => handleShareClick(event)} />
                                                     </IconButton>
                                                     <Menu
                                                         anchorEl={anchorEl}
