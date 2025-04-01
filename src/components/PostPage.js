@@ -90,7 +90,7 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
             setTempLike(res.data.isLiked);
             setTempSave(res.data.isSaved);
             const response = await axios.get(`https://gramsnap-backend.onrender.com/post/${postId}/comment`, { withCredentials: true });
-            setComments(response.data.comment || []);
+            setComments(response.data.comments || []);
             // updateMetaTags(`${res.data.title} | GramSnap`, res.data.description || "Check out this post on GramSnap", res.data.image);
         } catch (error) {
             console.error("Error fetching post:", error);
@@ -123,7 +123,7 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
         try {
             const res = await axios.post(`https://gramsnap-backend.onrender.com/${postId}/comment`, { text: commentText }, { withCredentials: true });
             if (res.status === 201) {
-                setComments([...comments, ...res.data.comment]);
+                setComments((prevComments) => [...prevComments, res.data.comment]);
                 setCommentText("");
             }
         } catch (error) {
