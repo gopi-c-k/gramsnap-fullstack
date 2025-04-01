@@ -51,6 +51,29 @@ const Home = ({ info }) => {
         }
     };
 
+    const [showComments, setShowComments] = useState({});
+
+    const showCommentsToggle = async (postId) => {
+        try {
+            if (!comments[postId]) {
+                const res = await axios.get(`https://gramsnap-backend.onrender.com/post/${postId}/comment`, { withCredentials: true });
+                // const res = await axios.get(`https://gramsnap-backend.onrender.com/post/{postId}/comment`, { withCredentials: true });
+                console.log(res.data.comments);
+                if (res.status === 200) {
+                    setComments((prev) => ({
+                        ...prev,
+                        [postId]: res.data.comments
+                    }));
+                }
+            }
+            setShowComments((prev) => ({
+                ...prev,
+                [postId]: !prev[postId], // Toggle the state for the specific postId
+            }));
+        } catch (error) {
+            console.log("Error in fetching posts", error);
+        }
+    };
 
     const [users, setUser] = useState(null);
 
@@ -106,14 +129,7 @@ const Home = ({ info }) => {
         setAnchorElMap((prev) => ({ ...prev, [postId]: null }));
     };
 
-    const [showComments, setShowComments] = useState({});
 
-    const showCommentsToggle = (postId) => {
-        setShowComments((prev) => ({
-            ...prev,
-            [postId]: !prev[postId], // Toggle the state for the specific postId
-        }));
-    };
     const handleCopyLink = async (postId) => {
         try {
             await navigator.clipboard.writeText(`https://gram-snap.vercel.app/post/${postId}`);
@@ -512,17 +528,17 @@ const Home = ({ info }) => {
                                             {/* Comments Section */}
                                             {showComments[posts.postId] && comments[posts.postId]?.length !== 0 && comments[posts.postId]?.map((comment, index) => (
                                                 <Box key={index} sx={{ display: "flex", gap: 1, alignItems: "center", mb: 1, padding: "2px" }}>
-                                                    <Avatar src={comment.profilePic} sx={{ fontSize: 22 }} />
+                                                    <Avatar src={comment.userId.profilePicture} sx={{ fontSize: 18 }} />
                                                     <Box sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                                                         <Typography variant="body2" sx={{ color: prefersDarkMode ? "#ddd" : "#444" }}>
-                                                            <strong>{comment.userId}</strong> {comment.commentText}
+                                                            <strong>{comment.userId.userId}</strong> {new Date(comment.createdAt).toLocaleString()}
                                                         </Typography>
                                                         <Typography variant="body2" sx={{ fontSize: "12px", color: prefersDarkMode ? "#aaa" : "#555" }}>
-                                                            {new Date(comment.createdAt).toLocaleString()}
+                                                            {comment.text}
                                                         </Typography>
                                                     </Box>
                                                     <IconButton sx={{ ml: "auto" }}>
-                                                        <FavoriteBorderIcon sx={{ fontSize: 22, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                        <FavoriteBorderIcon sx={{ fontSize: 18, color: prefersDarkMode ? "#bbb" : "#777" }} />
                                                     </IconButton>
                                                 </Box>
                                             ))}
