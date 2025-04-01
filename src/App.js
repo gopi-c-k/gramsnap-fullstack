@@ -41,7 +41,7 @@ function App() {
     setSocketLoading(true);
     setSocketError(null);
 
-    const newSocket = io("https://gramsnap-backend.onrender.com", {
+    const newSocket = io("https://gramsnap-backend-bj65.onrender.com", {
       withCredentials: true,
       transports: ["websocket"],
     });
