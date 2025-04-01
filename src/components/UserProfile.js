@@ -154,6 +154,8 @@ const UserProfile = ({ userId }) => {
                         <Typography variant="body2" sx={{ color: "text.secondary" }}>Followers</Typography>
                         <FollowMenu
                             userId={userProfile.userId}
+                            open={menuOpen}
+                            onClose={() => setMenuOpen(false)}
                         />
                     </Box>
                     <Box sx={{ textAlign: "center" }}>
