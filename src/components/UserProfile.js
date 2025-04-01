@@ -197,40 +197,35 @@ const UserProfile = ({ userId }) => {
                             marginBottom: 4,
                         }}
                     >
-                        {userProfile.posts?.map((post) => (
-                            <a
-                                key={post.postId}
-                                href={`https://gram-snap.vercel.app/post/${post.postId}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ textDecoration: "none" }} // Optional: removes link styling
-                            >
-                                <Box
-                                    key={post.postId}
-                                    sx={{
-                                        position: "relative",
-                                        width: "100%",
-                                        paddingTop: "100%", // Maintains aspect ratio
-                                        backgroundColor: "grey.300",
-                                        borderRadius: 2,
-                                        overflow: "hidden",
-                                    }}
-                                >
-                                    <img
-                                        src={post.image}
-                                        alt="User Post"
-                                        style={{
-                                            width: "100%",
-                                            height: "100%",
-                                            objectFit: "cover",
-                                            position: "absolute",
-                                            top: 0,
-                                            left: 0,
-                                        }}
-                                    />
-                                </Box>
-                            </a>
-                        ))}
+                       {userProfile.posts?.map((post) => (
+    <Box
+        key={post.postId}
+        sx={{
+            position: "relative",
+            width: "100%",
+            paddingTop: "100%",
+            backgroundColor: "grey.300",
+            borderRadius: 2,
+            overflow: "hidden",
+            cursor: "pointer",
+        }}
+        onClick={() => window.open(`https://gram-snap.vercel.app/post/${post.postId}`, "_blank")}
+    >
+        <img
+            src={post.image}
+            alt="User Post"
+            style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                position: "absolute",
+                top: 0,
+                left: 0,
+            }}
+        />
+    </Box>
+))}
+
 
                     </Box>
 
