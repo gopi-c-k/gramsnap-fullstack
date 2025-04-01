@@ -50,7 +50,22 @@ const Home = ({ info }) => {
             setCommentText((prev) => ({ ...prev, [postId]: "" })); // Clear input
         }
     };
+    const getTimeAgo = (timestamp) => {
+        const now = new Date();
+        const past = new Date(timestamp);
+        const diffInSeconds = Math.floor((now - past) / 1000); // Difference in seconds
 
+        if (diffInSeconds < 60) return "Just now"; // Less than 1 minute
+        const diffInMinutes = Math.floor(diffInSeconds / 60);
+        if (diffInMinutes < 60) return `${diffInMinutes} min ago`; // Less than 1 hour
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) return `${diffInHours} hr ago`; // Less than 1 day
+        const diffInDays = Math.floor(diffInHours / 24);
+        if (diffInDays < 7) return `${diffInDays} d ago`; // Less than a week
+        if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} w ago`; // Less than a month
+        if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} mo ago`; // Less than a year
+        return `${Math.floor(diffInDays / 365)} yr ago`; // 1+ years ago
+    };
     const [showComments, setShowComments] = useState({});
 
     const showCommentsToggle = async (postId) => {
@@ -531,7 +546,15 @@ const Home = ({ info }) => {
                                                     <Avatar src={comment.userId.profilePicture} sx={{ fontSize: 18 }} />
                                                     <Box sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                                                         <Typography variant="body2" sx={{ color: prefersDarkMode ? "#ddd" : "#444" }}>
-                                                            <strong>{comment.userId.userId}</strong> {new Date(comment.createdAt).toLocaleString()}
+                                                            <strong>
+                                                                <span
+                                                                    onClick={() => setSelectedUser(comment.userId.userId)}
+                                                                    style={{ color: "#0095f6", cursor: "pointer" }}
+                                                                >
+                                                                    {comment.userId.userId}
+                                                                </span>
+                                                            </strong>
+                                                            {` ${getTimeAgo(comment.createdAt)}`}
                                                         </Typography>
                                                         <Typography variant="body2" sx={{ fontSize: "12px", color: prefersDarkMode ? "#aaa" : "#555" }}>
                                                             {comment.text}
