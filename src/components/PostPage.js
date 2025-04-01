@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import BookmarksIcon from '@mui/icons-material/Bookmarks';
 import { Box, Avatar, Typography, TextField, Button, IconButton } from "@mui/material";
 import { Menu, MenuItem } from "@mui/material";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -42,13 +43,28 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
             console.error("Failed to copy:", err);
         }
     };
-
+    const savePost = async () => {
+        try {
+            const res = await axios.put(
+                `https://gramsnap-backend.onrender.com/${postId}/save`,
+                {}, // Empty body for PUT request
+                { withCredentials: true } // Ensure cookies are sent
+            );
+            // const res = await axios.put(`https://gramsnap-backend.onrender.com/${postId}/like`, { withCredentials: true });
+            if (res.status === 200) {
+                setTempSave(!tempSave);
+            }
+        } catch (error) {
+            console.error("Error Saving post:", error);
+        }
+    }
     useEffect(() => {
         const handleResize = () => setIsDesktop(window.innerWidth > 768);
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
     const [likesCount, setLikesCount] = useState(0)
+    const [tempSave, setTempSave] = useState(false);
     const fetchPost = useCallback(async () => {
         if (!postId) return;
         try {
@@ -56,8 +72,9 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
             setPost(res.data);
             setLikesCount(res.data.likes);
             setTempLike(res.data.isLiked);
+            setTempSave(res.data.isSaved);
             setComments(res.data.comments || []);
-            updateMetaTags(`${res.data.title} | GramSnap`, res.data.description || "Check out this post on GramSnap", res.data.image);
+            // updateMetaTags(`${res.data.title} | GramSnap`, res.data.description || "Check out this post on GramSnap", res.data.image);
         } catch (error) {
             console.error("Error fetching post:", error);
         }
@@ -158,14 +175,21 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
                 />
 
                 {/* Likes & Actions */}
-                <Box sx={{ display: "flex", alignItems: "center", gap: "6px", mt: 1 }}>
-                    <IconButton>
-                        {post.isLiked || tempLike ? <FavoriteIcon sx={{ fontSize: 24, color: "red" }} onClick={()=>putLike} /> : <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={putLike} />}
+                <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center" }}>
+                    <IconButton onClick={() => putLike()}>
+                        {post.isLiked || tempLike ? (
+                            <FavoriteIcon sx={{ fontSize: 24, color: "red" }} />
+                        ) : (
+                            <FavoriteBorderIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                        )}
                     </IconButton>
-                    <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>{likesCount}</Typography>
-                    <Box sx={{ display: "flex", gap: "6px", ml: "auto", mr: "0px" }}>
+
+                    <Typography sx={{ fontWeight: 400, color: prefersDarkMode ? "#fff" : "#222" }}>
+                        {post.likes}
+                    </Typography>
+                    <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center", ml: "auto", mr: "0px" }}>
                         <IconButton>
-                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={(event)=>handleShareClick(event)} />
+                            <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={(event) => handleShareClick(event)} />
                         </IconButton>
                         <Menu
                             anchorEl={anchorEl}
@@ -192,6 +216,10 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
                                 Share on Facebook
                             </MenuItem>
                         </Menu>
+                        <IconButton onClick={() => savePost()}>{
+                            post.isSaved || tempSave ? <BookmarksIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} /> : <BookmarksOutlinedIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                        }
+                        </IconButton>
                     </Box>
                 </Box>
 
@@ -217,7 +245,7 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
             >
                 {/* Comments */}
                 <Box sx={{ flex: 1, overflowY: "auto", maxHeight: "400px", paddingBottom: "10px" }}>
-                    {comments.length > 0 ? (
+                    {comments.length < 0 ? (
                         comments.map((comment, index) => (
                             <Box key={index} sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                                 <Typography variant="body2" sx={{ color: prefersDarkMode ? "#ddd" : "#444" }}>
