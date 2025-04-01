@@ -116,7 +116,7 @@ const Home = ({ info }) => {
         setAnchorElMap((prev) => ({ ...prev, [postId]: null }));
     };
 
-
+    const [showComments,setShowComments] = useState(false);
     const handleCopyLink = async (postId) => {
         try {
             await navigator.clipboard.writeText(`https://gram-snap.vercel.app/post/${postId}`);
@@ -504,16 +504,31 @@ const Home = ({ info }) => {
                                             </Typography>
 
                                             {/* Comments Section */}
-                                            {comments.length !== 0 &&
-                                                comments.map((comment, index) => (
-                                                    <Box key={index} sx={{ display: "flex", gap: 1, alignItems: "center", mb: 1, padding: "2px" }}>
-                                                        <AccountCircleIcon sx={{ fontSize: 22, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                            <Button
+                                                variant="text"
+                                                sx={{ color: prefersDarkMode ? "#bbb" : "#0077cc", marginTop: "8px" }}
+                                                onClick={() => setShowComments(prev => !prev)} // Toggle comment visibility
+                                            >
+                                                {showComments ? "Hide Comments" : "Show Comments"}
+                                            </Button>
+
+                                            {/* Comments Section */}
+                                            {showComments && comments.length !== 0 && comments.map((comment, index) => (
+                                                <Box key={index} sx={{ display: "flex", gap: 1, alignItems: "center", mb: 1, padding: "2px" }}>
+                                                    <Avatar src={comment.profilePic} sx={{ fontSize: 22 }} />
+                                                    <Box sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                                                         <Typography variant="body2" sx={{ color: prefersDarkMode ? "#ddd" : "#444" }}>
-                                                            <strong>user{index + 1}</strong> {comment}
+                                                            <strong>{comment.userId}</strong> {comment.commentText}
                                                         </Typography>
-                                                        <FavoriteBorderIcon sx={{ fontSize: 22, color: prefersDarkMode ? "#bbb" : "#777", ml: "auto" }} />
+                                                        <Typography variant="body2" sx={{ fontSize: "12px", color: prefersDarkMode ? "#aaa" : "#555" }}>
+                                                            {new Date(comment.createdAt).toLocaleString()}
+                                                        </Typography>
                                                     </Box>
-                                                ))}
+                                                    <IconButton sx={{ ml: "auto" }}>
+                                                        <FavoriteBorderIcon sx={{ fontSize: 22, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                                    </IconButton>
+                                                </Box>
+                                            ))}
 
                                             {/* Add Comment Input */}
                                             <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
