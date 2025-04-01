@@ -87,7 +87,7 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
     const handleCommentSubmit = async () => {
         if (!commentText.trim()) return;
         try {
-            const res = await axios.post(`https://gramsnap-backend.onrender.com/post/${postId}/comment`, { text: commentText }, { withCredentials: true });
+            const res = await axios.post(`https://gramsnap-backend.onrender.com/${postId}/comment`, { text: commentText }, { withCredentials: true });
             setComments(res.data.comments);
             setCommentText("");
         } catch (error) {
@@ -221,7 +221,7 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
                         comments.map((comment, index) => (
                             <Box key={index} sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                                 <Typography variant="body2" sx={{ color: prefersDarkMode ? "#ddd" : "#444" }}>
-                                    <strong>{comment.username}</strong> {comment.text}
+                                    <strong>{comment.userId.name}</strong> {comment.text}
                                 </Typography>
                             </Box>
                         ))
