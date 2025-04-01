@@ -12,9 +12,9 @@ import { useMediaQuery, useTheme } from "@mui/material";
 
 const UserProfile = ({ userId }) => {
     const [menuOpen, setMenuOpen] = useState(false);
-    const [anchorEl, setAnchorEl] = useState(null);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+    const [anchorEl, setAnchorEl] = useState({});
+    const handleClick = (event,check) => {
+        setAnchorEl((prev) => ({ ...prev, [check]: event.currentTarget }));
         setMenuOpen((prevState) => !prevState);
     };
     const navigate = useNavigate();
@@ -151,25 +151,25 @@ const UserProfile = ({ userId }) => {
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.postSize}</Typography>
                         <Typography variant="body2" sx={{ color: "text.secondary" }}>Posts</Typography>
                     </Box>
-                    <Box sx={{ textAlign: "center", cursor: "pointer" }} onClick={(event) => handleClick(event)}>
+                    <Box sx={{ textAlign: "center", cursor: "pointer" }} onClick={(event) => handleClick(event,"followers")}>
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.followersSize}</Typography>
                         <Typography variant="body2" sx={{ color: "text.secondary" }}>Followers</Typography>
                         <FollowMenu
                             userId={userProfile.userId}
                             open={menuOpen}
                             onClose={() => setMenuOpen(false)}
-                            anchorEl={anchorEl}
+                            anchorEl={anchorEl["followers"]}
                             follower={true}
                         />
                     </Box>
-                    <Box sx={{ textAlign: "center", cursor: "pointer" }} onClick={(event) => handleClick(event)}>
+                    <Box sx={{ textAlign: "center", cursor: "pointer" }} onClick={(event) => handleClick(event,"following")}>
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.followingSize}</Typography>
                         <Typography variant="body2" sx={{ color: "text.secondary" }}>Following</Typography>
                         <FollowMenu
                             userId={userProfile.userId}
                             open={menuOpen}
                             onClose={() => setMenuOpen(false)}
-                            anchorEl={anchorEl}
+                            anchorEl={anchorEl["following"]}
                             follower={false}
                         />
                     </Box>
