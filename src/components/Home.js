@@ -36,14 +36,22 @@ const Home = ({ info }) => {
     const muiTheme = useTheme();
     const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
     //  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
+
+
     const [comments, setComments] = useState({});
     const [commentText, setCommentText] = useState({});
+
     const handleCommentSubmit = (postId) => {
-        if (commentText[postId].trim()) {
-            setComments[postId]([...comments, commentText]);
-            setCommentText((prev)=>({...prev, [postId]: ""})); // Clear input
+        if (commentText[postId]?.trim()) {
+            setComments((prev) => ({
+                ...prev,
+                [postId]: [...(prev[postId] || []), commentText[postId]], // Append new comment
+            }));
+            setCommentText((prev) => ({ ...prev, [postId]: "" })); // Clear input
         }
     };
+
+    
     const [users, setUser] = useState(null);
 
 
@@ -83,25 +91,7 @@ const Home = ({ info }) => {
         { username: "user5", img: "https://via.placeholder.com/100" },
     ];
 
-    const posts = [
-        {
-            username: "user1",
-            profileImg: "https://via.placeholder.com/50",
-            postImg: "https://via.placeholder.com/300",
-            caption: "Enjoying the sunset! 🌅 #BeautifulView",
-            likes: 120,
-            comments: 10
-        },
-        {
-            username: "user6",
-            profileImg: "https://via.placeholder.com/50",
-            postImg: "https://via.placeholder.com/300",
-            caption: "City lights and late-night drives 🚗💨",
-            likes: 99,
-            comments: 12
-        }
-    ];
-    const [homePost, setHomePost] = useState(posts);
+    const [homePost, setHomePost] = useState([]);
 
     // Post Share
     const [anchorElMap, setAnchorElMap] = useState({});
@@ -543,8 +533,11 @@ const Home = ({ info }) => {
                                                     variant="outlined"
                                                     size="small"
                                                     placeholder="Add a comment..."
-                                                    value={commentText}
-                                                    onChange={(e) => setCommentText(e.target.value)}
+                                                    value={commentText[posts.postId] || ""} // Prevent undefined error
+                                                    onChange={(e) => setCommentText((prev) => ({
+                                                        ...prev,
+                                                        [posts.postId]: e.target.value, // Update text for the correct postId
+                                                    }))}
                                                     sx={{
                                                         flex: 1,
                                                         backgroundColor: prefersDarkMode ? "#444" : "#f0f0f0",
@@ -555,8 +548,8 @@ const Home = ({ info }) => {
                                                 <Button
                                                     variant="contained"
                                                     size="small"
-                                                    onClick={handleCommentSubmit(posts.postId)}
-                                                    disabled={!commentText[posts.postId].trim()}
+                                                    onClick={() => handleCommentSubmit(posts.postId)} // Correct function call
+                                                    disabled={!commentText[posts.postId]?.trim()} // Prevents empty comments
                                                     sx={{
                                                         backgroundColor: "#0095f6",
                                                         color: "#fff",
