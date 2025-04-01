@@ -4,12 +4,17 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import FollowMenu from "./FollowMenu";
 import ChatIcon from "@mui/icons-material/Chat";
 import LockIcon from "@mui/icons-material/Lock";
 import { LOCAL_HOST } from "./variable";
 import { useMediaQuery, useTheme } from "@mui/material";
 
 const UserProfile = ({ userId }) => {
+    const [menuOpen, setMenuOpen] = useState(false);
+    const handleClick = () => {
+        setMenuOpen((prevState) => !prevState);
+    };
     const navigate = useNavigate();
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -144,9 +149,12 @@ const UserProfile = ({ userId }) => {
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.postSize}</Typography>
                         <Typography variant="body2" sx={{ color: "text.secondary" }}>Posts</Typography>
                     </Box>
-                    <Box sx={{ textAlign: "center" }}>
+                    <Box sx={{ textAlign: "center", cursor: "pointer" }} onClick={handleClick}>
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.followersSize}</Typography>
                         <Typography variant="body2" sx={{ color: "text.secondary" }}>Followers</Typography>
+                        <FollowMenu
+                            userId={userProfile.userId}
+                        />
                     </Box>
                     <Box sx={{ textAlign: "center" }}>
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.followingSize}</Typography>
@@ -197,34 +205,34 @@ const UserProfile = ({ userId }) => {
                             marginBottom: 4,
                         }}
                     >
-                       {userProfile.posts?.map((post) => (
-    <Box
-        key={post.postId}
-        sx={{
-            position: "relative",
-            width: "100%",
-            paddingTop: "100%",
-            backgroundColor: "grey.300",
-            borderRadius: 2,
-            overflow: "hidden",
-            cursor: "pointer",
-        }}
-        onClick={() => window.open(`https://gram-snap.vercel.app/post/${post.postId}`, "_blank")}
-    >
-        <img
-            src={post.image}
-            alt="User Post"
-            style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                position: "absolute",
-                top: 0,
-                left: 0,
-            }}
-        />
-    </Box>
-))}
+                        {userProfile.posts?.map((post) => (
+                            <Box
+                                key={post.postId}
+                                sx={{
+                                    position: "relative",
+                                    width: "100%",
+                                    paddingTop: "100%",
+                                    backgroundColor: "grey.300",
+                                    borderRadius: 2,
+                                    overflow: "hidden",
+                                    cursor: "pointer",
+                                }}
+                                onClick={() => window.open(`https://gram-snap.vercel.app/post/${post.postId}`, "_blank")}
+                            >
+                                <img
+                                    src={post.image}
+                                    alt="User Post"
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                        position: "absolute",
+                                        top: 0,
+                                        left: 0,
+                                    }}
+                                />
+                            </Box>
+                        ))}
 
 
                     </Box>
