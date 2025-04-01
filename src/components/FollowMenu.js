@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, Typography, Menu, MenuItem, TextField, CircularProgress } from "@mui/material";
 import axios from "axios";
 
-const FollowMenu = ({ userId, open, onClose, follower }) => {
+const FollowMenu = ({ userId, open, onClose,anchorEl, follower }) => {
     const [followers, setFollowers] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(false);
@@ -40,46 +40,25 @@ const FollowMenu = ({ userId, open, onClose, follower }) => {
     );
 
     return (
-        <Menu
-            open={open}
-            onClose={onClose}
-            sx={{
-                mt: 1,
-                position: "fixed", // Position fixed to center on the screen
-                top: "50%", // Position from top 50% of the screen
-                left: "50%", // Position from left 50% of the screen
-                transform: "translate(-50%, -50%)", // Offset the menu by half of its own width and height to center it
-                zIndex: 1300, // Make sure the menu is on top of other elements
-            }}
-        >
-            <Box sx={{ p: 1 }}>
-                <TextField
-                    fullWidth
-                    variant="outlined"
-                    placeholder="Search"
-                    size="small"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </Box>
-
-            {loading ? (
-                <Box sx={{ p: 2, display: "flex", justifyContent: "center" }}>
-                    <CircularProgress size={24} />
-                </Box>
-            ) : (
-                filteredFollowers.map((follower) => (
-                    <MenuItem key={follower.userId}>
-                        <img
-                            src={follower.profilePicture || "/default-profile.png"}
-                            alt={follower.name}
-                            style={{ width: 30, height: 30, borderRadius: "50%", marginRight: 10 }}
-                        />
-                        {follower.name}
-                    </MenuItem>
-                ))
-            )}
-        </Menu>
+        <Box sx={{
+            position: "fixed", // Position fixed to the screen
+            top: "50%", // 50% from the top
+            left: "50%", // 50% from the left
+            transform: "translate(-50%, -50%)", // Center the menu using translate
+            zIndex: 1300, // Make sure it's above other elements
+        }}>
+            <Menu
+                open={open}
+                onClose={onClose}
+                anchorEl={anchorEl}  // Anchor element where menu will open
+                anchorOrigin={{ vertical: "top", horizontal: "center" }} // Position from anchor
+                transformOrigin={{ vertical: "top", horizontal: "center" }} // Adjust transform from anchor
+            >
+                {followers.map((follower) => (
+                    <MenuItem key={follower.userId}>{follower.name}</MenuItem>
+                ))}
+            </Menu>
+        </Box>
     );
 };
 

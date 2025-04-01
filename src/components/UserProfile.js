@@ -12,7 +12,9 @@ import { useMediaQuery, useTheme } from "@mui/material";
 
 const UserProfile = ({ userId }) => {
     const [menuOpen, setMenuOpen] = useState(false);
-    const handleClick = () => {
+    const [anchorEl, setAnchorEl] = useState(null);
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
         setMenuOpen((prevState) => !prevState);
     };
     const navigate = useNavigate();
@@ -149,23 +151,25 @@ const UserProfile = ({ userId }) => {
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.postSize}</Typography>
                         <Typography variant="body2" sx={{ color: "text.secondary" }}>Posts</Typography>
                     </Box>
-                    <Box sx={{ textAlign: "center", cursor: "pointer" }} onClick={handleClick}>
+                    <Box sx={{ textAlign: "center", cursor: "pointer" }} onClick={(event) => handleClick(event)}>
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.followersSize}</Typography>
                         <Typography variant="body2" sx={{ color: "text.secondary" }}>Followers</Typography>
                         <FollowMenu
                             userId={userProfile.userId}
                             open={menuOpen}
                             onClose={() => setMenuOpen(false)}
+                            anchorEl={anchorEl}
                             follower={true}
                         />
                     </Box>
-                    <Box sx={{ textAlign: "center" }}>
+                    <Box sx={{ textAlign: "center", cursor: "pointer" }} onClick={(event) => handleClick(event)}>
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.followingSize}</Typography>
                         <Typography variant="body2" sx={{ color: "text.secondary" }}>Following</Typography>
                         <FollowMenu
                             userId={userProfile.userId}
                             open={menuOpen}
                             onClose={() => setMenuOpen(false)}
+                            anchorEl={anchorEl}
                             follower={false}
                         />
                     </Box>
