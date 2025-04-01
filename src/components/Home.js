@@ -41,13 +41,21 @@ const Home = ({ info }) => {
     const [comments, setComments] = useState({});
     const [commentText, setCommentText] = useState({});
 
-    const handleCommentSubmit = (postId) => {
-        if (commentText[postId]?.trim()) {
-            setComments((prev) => ({
-                ...prev,
-                [postId]: [...(prev[postId] || []), commentText[postId]], // Append new comment
-            }));
-            setCommentText((prev) => ({ ...prev, [postId]: "" })); // Clear input
+    const handleCommentSubmit = async (postId) => {
+        try {
+            if (commentText[postId]?.trim()) {
+                const res = await axios.post(`https://gramsnap-backend.onrender.com/${postId}/comment`,{text:commentText[postId]}, { withCredentials: true });
+                if(res.status === 201){
+                    setComments((prev) => ({
+                        ...prev,
+                        [postId]: [...(prev[postId] || []), res.data.comment], // Append new comment
+                    }));
+                    setCommentText((prev) => ({ ...prev, [postId]: "" })); // Clear input
+                }
+                
+            }
+        } catch (error) {
+            console.log("Error in while posting comment", error);
         }
     };
     const getTimeAgo = (timestamp) => {
@@ -86,7 +94,7 @@ const Home = ({ info }) => {
                 [postId]: !prev[postId], // Toggle the state for the specific postId
             }));
         } catch (error) {
-            console.log("Error in fetching posts", error);
+            console.log("Error in fetching comment", error);
         }
     };
 
