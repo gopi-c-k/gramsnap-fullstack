@@ -10,7 +10,7 @@ const AuthHandler = ({ socket }) => {
 
     const checkAuthAndEmit = async () => {
       try {
-        const response = await axios.get("https://gramsnap-backend.onrender.com/protected", {
+        const response = await axios.get("https://gramsnap-backend-bj65.onrender.com/protected", {
           withCredentials: true,
         });
 
