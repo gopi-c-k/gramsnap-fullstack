@@ -210,7 +210,7 @@ export const Message = ({ info, socket }) => {
         }
 
         try {
-            const res = await axios.get(`https://gramsnap-backend.onrender.com/chat/messages`, {
+            const res = await axios.get(`https://gramsnap-backend-bj65.onrender.com/chat/messages`, {
                 params: {
                     senderId: userId,
                     receiverId: userIdKey,

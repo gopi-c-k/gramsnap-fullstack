@@ -34,7 +34,7 @@ const UserProfile = ({ userId }) => {
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
     const fetchUserProfile = async () => {
         try {
-            const response = await axios.get(`https://gramsnap-backend.onrender.com/profile/${userId}`, { withCredentials: true });
+            const response = await axios.get(`https://gramsnap-backend-bj65.onrender.com/profile/${userId}`, { withCredentials: true });
             if (response.status === 200) {
                 console.log(response.data);
                 setUserProfile(response.data);
@@ -56,7 +56,7 @@ const UserProfile = ({ userId }) => {
     const handleFollow = async () => {
         setLoading(true);
         try {
-            const res = await axios.post(`https://gramsnap-backend.onrender.com/followRequest`, { followRequestUserId: userId }, { withCredentials: true });
+            const res = await axios.post(`https://gramsnap-backend-bj65.onrender.com/followRequest`, { followRequestUserId: userId }, { withCredentials: true });
             if (res.status === 200) {
                 setLoading(false);
                 setSnackbarMessage(res.data.message);
@@ -79,7 +79,7 @@ const UserProfile = ({ userId }) => {
     const sendMessageHi = async () => {
         console.log("Function called");
         try {
-            const res = await axios.post('https://gramsnap-backend.onrender.com/chat/send', { senderId: userInfo.userId, receiverId: userId, message: "Hi" }, { withCredentials: true })
+            const res = await axios.post('https://gramsnap-backend-bj65.onrender.com/chat/send', { senderId: userInfo.userId, receiverId: userId, message: "Hi" }, { withCredentials: true })
             if (res.status === 201) {
                 navigate('/message');
             } else {

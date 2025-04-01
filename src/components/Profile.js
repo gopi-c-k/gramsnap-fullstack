@@ -31,7 +31,7 @@ const Profile = ({ info }) => {
     useEffect(() => {
         const autoLogin = async () => {
             try {
-                const response = await axios.get(`https://gramsnap-backend.onrender.com/profile/${userId}`, { withCredentials: true });
+                const response = await axios.get(`https://gramsnap-backend-bj65.onrender.com/profile/${userId}`, { withCredentials: true });
                 if (response.status === 200) {
                     // Debug
                     console.log(response.data)

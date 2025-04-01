@@ -103,7 +103,7 @@ const Settings = ({ info }) => {
         }
 
         try {
-            const response = await axios.put(`https://gramsnap-backend.onrender.com/update`, formData, { withCredentials: true }, {
+            const response = await axios.put(`https://gramsnap-backend-bj65.onrender.com/update`, formData, { withCredentials: true }, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
             setMessage(response.data.message);

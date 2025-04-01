@@ -44,7 +44,7 @@ const Home = ({ info }) => {
     const handleCommentSubmit = async (postId) => {
         try {
             if (commentText[postId]?.trim()) {
-                const res = await axios.post(`https://gramsnap-backend.onrender.com/${postId}/comment`,{text:commentText[postId]}, { withCredentials: true });
+                const res = await axios.post(`https://gramsnap-backend-bj65.onrender.com/${postId}/comment`,{text:commentText[postId]}, { withCredentials: true });
                 if(res.status === 201){
                     setComments((prev) => ({
                         ...prev,
@@ -80,8 +80,8 @@ const Home = ({ info }) => {
     const showCommentsToggle = async (postId) => {
         try {
             if (!comments[postId]) {
-                const res = await axios.get(`https://gramsnap-backend.onrender.com/post/${postId}/comment`, { withCredentials: true });
-                // const res = await axios.get(`https://gramsnap-backend.onrender.com/post/{postId}/comment`, { withCredentials: true });
+                const res = await axios.get(`https://gramsnap-backend-bj65.onrender.com/post/${postId}/comment`, { withCredentials: true });
+                // const res = await axios.get(`https://gramsnap-backend-bj65.onrender.com/post/{postId}/comment`, { withCredentials: true });
                 console.log(res.data.comments);
                 if (res.status === 200) {
                     setComments((prev) => ({
@@ -203,7 +203,7 @@ const Home = ({ info }) => {
         const fetchHomePosts = async () => {
             try {
                 console.log("Fetching home posts...");
-                const res = await axios.get("https://gramsnap-backend.onrender.com/home", { withCredentials: true });
+                const res = await axios.get("https://gramsnap-backend-bj65.onrender.com/home", { withCredentials: true });
 
                 if (res.status === 200 && res.data?.homePosts) {
                     console.log("Home posts fetched:", res.data.homePosts);
@@ -241,11 +241,11 @@ const Home = ({ info }) => {
     const putLike = async (postId) => {
         try {
             const res = await axios.put(
-                `https://gramsnap-backend.onrender.com/${postId}/like`,
+                `https://gramsnap-backend-bj65.onrender.com/${postId}/like`,
                 {}, // Empty body for PUT request
                 { withCredentials: true } // Ensure cookies are sent
             );
-            // const res = await axios.put(`https://gramsnap-backend.onrender.com/${postId}/like`, { withCredentials: true });
+            // const res = await axios.put(`https://gramsnap-backend-bj65.onrender.com/${postId}/like`, { withCredentials: true });
             if (res.status === 200) {
                 setHomePost(toggleLike(homePost, postId, res.data.likesCount));
             }
@@ -256,11 +256,11 @@ const Home = ({ info }) => {
     const savePost = async (postId) => {
         try {
             const res = await axios.put(
-                `https://gramsnap-backend.onrender.com/${postId}/save`,
+                `https://gramsnap-backend-bj65.onrender.com/${postId}/save`,
                 {}, // Empty body for PUT request
                 { withCredentials: true } // Ensure cookies are sent
             );
-            // const res = await axios.put(`https://gramsnap-backend.onrender.com/${postId}/like`, { withCredentials: true });
+            // const res = await axios.put(`https://gramsnap-backend-bj65.onrender.com/${postId}/like`, { withCredentials: true });
             if (res.status === 200) {
                 setHomePost(toggleSave(homePost, postId));
             }
@@ -273,7 +273,7 @@ const Home = ({ info }) => {
     // ✅ Fetch notifications function
     const fetchNotifications = useCallback(async () => {
         try {
-            const res = await axios.get(`https://gramsnap-backend.onrender.com/notifications`, { withCredentials: true });
+            const res = await axios.get(`https://gramsnap-backend-bj65.onrender.com/notifications`, { withCredentials: true });
             //console.log(res.data);
             setNotifications(res.data);
         } catch (error) {
@@ -284,7 +284,7 @@ const Home = ({ info }) => {
     // ✅ Fetch recommended users function
     const fetchRecommendedUsers = useCallback(async () => {
         try {
-            const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
+            const res = await axios.get(`https://gramsnap-backend-bj65.onrender.com/suggestions`, { withCredentials: true });
             // console.log(res.data)
             setRecommendedUsers(res.data.suggestions);
         } catch (error) {
@@ -299,7 +299,7 @@ const Home = ({ info }) => {
 
     const handleConfirm = async (senderId) => {
         try {
-            await axios.post(`https://gramsnap-backend.onrender.com/accept-follow`, { senderId }, { withCredentials: true });
+            await axios.post(`https://gramsnap-backend-bj65.onrender.com/accept-follow`, { senderId }, { withCredentials: true });
 
             // 🔄 Remove the accepted follow request from state
             // setNotifications(notifications.filter((n) => n.senderId.userId !== senderId));

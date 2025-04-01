@@ -9,7 +9,7 @@ const useAuthRedirect = () => {
     const checkAuth = async () => {
       try {
         const response = await axios.post(
-          "https://gramsnap-backend.onrender.com/login-refresh",
+          "https://gramsnap-backend-bj65.onrender.com/login-refresh",
           {},
           { withCredentials: true }
         );

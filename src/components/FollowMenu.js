@@ -11,7 +11,7 @@ const FollowMenu = ({ userId, open, onClose, anchorEl, follower }) => {
         setLoading(true);
         try {
             const endpoint = follower ? "followers" : "following"; // Use the condition to determine the endpoint
-            const res = await axios.get(`https://gramsnap-backend.onrender.com/user/${endpoint}`, {
+            const res = await axios.get(`https://gramsnap-backend-bj65.onrender.com/user/${endpoint}`, {
                 params: { userId },  // Pass userId as query parameters
                 withCredentials: true,  // Ensure credentials are sent with the request
             });

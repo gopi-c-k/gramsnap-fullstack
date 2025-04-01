@@ -62,11 +62,11 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
     const savePost = async () => {
         try {
             const res = await axios.put(
-                `https://gramsnap-backend.onrender.com/${postId}/save`,
+                `https://gramsnap-backend-bj65.onrender.com/${postId}/save`,
                 {}, // Empty body for PUT request
                 { withCredentials: true } // Ensure cookies are sent
             );
-            // const res = await axios.put(`https://gramsnap-backend.onrender.com/${postId}/like`, { withCredentials: true });
+            // const res = await axios.put(`https://gramsnap-backend-bj65.onrender.com/${postId}/like`, { withCredentials: true });
             if (res.status === 200) {
                 setTempSave(!tempSave);
             }
@@ -84,12 +84,12 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
     const fetchPost = useCallback(async () => {
         if (!postId) return;
         try {
-            const res = await axios.get(`https://gramsnap-backend.onrender.com/post/${postId}`, { withCredentials: true });
+            const res = await axios.get(`https://gramsnap-backend-bj65.onrender.com/post/${postId}`, { withCredentials: true });
             setPost(res.data);
             setLikesCount(res.data.likes);
             setTempLike(res.data.isLiked);
             setTempSave(res.data.isSaved);
-            const response = await axios.get(`https://gramsnap-backend.onrender.com/post/${postId}/comment`, { withCredentials: true });
+            const response = await axios.get(`https://gramsnap-backend-bj65.onrender.com/post/${postId}/comment`, { withCredentials: true });
             {
                 if(response.status===200){
                     setComments(response.data.comments || []);
@@ -109,7 +109,7 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
         try {
             setTempLike(!tempLike);
             const res = await axios.put(
-                `https://gramsnap-backend.onrender.com/${postId}/like`,
+                `https://gramsnap-backend-bj65.onrender.com/${postId}/like`,
                 {}, // Empty body for PUT request
                 { withCredentials: true } // Ensure cookies are sent
             );
@@ -126,7 +126,7 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
     const handleCommentSubmit = async () => {
         if (!commentText.trim()) return;
         try {
-            const res = await axios.post(`https://gramsnap-backend.onrender.com/${postId}/comment`, { text: commentText }, { withCredentials: true });
+            const res = await axios.post(`https://gramsnap-backend-bj65.onrender.com/${postId}/comment`, { text: commentText }, { withCredentials: true });
             if (res.status === 201) {
                 setComments((prevComments) => [...prevComments, res.data.comment]);
                 setCommentText("");

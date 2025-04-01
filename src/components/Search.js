@@ -59,7 +59,7 @@ const Search = ({ info }) => {
         setSearchTerm(term);
         setSearchResults([]);
         try {
-            const response = await axios.post(`https://gramsnap-backend.onrender.com/search/${term}`, { withCredentials: true });
+            const response = await axios.post(`https://gramsnap-backend-bj65.onrender.com/search/${term}`, { withCredentials: true });
             if (response.status === 200) {
                 setSearchResults(response.data)
             }

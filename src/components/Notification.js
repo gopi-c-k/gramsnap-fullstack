@@ -31,7 +31,7 @@ const Notifications = ({ info }) => {
     // ✅ Fetch notifications function
     const fetchNotifications = useCallback(async () => {
         try {
-            const res = await axios.get(`https://gramsnap-backend.onrender.com/notifications`, { withCredentials: true });
+            const res = await axios.get(`https://gramsnap-backend-bj65.onrender.com/notifications`, { withCredentials: true });
             setNotifications(res.data);
         } catch (error) {
             console.error("Error fetching notifications:", error);
@@ -41,7 +41,7 @@ const Notifications = ({ info }) => {
     // ✅ Fetch recommended users function
     const fetchRecommendedUsers = useCallback(async () => {
         try {
-            const res = await axios.get(`https://gramsnap-backend.onrender.com/suggestions`, { withCredentials: true });
+            const res = await axios.get(`https://gramsnap-backend-bj65.onrender.com/suggestions`, { withCredentials: true });
             setRecommendedUsers(res.data.suggestions);
         } catch (error) {
             console.error("Error fetching recommended users:", error);
@@ -54,7 +54,7 @@ const Notifications = ({ info }) => {
     }, [fetchNotifications, fetchRecommendedUsers]);
     const handleConfirm = async (senderId) => {
         try {
-            await axios.post(`https://gramsnap-backend.onrender.com/accept-follow`, { senderId }, { withCredentials: true });
+            await axios.post(`https://gramsnap-backend-bj65.onrender.com/accept-follow`, { senderId }, { withCredentials: true });
 
             // 🔄 Remove the accepted follow request from state
             // setNotifications(notifications.filter((n) => n.senderId.userId !== senderId));

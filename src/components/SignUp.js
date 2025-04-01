@@ -29,7 +29,7 @@ function SignUp({ info }) {
 
     // Simulate OTP sending
     const sendOTP = () => {
-        axios.post(`https://gramsnap-backend.onrender.com/sendOTP`, { email }).then(response => {
+        axios.post(`https://gramsnap-backend-bj65.onrender.com/sendOTP`, { email }).then(response => {
             if (response.status === 200) {
                 setIsResendEnabled(false);
                 setSnackbarMessage("OTP sent to your email " + email);
@@ -84,7 +84,7 @@ function SignUp({ info }) {
 
             sendOTP();
         } else {
-            axios.post(`https://gramsnap-backend.onrender.com/signup`, { name, email, password, otp, userId })
+            axios.post(`https://gramsnap-backend-bj65.onrender.com/signup`, { name, email, password, otp, userId })
                 .then(response => {
                     if (response.status === 201) {  // ✅ 201 means "Created"
                         setSnackbarMessage("Account created successfully!");
