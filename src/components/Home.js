@@ -51,6 +51,7 @@ const Home = ({ info }) => {
                         [postId]: [...(prev[postId] || []), res.data.comment], // Append new comment
                     }));
                     setCommentText((prev) => ({ ...prev, [postId]: "" })); // Clear input
+                    showCommentsToggle(postId);
                 }
                 
             }

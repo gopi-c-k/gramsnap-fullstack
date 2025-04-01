@@ -26,6 +26,22 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
     const [isDesktop, setIsDesktop] = useState(window.innerWidth > 768);
     const [anchorEl, setAnchorEl] = useState(null);
     const postLink = `https://gram-snap.vercel.app/post/${postId}`;
+    const getTimeAgo = (timestamp) => {
+        const now = new Date();
+        const past = new Date(timestamp);
+        const diffInSeconds = Math.floor((now - past) / 1000); // Difference in seconds
+
+        if (diffInSeconds < 60) return "Just now"; // Less than 1 minute
+        const diffInMinutes = Math.floor(diffInSeconds / 60);
+        if (diffInMinutes < 60) return `${diffInMinutes} min ago`; // Less than 1 hour
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) return `${diffInHours} hr ago`; // Less than 1 day
+        const diffInDays = Math.floor(diffInHours / 24);
+        if (diffInDays < 7) return `${diffInDays} d ago`; // Less than a week
+        if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} w ago`; // Less than a month
+        if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} mo ago`; // Less than a year
+        return `${Math.floor(diffInDays / 365)} yr ago`; // 1+ years ago
+    };
 
     const handleShareClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -73,7 +89,8 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
             setLikesCount(res.data.likes);
             setTempLike(res.data.isLiked);
             setTempSave(res.data.isSaved);
-            setComments(res.data.comments || []);
+            const response = await axios.get(`https://gramsnap-backend.onrender.com/post/${postId}/comment`, { withCredentials: true });
+            setComments(response.data.comment || []);
             // updateMetaTags(`${res.data.title} | GramSnap`, res.data.description || "Check out this post on GramSnap", res.data.image);
         } catch (error) {
             console.error("Error fetching post:", error);
@@ -105,8 +122,10 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
         if (!commentText.trim()) return;
         try {
             const res = await axios.post(`https://gramsnap-backend.onrender.com/${postId}/comment`, { text: commentText }, { withCredentials: true });
-            setComments(res.data.comments);
-            setCommentText("");
+            if (res.status === 201) {
+                setComments([...comments, ...res.data.comment]);
+                setCommentText("");
+            }
         } catch (error) {
             console.error("Error posting comment:", error);
         }
@@ -247,10 +266,26 @@ export default function PostPage({ postId: propPostId, prefersDarkModes }) {
                 <Box sx={{ flex: 1, overflowY: "auto", maxHeight: "400px", paddingBottom: "10px" }}>
                     {comments.length < 0 ? (
                         comments.map((comment, index) => (
-                            <Box key={index} sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                                <Typography variant="body2" sx={{ color: prefersDarkMode ? "#ddd" : "#444" }}>
-                                    <strong>{comment.userId.name}</strong> {comment.text}
-                                </Typography>
+                            <Box key={index} sx={{ display: "flex", gap: 1, alignItems: "center", mb: 1, padding: "2px" }}>
+                                <Avatar src={comment.userId.profilePicture} sx={{ fontSize: 18 }} />
+                                <Box sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                                    <Typography variant="body2" sx={{ color: prefersDarkMode ? "#ddd" : "#444" }}>
+                                        <strong>
+                                            <span
+                                                style={{ color: "#0095f6" }}
+                                            >
+                                                {comment.userId.userId}
+                                            </span>
+                                        </strong>
+                                        {` ${getTimeAgo(comment.createdAt)}`}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ fontSize: "12px", color: prefersDarkMode ? "#aaa" : "#555" }}>
+                                        {comment.text}
+                                    </Typography>
+                                </Box>
+                                <IconButton sx={{ ml: "auto" }}>
+                                    <FavoriteBorderIcon sx={{ fontSize: 18, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                </IconButton>
                             </Box>
                         ))
                     ) : (
