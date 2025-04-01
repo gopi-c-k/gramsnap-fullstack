@@ -51,7 +51,7 @@ const Home = ({ info }) => {
         }
     };
 
-    
+
     const [users, setUser] = useState(null);
 
 
@@ -503,14 +503,14 @@ const Home = ({ info }) => {
                                             {/* Comments Section */}
                                             <Typography
                                                 variant="text"
-                                                sx={{ color: prefersDarkMode ? "#bbb" : "#0077cc", marginTop: "8px", ml: "0px" }}
+                                                sx={{ color: prefersDarkMode ? "#bbb" : "#0077cc", marginTop: "8px", ml: "0px", cursor: "pointer" }}
                                                 onClick={() => showCommentsToggle(posts.postId)} // Toggle comment visibility
                                             >
                                                 {showComments[posts.postId] ? "Hide Comments" : "Show Comments"}
                                             </Typography>
 
                                             {/* Comments Section */}
-                                            {showComments[posts.postId] && comments[posts.postId].length !== 0 && comments[posts.postId].map((comment, index) => (
+                                            {showComments[posts.postId] && comments[posts.postId]?.length !== 0 && comments[posts.postId]?.map((comment, index) => (
                                                 <Box key={index} sx={{ display: "flex", gap: 1, alignItems: "center", mb: 1, padding: "2px" }}>
                                                     <Avatar src={comment.profilePic} sx={{ fontSize: 22 }} />
                                                     <Box sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
