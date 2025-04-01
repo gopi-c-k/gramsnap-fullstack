@@ -11,12 +11,14 @@ import { LOCAL_HOST } from "./variable";
 import { useMediaQuery, useTheme } from "@mui/material";
 
 const UserProfile = ({ userId }) => {
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState({});
     const [anchorEl, setAnchorEl] = useState({});
-    const handleClick = (event,check) => {
+
+    const handleClick = (event, check) => {
         setAnchorEl((prev) => ({ ...prev, [check]: event.currentTarget }));
-        setMenuOpen((prevState) => !prevState);
+        setMenuOpen((prev) => ({ ...prev, [check]: !prev[check] })); // Fix the state toggle logic
     };
+
     const navigate = useNavigate();
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -151,26 +153,26 @@ const UserProfile = ({ userId }) => {
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.postSize}</Typography>
                         <Typography variant="body2" sx={{ color: "text.secondary" }}>Posts</Typography>
                     </Box>
-                    <Box sx={{ textAlign: "center", cursor: "pointer" }} onClick={(event) => handleClick(event,"followers")}>
+                    <Box sx={{ textAlign: "center", cursor: "pointer" }} onClick={(event) => handleClick(event, "followers")}>
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.followersSize}</Typography>
                         <Typography variant="body2" sx={{ color: "text.secondary" }}>Followers</Typography>
                         <FollowMenu
                             userId={userProfile.userId}
-                            open={menuOpen}
-                            onClose={() => setMenuOpen(false)}
+                            open={menuOpen["followers"]}
+                            onClose={() => setMenuOpen((prev) => ({ ...prev, followers: false }))}
                             anchorEl={anchorEl["followers"]}
                             follower={true}
                         />
                     </Box>
-                    <Box sx={{ textAlign: "center", cursor: "pointer" }} onClick={(event) => handleClick(event,"following")}>
+                    <Box sx={{ textAlign: "center", cursor: "pointer" }} onClick={(event) => handleClick(event, "following")}>
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.followingSize}</Typography>
                         <Typography variant="body2" sx={{ color: "text.secondary" }}>Following</Typography>
                         <FollowMenu
                             userId={userProfile.userId}
-                            open={menuOpen}
-                            onClose={() => setMenuOpen(false)}
+                            open={menuOpen["following"]}
+                            onClose={() => setMenuOpen((prev) => ({ ...prev, following: false }))}
                             anchorEl={anchorEl["following"]}
-                            follower={false}
+                            follower={true}
                         />
                     </Box>
                 </Box>
