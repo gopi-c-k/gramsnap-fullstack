@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, Typography, Menu, MenuItem, TextField, CircularProgress } from "@mui/material";
 import axios from "axios";
 
-const FollowMenu = ({ userId, open, onClose }) => {
+const FollowMenu = ({ userId, open, onClose, follower }) => {
     const [followers, setFollowers] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(false);
@@ -10,7 +10,15 @@ const FollowMenu = ({ userId, open, onClose }) => {
     const fetchFollowers = async () => {
         setLoading(true);
         try {
-            const res = await axios.get("https://gramsnap-backend.onrender.com/user/followers", { userId }, { withCredentials: true });
+            const endpoint = follower ? "followers" : "following"; // Use the condition to determine the endpoint
+            const res = await axios.get(`https://gramsnap-backend.onrender.com/user/${endpoint}`, {
+                params: { userId },  // Pass userId as query parameters
+                withCredentials: true,  // Ensure credentials are sent with the request
+            });
+            if (res.status === 200) {
+                console.log(res.data);
+                setFollowers(res.data); // Set fetched followers or following
+            }
             if (res.status === 200) {
                 setFollowers(res.data); // Set fetched followers
             }
@@ -48,7 +56,7 @@ const FollowMenu = ({ userId, open, onClose }) => {
                 <TextField
                     fullWidth
                     variant="outlined"
-                    placeholder="Search followers..."
+                    placeholder="Search"
                     size="small"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}

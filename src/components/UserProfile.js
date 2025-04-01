@@ -156,11 +156,18 @@ const UserProfile = ({ userId }) => {
                             userId={userProfile.userId}
                             open={menuOpen}
                             onClose={() => setMenuOpen(false)}
+                            follower={true}
                         />
                     </Box>
                     <Box sx={{ textAlign: "center" }}>
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>{userProfile.followingSize}</Typography>
                         <Typography variant="body2" sx={{ color: "text.secondary" }}>Following</Typography>
+                        <FollowMenu
+                            userId={userProfile.userId}
+                            open={menuOpen}
+                            onClose={() => setMenuOpen(false)}
+                            follower={false}
+                        />
                     </Box>
                 </Box>
 
