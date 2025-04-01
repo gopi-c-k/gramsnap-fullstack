@@ -555,8 +555,8 @@ const Home = ({ info }) => {
                                                 <Button
                                                     variant="contained"
                                                     size="small"
-                                                    onClick={handleCommentSubmit}
-                                                    disabled={!commentText.trim()}
+                                                    onClick={handleCommentSubmit(posts.postId)}
+                                                    disabled={!commentText[posts.postId].trim()}
                                                     sx={{
                                                         backgroundColor: "#0095f6",
                                                         color: "#fff",
