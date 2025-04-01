@@ -104,16 +104,18 @@ const Home = ({ info }) => {
     const [homePost, setHomePost] = useState(posts);
 
     // Post Share
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorElMap, setAnchorElMap] = useState({});
 
 
-    const handleShareClick = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handleShareClick = (event, postId) => {
+        setAnchorElMap((prev) => ({ ...prev, [postId]: event.currentTarget }));
     };
 
-    const handleClose = () => {
-        setAnchorEl(null);
+
+    const handleClose = (postId) => {
+        setAnchorElMap((prev) => ({ ...prev, [postId]: null }));
     };
+
 
     const handleCopyLink = async (postId) => {
         try {
@@ -458,34 +460,29 @@ const Home = ({ info }) => {
                                                     {posts.likes}
                                                 </Typography>
                                                 <Box sx={{ display: "flex", flexDirection: "row", gap: "6px", alignItems: "center", ml: "auto", mr: "0px" }}>
-                                                    <IconButton>
-                                                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} onClick={(event) => handleShareClick(event)} />
+                                                    <IconButton onClick={(event) => handleShareClick(event, posts.postId)}>
+                                                        <SendIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
                                                     </IconButton>
                                                     <Menu
-                                                        anchorEl={anchorEl}
-                                                        open={Boolean(anchorEl)}
-                                                        onClose={handleClose}
+                                                        anchorEl={anchorElMap[posts.postId]}
+                                                        open={Boolean(anchorElMap[posts.postId])}
+                                                        onClose={() => handleClose(posts.postId)}
                                                         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
                                                     >
                                                         <MenuItem onClick={() => handleCopyLink(posts.postId)}>
                                                             <ContentCopyIcon sx={{ mr: 1 }} />
                                                             Copy Link
                                                         </MenuItem>
-
-                                                        <MenuItem
-                                                            onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`https://gram-snap.vercel.app/post/${posts.postId}`)}`, "_blank")}
-                                                        >
+                                                        <MenuItem onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`https://gram-snap.vercel.app/post/${posts.postId}`)}`, "_blank")}>
                                                             <WhatsAppIcon sx={{ mr: 1, color: "green" }} />
                                                             Share on WhatsApp
                                                         </MenuItem>
-
-                                                        <MenuItem
-                                                            onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://gram-snap.vercel.app/post/${posts.postId}`)}`, "_blank")}
-                                                        >
+                                                        <MenuItem onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://gram-snap.vercel.app/post/${posts.postId}`)}`, "_blank")}>
                                                             <FacebookIcon sx={{ mr: 1, color: "#1877F2" }} />
                                                             Share on Facebook
                                                         </MenuItem>
                                                     </Menu>
+
                                                     <IconButton onClick={() => savePost(posts.postId)}>{
                                                         posts.isSaved ? <BookmarksIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} /> : <BookmarksOutlinedIcon sx={{ fontSize: 24, color: prefersDarkMode ? "#bbb" : "#777" }} />
                                                     }
