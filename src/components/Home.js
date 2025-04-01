@@ -36,12 +36,12 @@ const Home = ({ info }) => {
     const muiTheme = useTheme();
     const isDesktop = useMediaQuery(muiTheme.breakpoints.up('lg'));
     //  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
-    const [comments, setComments] = useState([]);
-    const [commentText, setCommentText] = useState("");
-    const handleCommentSubmit = () => {
-        if (commentText.trim()) {
-            setComments([...comments, commentText]);
-            setCommentText(""); // Clear input
+    const [comments, setComments] = useState({});
+    const [commentText, setCommentText] = useState({});
+    const handleCommentSubmit = (postId) => {
+        if (commentText[postId].trim()) {
+            setComments[postId]([...comments, commentText]);
+            setCommentText((prev)=>({...prev, [postId]: ""})); // Clear input
         }
     };
     const [users, setUser] = useState(null);
@@ -116,7 +116,14 @@ const Home = ({ info }) => {
         setAnchorElMap((prev) => ({ ...prev, [postId]: null }));
     };
 
-    const [showComments,setShowComments] = useState(false);
+    const [showComments, setShowComments] = useState({});
+
+    const showCommentsToggle = (postId) => {
+        setShowComments((prev) => ({
+            ...prev,
+            [postId]: !prev[postId], // Toggle the state for the specific postId
+        }));
+    };
     const handleCopyLink = async (postId) => {
         try {
             await navigator.clipboard.writeText(`https://gram-snap.vercel.app/post/${postId}`);
@@ -504,16 +511,16 @@ const Home = ({ info }) => {
                                             </Typography>
 
                                             {/* Comments Section */}
-                                            <Button
+                                            <Typography
                                                 variant="text"
-                                                sx={{ color: prefersDarkMode ? "#bbb" : "#0077cc", marginTop: "8px" }}
-                                                onClick={() => setShowComments(prev => !prev)} // Toggle comment visibility
+                                                sx={{ color: prefersDarkMode ? "#bbb" : "#0077cc", marginTop: "8px", ml: "0px" }}
+                                                onClick={() => showCommentsToggle(posts.postId)} // Toggle comment visibility
                                             >
-                                                {showComments ? "Hide Comments" : "Show Comments"}
-                                            </Button>
+                                                {showComments[posts.postId] ? "Hide Comments" : "Show Comments"}
+                                            </Typography>
 
                                             {/* Comments Section */}
-                                            {showComments && comments.length !== 0 && comments.map((comment, index) => (
+                                            {showComments[posts.postId] && comments[posts.postId].length !== 0 && comments[posts.postId].map((comment, index) => (
                                                 <Box key={index} sx={{ display: "flex", gap: 1, alignItems: "center", mb: 1, padding: "2px" }}>
                                                     <Avatar src={comment.profilePic} sx={{ fontSize: 22 }} />
                                                     <Box sx={{ display: "flex", flexDirection: "column", gap: "2px" }}>
