@@ -70,16 +70,16 @@ const UserProfile = ({ userId }) => {
     const sendMessageHi = async () => {
         console.log("Function called");
         try {
-            const res = await axios.post('https://gramsnap-backend.onrender.com/chat/send',{senderId: userInfo.userId,receiverId:userId, message:"Hi"}, {withCredentials: true})
-            if(res.status === 201){
+            const res = await axios.post('https://gramsnap-backend.onrender.com/chat/send', { senderId: userInfo.userId, receiverId: userId, message: "Hi" }, { withCredentials: true })
+            if (res.status === 201) {
                 navigate('/message');
-            }else{
+            } else {
                 setSnackbarMessage("Unable to send message");
                 setSnackbarSeverity("error");
                 setOpenSnackbar(true);
             }
         } catch (error) {
-            console.error("Error occured: ",error);
+            console.error("Error occured: ", error);
             setSnackbarMessage(error);  // Set a string instead of an object
             setSnackbarSeverity("error");
             setOpenSnackbar(true);
@@ -168,7 +168,7 @@ const UserProfile = ({ userId }) => {
                             {userProfile.isFollow ? "Unfollow" : userProfile?.isRequestSent ? "Request Sent" : "Follow"}
                         </Button>
                         {userProfile.isFollow && (
-                            <Button variant="contained" sx={{ width: 130, backgroundColor: "#7b6cc2" }} startIcon={<ChatIcon />} onClick={()=>{sendMessageHi()}}>
+                            <Button variant="contained" sx={{ width: 130, backgroundColor: "#7b6cc2" }} startIcon={<ChatIcon />} onClick={() => { sendMessageHi() }}>
                                 Message
                             </Button>
                         )}
@@ -198,31 +198,40 @@ const UserProfile = ({ userId }) => {
                         }}
                     >
                         {userProfile.posts?.map((post) => (
-                            <Box
+                            <a
                                 key={post.postId}
-                                sx={{
-                                    position: "relative",
-                                    width: "100%",
-                                    paddingTop: "100%", // Maintains aspect ratio
-                                    backgroundColor: "grey.300",
-                                    borderRadius: 2,
-                                    overflow: "hidden",
-                                }}
+                                href={`https://gram-snap.vercel.app/post/${post.postId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ textDecoration: "none" }} // Optional: removes link styling
                             >
-                                <img
-                                    src={post.image}
-                                    alt="User Post"
-                                    style={{
+                                <Box
+                                    key={post.postId}
+                                    sx={{
+                                        position: "relative",
                                         width: "100%",
-                                        height: "100%",
-                                        objectFit: "cover",
-                                        position: "absolute",
-                                        top: 0,
-                                        left: 0,
+                                        paddingTop: "100%", // Maintains aspect ratio
+                                        backgroundColor: "grey.300",
+                                        borderRadius: 2,
+                                        overflow: "hidden",
                                     }}
-                                />
-                            </Box>
+                                >
+                                    <img
+                                        src={post.image}
+                                        alt="User Post"
+                                        style={{
+                                            width: "100%",
+                                            height: "100%",
+                                            objectFit: "cover",
+                                            position: "absolute",
+                                            top: 0,
+                                            left: 0,
+                                        }}
+                                    />
+                                </Box>
+                            </a>
                         ))}
+
                     </Box>
 
                 )}
