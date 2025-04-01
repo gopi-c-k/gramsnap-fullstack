@@ -3,7 +3,6 @@ import { Box, Typography, Menu, MenuItem, TextField, CircularProgress } from "@m
 import axios from "axios";
 
 const FollowMenu = ({ userId, open, onClose }) => {
-    const [anchorEl, setAnchorEl] = useState(null);
     const [followers, setFollowers] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(false);
@@ -11,14 +10,17 @@ const FollowMenu = ({ userId, open, onClose }) => {
     const fetchFollowers = async () => {
         setLoading(true);
         try {
-            const res = await axios.post("https://gramsnap-backend.onrender.com/user/followers", { userId }, { withCredentials: true });
-            setFollowers(res.data); // Set fetched followers
+            const res = await axios.get("https://gramsnap-backend.onrender.com/user/followers", { userId }, { withCredentials: true });
+            if (res.status === 200) {
+                setFollowers(res.data); // Set fetched followers
+            }
         } catch (error) {
             console.error("Error fetching followers:", error);
         } finally {
             setLoading(false);
         }
     };
+
     React.useEffect(() => {
         if (open) {
             fetchFollowers();
@@ -33,7 +35,14 @@ const FollowMenu = ({ userId, open, onClose }) => {
         <Menu
             open={open}
             onClose={onClose}
-            sx={{ mt: 1 }}
+            sx={{
+                mt: 1,
+                position: "fixed", // Position fixed to center on the screen
+                top: "50%", // Position from top 50% of the screen
+                left: "50%", // Position from left 50% of the screen
+                transform: "translate(-50%, -50%)", // Offset the menu by half of its own width and height to center it
+                zIndex: 1300, // Make sure the menu is on top of other elements
+            }}
         >
             <Box sx={{ p: 1 }}>
                 <TextField
