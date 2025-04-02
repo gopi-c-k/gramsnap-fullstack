@@ -21,7 +21,7 @@ const AuthHandler = ({ socket }) => {
         }
       } catch (error) {
         console.log("❌ User not authenticated. Redirecting to SignIn...");
-        navigate("/signin");  // Now useNavigate() works!
+      //  navigate("/signin");  // Now useNavigate() works!
       }
     };
 
