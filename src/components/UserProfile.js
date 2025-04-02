@@ -172,7 +172,7 @@ const UserProfile = ({ userId }) => {
                             open={menuOpen["following"]}
                             onClose={() => setMenuOpen((prev) => ({ ...prev, following: false }))}
                             anchorEl={anchorEl["following"]}
-                            follower={true}
+                            follower={false}
                         />
                     </Box>
                 </Box>
