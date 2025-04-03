@@ -3,6 +3,7 @@ import { Box, Typography, Avatar, Divider, Button, List, ListItem, CircularProgr
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { Menu, MenuItem } from "@mui/material";
+import DrawOutlinedIcon from '@mui/icons-material/DrawOutlined';
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import FacebookIcon from "@mui/icons-material/Facebook";
@@ -367,6 +368,44 @@ const Home = ({ info }) => {
                                     "&::-webkit-scrollbar": { display: "none" },
                                 }}
                             >
+                                <Box
+                                    key={"o1"}
+                                    sx={{
+                                        width: "160px",
+                                        height: "190px",
+                                        backgroundColor: prefersDarkMode ? "#333" : "white", // Dark or Light mode
+                                        color: prefersDarkMode ? "#fff" : "#222", // Text color adjustment
+                                        borderRadius: "12px",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "center",
+                                        boxShadow: prefersDarkMode
+                                            ? "0px 6px 12px rgba(255, 255, 255, 0.1)" // Softer shadow for dark mode
+                                            : "0px 6px 12px rgba(0, 0, 0, 0.15)", // Normal shadow for light mode
+                                        padding: "10px",
+                                        transition: "transform 0.2s ease-in-out",
+                                        "&:hover": { transform: "scale(1.05)" }, // Zoom effect on hover
+                                    }}
+                                >
+                                    <DrawOutlinedIcon
+                                        sx={{
+                                            width: "140px",
+                                            height: "140px",
+                                            borderRadius: "12px",
+                                            objectFit: "cover",
+                                            marginBottom: "10px",
+                                            boxShadow: !prefersDarkMode
+                                                ? "0px 4px 8px rgba(255, 255, 255, 0.31)" // Softer shadow for dark mode
+                                                : "0px 4px 8px rgba(0, 0, 0, 0.1)", // Default shadow
+                                        }}
+                                    />
+                                    {/* User Info */}
+                                    <Box sx={{ display: "flex", flexDirection: "row", gap: "6px" }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222" }}>
+                                            Add Yours
+                                        </Typography>
+                                    </Box>
+                                </Box>
                                 {stories.map((story, idx) => (
                                     <Box
                                         key={idx}
@@ -417,7 +456,7 @@ const Home = ({ info }) => {
                                                     src={''}
                                                     alt="User Avatar"
                                                     sx={{
-                                                        fontSize: 20,
+                                                        fontSize: 10,
                                                         // color: prefersDarkMode ? "#bbb" : "#777",
                                                         // width: 40, // Adjust size as needed
                                                         // // height: 40, // Adjust size as needed
