@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Box, Typography, Button, Modal, Backdrop, IconButton, useTheme } from '@mui/material';
+import { Box, Typography, Button, Modal, Backdrop, IconButton, useTheme, CircularProgress } from '@mui/material';
 import Cropper from "react-cropper";
 import axios from "axios";
 import "cropperjs/dist/cropper.css";
@@ -48,6 +48,7 @@ const AddStory = ({ open, setOpen, prefersDarkMode }) => {
     
         const formData = new FormData();
         formData.append("userId", userId);
+        console.log("Upload function called");
     
         // Convert base64 image to a Blob
         const blob = await fetch(cropData).then(res => res.blob());
@@ -159,6 +160,9 @@ const AddStory = ({ open, setOpen, prefersDarkMode }) => {
                     {cropData && (
                         <>
                             <Typography variant="h6" sx={{ fontWeight: 600, marginBottom: 2 }}>Final Image</Typography>
+                            <Backdrop sx={{ color: "#fff", zIndex: 1300 }} open={loading}>
+                                                            <CircularProgress color="inherit" />
+                                                        </Backdrop>
                             <img
                                 src={cropData}
                                 alt="Cropped"
