@@ -127,21 +127,35 @@ const Home = ({ info }) => {
         { name: "Settings", icon: <SettingsIcon />, route: "/settings" },
         { name: "Log Out", icon: <LogoutIcon />, route: "/home", isLogout: true },
     ];
-    const stories = [
-        { username: "user1", img: "https://via.placeholder.com/100" },
-        { username: "user2", img: "https://via.placeholder.com/100" },
-        { username: "user3", img: "https://via.placeholder.com/100" },
-        { username: "user4", img: "https://via.placeholder.com/100" },
-        { username: "user5", img: "https://via.placeholder.com/100" },
-        { username: "user1", img: "https://via.placeholder.com/100" },
-        { username: "user2", img: "https://via.placeholder.com/100" },
-        { username: "user3", img: "https://via.placeholder.com/100" },
-        { username: "user4", img: "https://via.placeholder.com/100" },
-        { username: "user5", img: "https://via.placeholder.com/100" },
-    ];
+    // const stories = [
+    //     { username: "user1", img: "https://via.placeholder.com/100" },
+    //     { username: "user2", img: "https://via.placeholder.com/100" }
+    // ];
 
     const [homePost, setHomePost] = useState([]);
+    const [stories, setStories] = useState([]);
+    useEffect(() => {
+        const fetchStories = async () => {
+            try {
+                console.log("Fetching home posts...");
+                const res = await axios.get("https://gramsnap-backend-bj65.onrender.com/story/get", { withCredentials: true });
 
+                if (res.status === 200 && res.data) {
+                    console.log("Home posts fetched:", res.data);
+                    setStories(res.data);
+                    setStoryLoading(false);
+                } else {
+                    console.error("Invalid response from server:", res);
+                    navigate("/signin");
+                }
+            } catch (error) {
+                console.error("Error fetching home posts:", error);
+                navigate("/signin");
+            }
+        };
+
+        fetchStories();
+    }, [navigate]);
     // Post Share
     const [anchorElMap, setAnchorElMap] = useState({});
 
@@ -191,6 +205,7 @@ const Home = ({ info }) => {
     const [notifications, setNotifications] = useState([]);
     const [recommendedUsers, setRecommendedUsers] = useState([]);
     const [homePostLoading, setHomePostLoading] = useState(true);
+    const [storytLoading, setStoryLoading] = useState(true);
     useEffect(() => {
         const fetchHomePosts = async () => {
             try {
@@ -371,7 +386,7 @@ const Home = ({ info }) => {
                                     "&::-webkit-scrollbar": { display: "none" },
                                 }}
                             >
-                                <Box
+                                {stories && stories[0].userId !== userId && (<Box
                                     key={"temp"}
                                     onClick={() => setOpenStory(true)}
                                     sx={{
@@ -409,10 +424,10 @@ const Home = ({ info }) => {
                                             Add Yours
                                         </Typography>
                                     </Box>
-                                </Box>
-                                {stories.map((story, idx) => (
+                                </Box>)}
+                                {storytLoading ? (<CircularProgress color="inherit" />):(<>{stories.map((story, idx) => (
                                     <Box
-                                        key={idx}
+                                        key={story.storyId}
                                         sx={{
                                             width: "160px",
                                             height: "190px",
@@ -432,7 +447,7 @@ const Home = ({ info }) => {
                                     >
                                         {/* Story Image */}
                                         <img
-                                            src={``}
+                                            src={story.storyImage}
                                             alt="Story"
                                             style={{
                                                 width: "140px",
@@ -452,12 +467,12 @@ const Home = ({ info }) => {
                                                 sx={{
                                                     display: "inline-block",
                                                     padding: "3px", // Adjust the gap size
-                                                    border: `1px solid ${prefersDarkMode ? "#7b6cc2" : "#777"}`, // Outer border
+                                                    border: `2px solid ${prefersDarkMode ? "#7b6cc2" : "#777"}`, // Outer border
                                                     borderRadius: "50%" // Ensures the border is circular
                                                 }}
                                             >
                                                 <Avatar
-                                                    src={''}
+                                                    src={story.userProfilePic}
                                                     alt="User Avatar"
                                                     sx={{
                                                         fontSize: 10,
@@ -475,7 +490,7 @@ const Home = ({ info }) => {
                                             </Typography>
                                         </Box>
                                     </Box>
-                                ))}
+                                ))}</>)}
                             </Box>
                             {/* Post  */}
                             <Box ref={parentRef} sx={{
