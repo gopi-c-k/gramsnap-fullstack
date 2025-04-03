@@ -405,15 +405,28 @@ const Home = ({ info }) => {
 
                                         {/* User Info */}
                                         <Box sx={{ display: "flex", flexDirection: "row", gap: "6px" }}>
-                                            <Avatar
-                                                src={''}
-                                                alt="User Avatar"
+                                            <Box
                                                 sx={{
-                                                    fontSize: 22,
-                                                    color: prefersDarkMode ? "#bbb" : "#777",
-                                                    border: `2px solid ${prefersDarkMode ? "#7b6cc2" : "#777"}` // Add border
+                                                    display: "inline-block",
+                                                    padding: "3px", // Adjust the gap size
+                                                    border: `3px solid ${prefersDarkMode ? "#7b6cc2" : "#777"}`, // Outer border
+                                                    borderRadius: "50%" // Ensures the border is circular
                                                 }}
-                                            />
+                                            >
+                                                <Avatar
+                                                    src={''}
+                                                    alt="User Avatar"
+                                                    sx={{
+                                                        fontSize: 20,
+                                                        // color: prefersDarkMode ? "#bbb" : "#777",
+                                                        // width: 40, // Adjust size as needed
+                                                        // // height: 40, // Adjust size as needed
+                                                        // backgroundColor: "white" // Optional: keeps avatar background clean
+                                                    }}
+                                                />
+                                            </Box>
+
+
                                             <Typography variant="body2" sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222" }}>
                                                 {story.username}
                                             </Typography>
