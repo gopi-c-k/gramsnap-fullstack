@@ -1,14 +1,18 @@
 import React, { useRef, useState } from 'react';
 import { Box, Typography, Button, Modal, Backdrop, IconButton, useTheme } from '@mui/material';
 import Cropper from "react-cropper";
+import axios from "axios";
 import "cropperjs/dist/cropper.css";
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import CloseIcon from '@mui/icons-material/Close';
 
 const AddStory = ({ open, setOpen, prefersDarkMode }) => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const { userId, name, email, profilePicture } = userInfo;
     const [image, setImage] = useState(null);
     const [cropData, setCropData] = useState(null);
     const cropperRef = useRef(null);
+    const [loading, setLoading] = useState(false);
     const theme = useTheme();
 
     // Close Modal
@@ -36,6 +40,43 @@ const AddStory = ({ open, setOpen, prefersDarkMode }) => {
         }
     };
 
+    const handleStoryUpload = async () => {
+        if (!cropData) {
+            alert("Please crop the image before uploading!");
+            return;
+        }
+    
+        const formData = new FormData();
+        formData.append("userId", userId);
+    
+        // Convert base64 image to a Blob
+        const blob = await fetch(cropData).then(res => res.blob());
+        const file = new File([blob], "story-image.png", { type: "image/png" });
+        formData.append("image", file);
+    
+        try {
+            const response = await axios.post(
+                "https://gramsnap-backend-bj65.onrender.com/story/create",
+                formData,
+                {
+                    headers: { "Content-Type": "multipart/form-data" },
+                    withCredentials: true,
+                }
+            );
+    
+            if (response.status === 201) {
+                alert("Story created successfully!");
+                handleClose(); // Close modal on success
+            }
+        } catch (error) {
+            console.error("Error Uploading Story:", error.response?.data || error.message);
+        } finally {
+            setLoading(false);
+            setCropData(null);
+        }
+    };
+    
+
     return (
         <Modal open={open} onClose={handleClose}>
             <Backdrop open={open} sx={{ zIndex: 1300, backgroundColor: prefersDarkMode ? "rgba(0, 0, 0, 0.8)" : "rgba(255, 255, 255, 0.6)" }}>
@@ -47,8 +88,8 @@ const AddStory = ({ open, setOpen, prefersDarkMode }) => {
                     padding: "20px",
                     textAlign: "center",
                     position: "relative",
-                    boxShadow: prefersDarkMode 
-                        ? "0px 10px 20px rgba(255, 255, 255, 0.1)" 
+                    boxShadow: prefersDarkMode
+                        ? "0px 10px 20px rgba(255, 255, 255, 0.1)"
                         : "0px 10px 20px rgba(0, 0, 0, 0.2)"
                 }}>
                     {/* X Close Button (Top Left) */}
@@ -118,16 +159,16 @@ const AddStory = ({ open, setOpen, prefersDarkMode }) => {
                     {cropData && (
                         <>
                             <Typography variant="h6" sx={{ fontWeight: 600, marginBottom: 2 }}>Final Image</Typography>
-                            <img 
-                                src={cropData} 
-                                alt="Cropped" 
-                                style={{ 
-                                    maxWidth: "100%", 
-                                    borderRadius: "12px", 
-                                    boxShadow: prefersDarkMode 
-                                        ? "0px 5px 15px rgba(255, 255, 255, 0.1)" 
-                                        : "0px 5px 15px rgba(0, 0, 0, 0.2)" 
-                                }} 
+                            <img
+                                src={cropData}
+                                alt="Cropped"
+                                style={{
+                                    maxWidth: "100%",
+                                    borderRadius: "12px",
+                                    boxShadow: prefersDarkMode
+                                        ? "0px 5px 15px rgba(255, 255, 255, 0.1)"
+                                        : "0px 5px 15px rgba(0, 0, 0, 0.2)"
+                                }}
                             />
                             <Button
                                 variant="contained"
@@ -137,7 +178,7 @@ const AddStory = ({ open, setOpen, prefersDarkMode }) => {
                                     color: "#fff",
                                     "&:hover": { backgroundColor: prefersDarkMode ? "#555" : "#155A9D" }
                                 }}
-                                onClick={handleClose}
+                                onClick={handleStoryUpload}
                             >
                                 Upload
                             </Button>
