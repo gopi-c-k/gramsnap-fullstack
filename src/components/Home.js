@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Box, Typography, Avatar, Divider, Button, List, ListItem, CircularProgress, ListItemAvatar, ListItemText, TextField, IconButton } from "@mui/material";
+import { Modal, Box, Typography, Avatar, Divider, Button, List, ListItem, CircularProgress, ListItemAvatar, ListItemText, TextField, IconButton } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import CloseIcon from "@mui/icons-material/Close";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { Menu, MenuItem } from "@mui/material";
 import DrawOutlinedIcon from '@mui/icons-material/DrawOutlined';
@@ -137,7 +139,7 @@ const Home = ({ info }) => {
     useEffect(() => {
         const fetchStories = async () => {
             try {
-                console.log("Fetching home posts...");
+                console.log("Fetching stories...");
                 const res = await axios.get("https://gramsnap-backend-bj65.onrender.com/story/get", { withCredentials: true });
 
                 if (res.status === 200 && res.data) {
@@ -156,6 +158,44 @@ const Home = ({ info }) => {
 
         fetchStories();
     }, [navigate]);
+    const [selectedStory, setSelectedStory] = useState(null);
+    const [anchorEl, setAnchorEl] = useState(null); // For views menu
+
+    // Handle story click
+    const handleOpenStory = async (story) => {
+        try {
+            console.log("Fetching stories...");
+            const res = await axios.get(`https://gramsnap-backend-bj65.onrender.com/story/${story.storyId}`, { withCredentials: true });
+
+            if (res.status === 200 && res.data) {
+                console.log("Given story fetched:", res.data);
+                setSelectedStory(res.data);
+                setOpenStory(true);
+                // setStoryLoading(false);
+            } else {
+                console.error("Invalid response from server:", res);
+            }
+        } catch (error) {
+            console.error("Error fetching selected stories:", error);
+            navigate("/signin");
+        }
+    };
+
+    // Close modal
+    const handleCloseStory = () => {
+        setOpenStory(false);
+        setSelectedStory(null);
+    };
+
+    // Open views menu
+    const handleViewsClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    // Close views menu
+    const handleViewsClose = () => {
+        setAnchorEl(null);
+    };
     // Post Share
     const [anchorElMap, setAnchorElMap] = useState({});
 
@@ -260,6 +300,7 @@ const Home = ({ info }) => {
             console.error("Error liking post:", error);
         }
     }
+    const [openStoryCreate, setOpenStoryCreate] = useState(false);
     const [openStory, setOpenStory] = useState(false);
     const savePost = async (postId) => {
         try {
@@ -370,7 +411,7 @@ const Home = ({ info }) => {
                             "&::-webkit-scrollbar": { display: "none" },
                         }}>
                             {/* Story */}
-                            <AddStory open={openStory} setOpen={setOpenStory} prefersDarkMode={prefersDarkMode} />
+                            <AddStory open={openStoryCreate} setOpen={setOpenStoryCreate} prefersDarkMode={prefersDarkMode} />
                             <Box
                                 sx={{
                                     width: isDesktop ? "45vw" : "100vw",
@@ -388,7 +429,7 @@ const Home = ({ info }) => {
                             >
                                 {stories && stories.length > 0 && stories[0]?.userId !== userId && (<Box
                                     key={"temp"}
-                                    onClick={() => setOpenStory(true)}
+                                    onClick={() => setOpenStoryCreate(true)}
                                     sx={{
                                         width: "160px",
                                         height: "190px",
@@ -425,9 +466,10 @@ const Home = ({ info }) => {
                                         </Typography>
                                     </Box>
                                 </Box>)}
-                                {storytLoading ? (<CircularProgress color="inherit" />):(<>{stories.map((story, idx) => (
+                                {storytLoading ? (<CircularProgress color="inherit" />) : (<>{stories.map((story, idx) => (
                                     <Box
                                         key={story.storyId}
+                                        onClick={() => handleOpenStory(story)}
                                         sx={{
                                             width: "160px",
                                             height: "190px",
@@ -458,6 +500,7 @@ const Home = ({ info }) => {
                                                 boxShadow: !prefersDarkMode
                                                     ? "0px 4px 8px rgba(255, 255, 255, 0.31)" // Softer shadow for dark mode
                                                     : "0px 4px 8px rgba(0, 0, 0, 0.1)", // Default shadow
+                                                filter: "blur(5px) opacity(0.6)", // Gaussian blur + Low opacity
                                             }}
                                         />
 
@@ -467,7 +510,7 @@ const Home = ({ info }) => {
                                                 sx={{
                                                     display: "inline-block",
                                                     padding: "3px", // Adjust the gap size
-                                                    border: `2px solid ${prefersDarkMode ? "#7b6cc2" : "#777"}`, // Outer border
+                                                    border: `2px solid ${!story.isViewed ? "#7b6cc2" : "#777"}`, // Outer border
                                                     borderRadius: "50%" // Ensures the border is circular
                                                 }}
                                             >
@@ -486,11 +529,86 @@ const Home = ({ info }) => {
 
 
                                             <Typography variant="body2" sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222" }}>
-                                                {story.username}
+                                                {story.userName}
                                             </Typography>
                                         </Box>
                                     </Box>
-                                ))}</>)}
+
+                                ))}<Modal open={openStory} onClose={handleCloseStory}>
+                                        <Box
+                                            sx={{
+                                                position: "absolute",
+                                                top: "50%",
+                                                left: "50%",
+                                                transform: "translate(-50%, -50%)",
+                                                width: 400,
+                                                bgcolor: "background.paper",
+                                                borderRadius: 3,
+                                                boxShadow: 24,
+                                                p: 3,
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                alignItems: "center",
+                                            }}
+                                        >
+                                            {/* Top Bar */}
+                                            <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                                                {/* Story Owner Name & Time Ago (Top Left) */}
+                                                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                                                    <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                                                        {selectedStory?.userName}
+                                                    </Typography>
+                                                    <Typography variant="body2" color="textSecondary">
+                                                        {getTimeAgo(selectedStory?.createdAt)}
+                                                    </Typography>
+                                                </Box>
+
+                                                {/* Close Button (Top Right) */}
+                                                <IconButton onClick={handleCloseStory}>
+                                                    <CloseIcon />
+                                                </IconButton>
+                                            </Box>
+
+                                            {/* Story Image */}
+                                            <Box sx={{ mt: 2 }}>
+                                                <img
+                                                    src={selectedStory?.storyImage}
+                                                    alt="Story"
+                                                    style={{
+                                                        width: "100%",
+                                                        height: "300px",
+                                                        objectFit: "cover",
+                                                        borderRadius: "12px",
+                                                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                                                    }}
+                                                />
+                                            </Box>
+
+                                            {/* Bottom Section */}
+                                            <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", mt: 2 }}>
+                                                {/* Bottom Left: User Profile & User ID */}
+                                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                                    <Avatar src={selectedStory?.userProfilePic} sx={{ width: 40, height: 40 }} />
+                                                    <Typography>{selectedStory?.userId}</Typography>
+                                                </Box>
+
+                                                {/* Bottom Right: Views Button */}
+                                                {selectedStory?.viewers.length !== 0 && (<IconButton onClick={handleViewsClick}>
+                                                    <VisibilityIcon />
+                                                </IconButton>)}
+                                            </Box>
+
+                                            {/* Views Menu */}
+                                            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleViewsClose}>
+                                                {selectedStory?.viewers.map((viewer, index) => (
+                                                    <MenuItem key={index}>
+                                                        <Avatar src={viewer.userProfilePic} sx={{ width: 30, height: 30, marginRight: 1 }} />
+                                                        <Typography>{viewer.userName}</Typography>
+                                                    </MenuItem>
+                                                ))}
+                                            </Menu>
+                                        </Box>
+                                    </Modal></>)}
                             </Box>
                             {/* Post  */}
                             <Box ref={parentRef} sx={{
