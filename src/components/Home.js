@@ -160,9 +160,11 @@ const Home = ({ info }) => {
     }, [navigate]);
     const [selectedStory, setSelectedStory] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null); // For views menu
-
+    const [storyLoaded,setStoryLoaded] = useState(false);
     // Handle story click
     const handleOpenStory = async (story) => {
+        setStoryLoaded(false);
+        setOpenStory(true);
         try {
             console.log("Fetching stories...");
             const res = await axios.get(`https://gramsnap-backend-bj65.onrender.com/story/${story.storyId}`, { withCredentials: true });
@@ -170,7 +172,7 @@ const Home = ({ info }) => {
             if (res.status === 200 && res.data) {
                 console.log("Given story fetched:", res.data);
                 setSelectedStory(res.data);
-                setOpenStory(true);
+                setStoryLoaded(true);
                 // setStoryLoading(false);
             } else {
                 console.error("Invalid response from server:", res);
@@ -185,6 +187,7 @@ const Home = ({ info }) => {
     const handleCloseStory = () => {
         setOpenStory(false);
         setSelectedStory(null);
+        setStoryLoaded(false);
     };
 
     // Open views menu
@@ -535,7 +538,7 @@ const Home = ({ info }) => {
                                     </Box>
 
                                 ))}<Modal open={openStory} onClose={handleCloseStory}>
-                                        <Box
+                                        {storyLoaded ? (<><Box
                                             sx={{
                                                 position: "absolute",
                                                 top: "50%",
@@ -593,21 +596,22 @@ const Home = ({ info }) => {
                                                 </Box>
 
                                                 {/* Bottom Right: Views Button */}
-                                                {selectedStory?.viewers && selectedStory.viewers && selectedStory?.viewers.length !== 0 && (<IconButton onClick={handleViewsClick}>
+                                                {selectedStory?.viewers && selectedStory.viewers && selectedStory?.viewers.length !== 0 && (<><IconButton onClick={handleViewsClick}>
                                                     <VisibilityIcon />
-                                                </IconButton>)}
+                                                </IconButton>
+                                                    {/* Views Menu */}
+                                                    <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleViewsClose}>
+                                                        {selectedStory?.viewers.map((viewer, index) => (
+                                                            <MenuItem key={index}>
+                                                                <Avatar src={viewer.userProfilePic} sx={{ width: 30, height: 30, marginRight: 1 }} />
+                                                                <Typography>{viewer.userName}</Typography>
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Menu></>)}
                                             </Box>
 
-                                            {/* Views Menu */}
-                                            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleViewsClose}>
-                                                {selectedStory?.viewers.map((viewer, index) => (
-                                                    <MenuItem key={index}>
-                                                        <Avatar src={viewer.userProfilePic} sx={{ width: 30, height: 30, marginRight: 1 }} />
-                                                        <Typography>{viewer.userName}</Typography>
-                                                    </MenuItem>
-                                                ))}
-                                            </Menu>
-                                        </Box>
+
+                                        </Box></>) : (<CircularProgress color="inherit" />)}
                                     </Modal></>)}
                             </Box>
                             {/* Post  */}
