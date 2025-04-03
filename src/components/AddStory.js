@@ -41,43 +41,51 @@ const AddStory = ({ open, setOpen, prefersDarkMode }) => {
     };
 
     const handleStoryUpload = async () => {
-        setLoading(true)
+        setLoading(true);
+
         if (!cropData) {
             alert("Please crop the image before uploading!");
+            setLoading(false);
             return;
         }
-    
+
         const formData = new FormData();
-        formData.append("userId", userId);
-        console.log("Upload function called");
-    
-        // Convert base64 image to a Blob
-        const blob = await fetch(cropData).then(res => res.blob());
-        const file = new File([blob], "story-image.png", { type: "image/png" });
-        formData.append("image", file);
-    
+        formData.append("userId", userId); // Convert userId to a string
+        console.log("Upload function called, userId:", userId);
+
         try {
+            // Convert base64 image to Blob and append it as 'image'
+            const blob = await fetch(cropData).then(res => res.blob());
+            const file = new File([blob], "story-image.png", { type: "image/png" });
+            formData.append("image", file);
+
             const response = await axios.post(
                 "https://gramsnap-backend-bj65.onrender.com/story/create",
                 formData,
                 {
-                    headers: { "Content-Type": "multipart/form-data" },
-                    withCredentials: true,
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                    withCredentials: true, // Ensures cookies are sent
                 }
             );
-    
+
             if (response.status === 201) {
                 alert("Story created successfully!");
                 handleClose(); // Close modal on success
+            } else {
+                console.error("Unexpected response:", response);
             }
         } catch (error) {
             console.error("Error Uploading Story:", error.response?.data || error.message);
+            alert(error.response?.data?.message || "Failed to upload story.");
         } finally {
             setLoading(false);
             setCropData(null);
         }
     };
-    
+
+
 
     return (
         <Modal open={open} onClose={handleClose}>
@@ -162,8 +170,8 @@ const AddStory = ({ open, setOpen, prefersDarkMode }) => {
                         <>
                             <Typography variant="h6" sx={{ fontWeight: 600, marginBottom: 2 }}>Final Image</Typography>
                             <Backdrop sx={{ color: "#fff", zIndex: 1300 }} open={loading}>
-                                                            <CircularProgress color="inherit" />
-                                                        </Backdrop>
+                                <CircularProgress color="inherit" />
+                            </Backdrop>
                             <img
                                 src={cropData}
                                 alt="Cropped"
