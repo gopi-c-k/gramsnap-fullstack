@@ -160,7 +160,7 @@ const Home = ({ info }) => {
     }, [navigate]);
     const [selectedStory, setSelectedStory] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null); // For views menu
-    const [storyLoaded,setStoryLoaded] = useState(false);
+    const [storyLoaded, setStoryLoaded] = useState(false);
     // Handle story click
     const handleOpenStory = async (story) => {
         setStoryLoaded(false);
@@ -611,7 +611,22 @@ const Home = ({ info }) => {
                                             </Box>
 
 
-                                        </Box></>) : (<CircularProgress color="inherit" />)}
+                                        </Box></>) : (<Box
+                                            sx={{
+                                                position: "absolute",
+                                                top: "50%",
+                                                left: "50%",
+                                                transform: "translate(-50%, -50%)",
+                                                width: 400,
+                                                bgcolor: "background.paper",
+                                                borderRadius: 3,
+                                                boxShadow: 24,
+                                                p: 3,
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                alignItems: "center",
+                                            }}
+                                        ><CircularProgress color="inherit" /></Box>)}
                                     </Modal></>)}
                             </Box>
                             {/* Post  */}
