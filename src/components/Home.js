@@ -9,6 +9,7 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import BookmarksIcon from '@mui/icons-material/Bookmarks';
 import PersonIcon from "@mui/icons-material/Person";
+import AddStory from './AddStory';
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import HomeIcon from '@mui/icons-material/Home';
 import SearchIcon from '@mui/icons-material/Search';
@@ -244,6 +245,7 @@ const Home = ({ info }) => {
             console.error("Error liking post:", error);
         }
     }
+    const [openStory, setOpenStory] = useState(false);
     const savePost = async (postId) => {
         try {
             const res = await axios.put(
@@ -353,6 +355,7 @@ const Home = ({ info }) => {
                             "&::-webkit-scrollbar": { display: "none" },
                         }}>
                             {/* Story */}
+                            <AddStory open={openStory} setOpen={setOpenStory} />
                             <Box
                                 sx={{
                                     width: isDesktop ? "45vw" : "100vw",
@@ -369,7 +372,8 @@ const Home = ({ info }) => {
                                 }}
                             >
                                 <Box
-                                    key={"o1"}
+                                    key={"temp"}
+                                    onClick={() => setOpenStory(true)}
                                     sx={{
                                         width: "160px",
                                         height: "190px",
@@ -448,7 +452,7 @@ const Home = ({ info }) => {
                                                 sx={{
                                                     display: "inline-block",
                                                     padding: "3px", // Adjust the gap size
-                                                    border: `3px solid ${prefersDarkMode ? "#7b6cc2" : "#777"}`, // Outer border
+                                                    border: `1px solid ${prefersDarkMode ? "#7b6cc2" : "#777"}`, // Outer border
                                                     borderRadius: "50%" // Ensures the border is circular
                                                 }}
                                             >
