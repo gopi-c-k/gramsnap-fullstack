@@ -386,7 +386,7 @@ const Home = ({ info }) => {
                                     "&::-webkit-scrollbar": { display: "none" },
                                 }}
                             >
-                                {stories && stories[0].userId !== userId && (<Box
+                                {stories && stories.length > 0 && stories[0]?.userId !== userId && (<Box
                                     key={"temp"}
                                     onClick={() => setOpenStory(true)}
                                     sx={{
