@@ -61,14 +61,9 @@ const AddStory = ({ open, setOpen, prefersDarkMode }) => {
 
             const response = await axios.post(
                 "https://gramsnap-backend-bj65.onrender.com/story/create",
-                formData,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                    withCredentials: true, // Ensures cookies are sent
-                }
-            );
+                formData, { withCredentials: true }, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
 
             if (response.status === 201) {
                 alert("Story created successfully!");
