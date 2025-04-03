@@ -41,6 +41,7 @@ const AddStory = ({ open, setOpen, prefersDarkMode }) => {
     };
 
     const handleStoryUpload = async () => {
+        setLoading(true)
         if (!cropData) {
             alert("Please crop the image before uploading!");
             return;
