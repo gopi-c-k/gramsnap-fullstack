@@ -355,7 +355,7 @@ const Home = ({ info }) => {
                             "&::-webkit-scrollbar": { display: "none" },
                         }}>
                             {/* Story */}
-                            <AddStory open={openStory} setOpen={setOpenStory} />
+                            <AddStory open={openStory} setOpen={setOpenStory} prefersDarkMode={prefersDarkMode} />
                             <Box
                                 sx={{
                                     width: isDesktop ? "45vw" : "100vw",

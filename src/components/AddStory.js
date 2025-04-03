@@ -1,14 +1,15 @@
 import React, { useRef, useState } from 'react';
-import { Box, Typography, Button, Modal, Backdrop, IconButton } from '@mui/material';
+import { Box, Typography, Button, Modal, Backdrop, IconButton, useTheme } from '@mui/material';
 import Cropper from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import CloseIcon from '@mui/icons-material/Close';
 
-const AddStory = ({ open, setOpen }) => {
+const AddStory = ({ open, setOpen, prefersDarkMode }) => {
     const [image, setImage] = useState(null);
     const [cropData, setCropData] = useState(null);
     const cropperRef = useRef(null);
+    const theme = useTheme();
 
     // Close Modal
     const handleClose = () => {
@@ -37,25 +38,29 @@ const AddStory = ({ open, setOpen }) => {
 
     return (
         <Modal open={open} onClose={handleClose}>
-            <Backdrop open={open} sx={{ zIndex: 1300 }}>
+            <Backdrop open={open} sx={{ zIndex: 1300, backgroundColor: prefersDarkMode ? "rgba(0, 0, 0, 0.8)" : "rgba(255, 255, 255, 0.6)" }}>
                 <Box sx={{
-                    width: 400, 
-                    backgroundColor: "#fff", 
-                    borderRadius: "12px",
+                    width: 400,
+                    backgroundColor: prefersDarkMode ? "#222" : "#fff",
+                    color: prefersDarkMode ? "#fff" : "#000",
+                    borderRadius: "16px",
                     padding: "20px",
                     textAlign: "center",
-                    position: "relative"
+                    position: "relative",
+                    boxShadow: prefersDarkMode 
+                        ? "0px 10px 20px rgba(255, 255, 255, 0.1)" 
+                        : "0px 10px 20px rgba(0, 0, 0, 0.2)"
                 }}>
-                    {/* Close Button */}
-                    <IconButton onClick={handleClose} sx={{ position: "absolute", top: 10, left: 10 }}>
-                        <CloseIcon />
+                    {/* X Close Button (Top Left) */}
+                    <IconButton onClick={handleClose} sx={{ position: "absolute", top: 10, left: 10, color: prefersDarkMode ? "#fff" : "#444" }}>
+                        <CloseIcon sx={{ fontSize: 30 }} />
                     </IconButton>
 
                     {/* Choose Image */}
                     {!image && (
                         <>
-                            <Typography variant="h6">Choose a Photo</Typography>
-                            <AddAPhotoIcon sx={{ fontSize: "100px", color: "#777" }} />
+                            <Typography variant="h6" sx={{ fontWeight: 600 }}>Choose a Photo</Typography>
+                            <AddAPhotoIcon sx={{ fontSize: "100px", color: prefersDarkMode ? "#bbb" : "#777", margin: "20px 0" }} />
                             <input
                                 accept="image/*"
                                 style={{ display: "none" }}
@@ -64,8 +69,17 @@ const AddStory = ({ open, setOpen }) => {
                                 onChange={handleFileChange}
                             />
                             <label htmlFor="upload-photo">
-                                <Button variant="contained" component="span" sx={{ marginTop: 2 }}>
-                                    Select from device
+                                <Button
+                                    variant="contained"
+                                    component="span"
+                                    sx={{
+                                        marginTop: 2,
+                                        backgroundColor: prefersDarkMode ? "#444" : "#1976D2",
+                                        color: "#fff",
+                                        "&:hover": { backgroundColor: prefersDarkMode ? "#555" : "#155A9D" }
+                                    }}
+                                >
+                                    Select from Device
                                 </Button>
                             </label>
                         </>
@@ -74,18 +88,27 @@ const AddStory = ({ open, setOpen }) => {
                     {/* Image Cropper */}
                     {image && !cropData && (
                         <>
-                            <Typography variant="h6" sx={{ marginBottom: 2 }}>Crop Image</Typography>
+                            <Typography variant="h6" sx={{ fontWeight: 600, marginBottom: 2 }}>Crop Image</Typography>
                             <Cropper
                                 src={image}
-                                style={{ height: 300, width: "100%" }}
-                                aspectRatio={1}
+                                style={{ height: 300, width: "100%", borderRadius: "8px" }}
+                                aspectRatio={NaN} // 🔹 Free Crop Mode
                                 viewMode={1}
-                                guides={false}
+                                guides={true}
                                 ref={cropperRef}
                                 background={false}
                                 autoCropArea={1}
                             />
-                            <Button variant="contained" onClick={cropImage} sx={{ marginTop: 2 }}>
+                            <Button
+                                variant="contained"
+                                onClick={cropImage}
+                                sx={{
+                                    marginTop: 2,
+                                    backgroundColor: prefersDarkMode ? "#444" : "#1976D2",
+                                    color: "#fff",
+                                    "&:hover": { backgroundColor: prefersDarkMode ? "#555" : "#155A9D" }
+                                }}
+                            >
                                 Crop & Proceed
                             </Button>
                         </>
@@ -94,9 +117,28 @@ const AddStory = ({ open, setOpen }) => {
                     {/* Show Cropped Image & Upload */}
                     {cropData && (
                         <>
-                            <Typography variant="h6" sx={{ marginBottom: 2 }}>Final Image</Typography>
-                            <img src={cropData} alt="Cropped" style={{ maxWidth: "100%", borderRadius: "12px" }} />
-                            <Button variant="contained" sx={{ marginTop: 2 }} onClick={handleClose}>
+                            <Typography variant="h6" sx={{ fontWeight: 600, marginBottom: 2 }}>Final Image</Typography>
+                            <img 
+                                src={cropData} 
+                                alt="Cropped" 
+                                style={{ 
+                                    maxWidth: "100%", 
+                                    borderRadius: "12px", 
+                                    boxShadow: prefersDarkMode 
+                                        ? "0px 5px 15px rgba(255, 255, 255, 0.1)" 
+                                        : "0px 5px 15px rgba(0, 0, 0, 0.2)" 
+                                }} 
+                            />
+                            <Button
+                                variant="contained"
+                                sx={{
+                                    marginTop: 2,
+                                    backgroundColor: prefersDarkMode ? "#444" : "#1976D2",
+                                    color: "#fff",
+                                    "&:hover": { backgroundColor: prefersDarkMode ? "#555" : "#155A9D" }
+                                }}
+                                onClick={handleClose}
+                            >
                                 Upload
                             </Button>
                         </>
