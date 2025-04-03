@@ -399,7 +399,7 @@ const Home = ({ info }) => {
 
             {/* Main Content */}
             <Box sx={{ flexGrow: 1, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "row" }}>
-                {selectedUser ? (<><UserProfile userId={selectedUser.userId} /></>) : (
+                {selectedUser ? (<><UserProfile userId={selectedUser} /></>) : (
 
                     <>
                         <Box sx={{
@@ -480,6 +480,7 @@ const Home = ({ info }) => {
                                             color: prefersDarkMode ? "#fff" : "#222", // Text color adjustment
                                             borderRadius: "12px",
                                             display: "flex",
+                                            cursor: "pointer",
                                             flexDirection: "column",
                                             justifyContent: "center",
                                             boxShadow: prefersDarkMode
@@ -592,7 +593,7 @@ const Home = ({ info }) => {
                                                 {/* Bottom Left: User Profile & User ID */}
                                                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                                     <Avatar src={selectedStory?.userProfilePic} sx={{ width: 40, height: 40 }} />
-                                                    <Typography>{selectedStory?.userId}</Typography>
+                                                    <Typography sx={{cursor:"pointer"}}onClick={() => setSelectedUser(selectedStory?.userId)}>{selectedStory?.userId}</Typography>
                                                 </Box>
 
                                                 {/* Bottom Right: Views Button */}
@@ -604,7 +605,7 @@ const Home = ({ info }) => {
                                                         {selectedStory?.viewers.map((viewer, index) => (
                                                             <MenuItem key={index}>
                                                                 <Avatar src={viewer.userProfilePic} sx={{ width: 30, height: 30, marginRight: 1 }} />
-                                                                <Typography>{viewer.userName}</Typography>
+                                                                <Typography  sx={{cursor:"pointer"}}onClick={() => setSelectedUser(viewer?.userId)}>{viewer.userName}</Typography>
                                                             </MenuItem>
                                                         ))}
                                                     </Menu></>)}
@@ -662,7 +663,7 @@ const Home = ({ info }) => {
                                                     <Typography
                                                         variant="body1"
                                                         sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222", cursor: "pointer" }}
-                                                        onClick={() => setSelectedUser(posts)}
+                                                        onClick={() => setSelectedUser(posts.userId)}
                                                     >
                                                         {posts.userId}
                                                     </Typography>
