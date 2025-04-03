@@ -44,8 +44,8 @@ const Home = ({ info }) => {
     const handleCommentSubmit = async (postId) => {
         try {
             if (commentText[postId]?.trim()) {
-                const res = await axios.post(`https://gramsnap-backend-bj65.onrender.com/${postId}/comment`,{text:commentText[postId]}, { withCredentials: true });
-                if(res.status === 201){
+                const res = await axios.post(`https://gramsnap-backend-bj65.onrender.com/${postId}/comment`, { text: commentText[postId] }, { withCredentials: true });
+                if (res.status === 201) {
                     setComments((prev) => ({
                         ...prev,
                         [postId]: [...(prev[postId] || []), res.data.comment], // Append new comment
@@ -53,7 +53,7 @@ const Home = ({ info }) => {
                     setCommentText((prev) => ({ ...prev, [postId]: "" })); // Clear input
                     showCommentsToggle(postId);
                 }
-                
+
             }
         } catch (error) {
             console.log("Error in while posting comment", error);
@@ -81,7 +81,7 @@ const Home = ({ info }) => {
         try {
             if (!comments[postId]) {
                 const res = await axios.get(`https://gramsnap-backend-bj65.onrender.com/post/${postId}/comment`, { withCredentials: true });
-                // const res = await axios.get(`https://gramsnap-backend-bj65.onrender.com/post/{postId}/comment`, { withCredentials: true });
+
                 console.log(res.data.comments);
                 if (res.status === 200) {
                     setComments((prev) => ({
@@ -163,16 +163,6 @@ const Home = ({ info }) => {
         }
     };
 
-    // const notifications = [
-    //     { id: 1, type: "like", user: "John Doe", avatar: "/assets/Images/user1.jpg", message: "liked your post" },
-    //     { id: 2, type: "follow-request", user: "Jane Smith", avatar: "/assets/Images/user2.jpg", message: "sent you a follow request" },
-    //     { id: 3, type: "follow", user: "Mike Johnson", avatar: "/assets/Images/user3.jpg", message: "started following you" },
-    // ];
-
-    // const recommendedUsers = [
-    //     { id: 1, user: "Emily Carter", avatar: "/assets/Images/user4.jpg" },
-    //     { id: 2, user: "Ryan Wilson", avatar: "/assets/Images/user5.jpg" }
-    // ];
 
     const parentRef = useRef(null);
     const [parentWidth, setParentWidth] = useState(0);
@@ -415,7 +405,15 @@ const Home = ({ info }) => {
 
                                         {/* User Info */}
                                         <Box sx={{ display: "flex", flexDirection: "row", gap: "6px" }}>
-                                            <AccountCircleIcon sx={{ fontSize: 22, color: prefersDarkMode ? "#bbb" : "#777" }} />
+                                            <Avatar
+                                                src={''}
+                                                alt="User Avatar"
+                                                sx={{
+                                                    fontSize: 22,
+                                                    color: prefersDarkMode ? "#bbb" : "#777",
+                                                    border: `2px solid ${prefersDarkMode ? "#7b6cc2" : "#777"}` // Add border
+                                                }}
+                                            />
                                             <Typography variant="body2" sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222" }}>
                                                 {story.username}
                                             </Typography>
