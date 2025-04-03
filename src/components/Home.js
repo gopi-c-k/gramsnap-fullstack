@@ -458,8 +458,8 @@ const Home = ({ info }) => {
                                                     sx={{
                                                         fontSize: 10,
                                                         // color: prefersDarkMode ? "#bbb" : "#777",
-                                                        // width: 40, // Adjust size as needed
-                                                        // // height: 40, // Adjust size as needed
+                                                        width: 20, // Adjust size as needed
+                                                        height: 20, // Adjust size as needed
                                                         // backgroundColor: "white" // Optional: keeps avatar background clean
                                                     }}
                                                 />
