@@ -593,7 +593,7 @@ const Home = ({ info }) => {
                                                 </Box>
 
                                                 {/* Bottom Right: Views Button */}
-                                                {selectedStory?.viewers.length !== 0 && (<IconButton onClick={handleViewsClick}>
+                                                {selectedStory?.viewers && selectedStory.viewers && selectedStory?.viewers.length !== 0 && (<IconButton onClick={handleViewsClick}>
                                                     <VisibilityIcon />
                                                 </IconButton>)}
                                             </Box>
