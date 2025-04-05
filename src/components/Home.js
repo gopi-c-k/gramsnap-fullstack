@@ -469,6 +469,45 @@ const Home = ({ info }) => {
                                         </Typography>
                                     </Box>
                                 </Box>)}
+                                {stories.length === 0 && (<Box
+                                    key={"temp"}
+                                    onClick={() => setOpenStoryCreate(true)}
+                                    sx={{
+                                        width: "160px",
+                                        height: "190px",
+                                        backgroundColor: prefersDarkMode ? "#333" : "white", // Dark or Light mode
+                                        color: prefersDarkMode ? "#fff" : "#222", // Text color adjustment
+                                        borderRadius: "12px",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "center",
+                                        boxShadow: prefersDarkMode
+                                            ? "0px 6px 12px rgba(255, 255, 255, 0.1)" // Softer shadow for dark mode
+                                            : "0px 6px 12px rgba(0, 0, 0, 0.15)", // Normal shadow for light mode
+                                        padding: "10px",
+                                        transition: "transform 0.2s ease-in-out",
+                                        "&:hover": { transform: "scale(1.05)" }, // Zoom effect on hover
+                                    }}
+                                >
+                                    <DrawOutlinedIcon
+                                        sx={{
+                                            width: "140px",
+                                            height: "140px",
+                                            borderRadius: "12px",
+                                            objectFit: "cover",
+                                            marginBottom: "10px",
+                                            boxShadow: !prefersDarkMode
+                                                ? "0px 4px 8px rgba(255, 255, 255, 0.31)" // Softer shadow for dark mode
+                                                : "0px 4px 8px rgba(0, 0, 0, 0.1)", // Default shadow
+                                        }}
+                                    />
+                                    {/* User Info */}
+                                    <Box sx={{ display: "flex", flexDirection: "row", gap: "6px" }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 600, color: prefersDarkMode ? "#fff" : "#222" }}>
+                                            Add Yours
+                                        </Typography>
+                                    </Box>
+                                </Box>)}
                                 {storytLoading ? (<CircularProgress color="inherit" />) : (<>{stories.map((story, idx) => (
                                     <Box
                                         key={story.storyId}
@@ -593,7 +632,7 @@ const Home = ({ info }) => {
                                                 {/* Bottom Left: User Profile & User ID */}
                                                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                                     <Avatar src={selectedStory?.userProfilePic} sx={{ width: 40, height: 40 }} />
-                                                    <Typography sx={{cursor:"pointer"}}onClick={() => setSelectedUser(selectedStory?.userId)}>{selectedStory?.userId}</Typography>
+                                                    <Typography sx={{ cursor: "pointer" }} onClick={() => setSelectedUser(selectedStory?.userId)}>{selectedStory?.userId}</Typography>
                                                 </Box>
 
                                                 {/* Bottom Right: Views Button */}
@@ -605,7 +644,7 @@ const Home = ({ info }) => {
                                                         {selectedStory?.viewers.map((viewer, index) => (
                                                             <MenuItem key={index}>
                                                                 <Avatar src={viewer.userProfilePic} sx={{ width: 30, height: 30, marginRight: 1 }} />
-                                                                <Typography  sx={{cursor:"pointer"}}onClick={() => setSelectedUser(viewer?.userId)}>{viewer.userName}</Typography>
+                                                                <Typography sx={{ cursor: "pointer" }} onClick={() => setSelectedUser(viewer?.userId)}>{viewer.userName}</Typography>
                                                             </MenuItem>
                                                         ))}
                                                     </Menu></>)}
