@@ -1,0 +1,25 @@
+router.post("/user/logout", async (req, res) => {
+  try {
+    const { userId } = req.body;
+    await User.findByIdAndUpdate(userId, { online: false, lastSeen: new Date() });
+
+    res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Logout failed", error });
+  }
+});
+
+
+
+
+
+const handleLogout = async () => {
+  await fetch("https://gramsnap-backend.onrender.com/user/logout", {
+    method: "POST",
+    credentials: "include",
+  });
+
+  socket.disconnect(); // ✅ Close WebSocket connection on logout
+  localStorage.removeItem("token"); // ✅ Remove stored session
+  window.location.reload(); // ✅ Redirect to login page
+};
